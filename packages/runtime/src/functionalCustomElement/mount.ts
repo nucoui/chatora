@@ -1,75 +1,9 @@
 import type { VNode } from "./vNode";
+import { MATH_TAGS } from "@/functionalCustomElement/constants/MATH_TAGS";
+import { SVG_TAGS } from "@/functionalCustomElement/constants/SVG_TAGS";
 
 // 空オブジェクトの参照
 const EMPTY_PROPS: Record<string, any> = {};
-
-// SVG要素名リスト（SVG 2 Appendix F: Element Indexより抜粋・網羅）
-const SVG_TAGS = new Set([
-  "a",
-  "animate",
-  "animateMotion",
-  "animateTransform",
-  "circle",
-  "clipPath",
-  "defs",
-  "desc",
-  "discard",
-  "ellipse",
-  "feBlend",
-  "feColorMatrix",
-  "feComponentTransfer",
-  "feComposite",
-  "feConvolveMatrix",
-  "feDiffuseLighting",
-  "feDisplacementMap",
-  "feDistantLight",
-  "feDropShadow",
-  "feFlood",
-  "feFuncA",
-  "feFuncB",
-  "feFuncG",
-  "feFuncR",
-  "feGaussianBlur",
-  "feImage",
-  "feMerge",
-  "feMergeNode",
-  "feMorphology",
-  "feOffset",
-  "fePointLight",
-  "feSpecularLighting",
-  "feSpotLight",
-  "feTile",
-  "feTurbulence",
-  "filter",
-  "foreignObject",
-  "g",
-  "image",
-  "line",
-  "linearGradient",
-  "marker",
-  "mask",
-  "metadata",
-  "mpath",
-  "path",
-  "pattern",
-  "polygon",
-  "polyline",
-  "radialGradient",
-  "rect",
-  "script",
-  "set",
-  "stop",
-  "style",
-  "svg",
-  "switch",
-  "symbol",
-  "text",
-  "textPath",
-  "title",
-  "tspan",
-  "use",
-  "view",
-]);
 
 /**
  * Generates a DOM node from a vNode. Boolean props are set as empty string for true, removed for false.
@@ -80,25 +14,33 @@ const SVG_TAGS = new Set([
 export function mount(vnode: VNode, parent?: HTMLElement | ShadowRoot | Element | DocumentFragment): Node {
   const { tag, props, children } = vnode;
 
-  const isSvgGroupElement = (() => {
-    if (parent instanceof Element) {
-      return SVG_TAGS.has(parent.tagName.toLowerCase());
-    }
-
-    return false;
-  })();
-
   if (typeof tag === "string" && tag !== "#text" && tag !== "#empty" && tag !== "#fragment") {
     const el = (() => {
+      const isSvgGroupElement = (() => {
+        if (parent instanceof Element) {
+          return SVG_TAGS.has(parent.tagName.toLowerCase());
+        }
+
+        return false;
+      })();
+
+      const isMathGroupElement = (() => {
+        if (parent instanceof Element) {
+          return MATH_TAGS.has(parent.tagName.toLowerCase());
+        }
+
+        return false;
+      })();
+
       if ((SVG_TAGS.has(tag) && isSvgGroupElement) || tag === "svg") {
         return document.createElementNS("http://www.w3.org/2000/svg", tag);
       }
-      else if (tag === "math") {
+
+      if ((MATH_TAGS.has(tag) && isMathGroupElement) || tag === "math") {
         return document.createElementNS("http://www.w3.org/1998/Math/MathML", "math");
       }
-      else {
-        return document.createElement(tag);
-      }
+
+      return document.createElement(tag);
     })();
 
     // プロパティ設定の最適化

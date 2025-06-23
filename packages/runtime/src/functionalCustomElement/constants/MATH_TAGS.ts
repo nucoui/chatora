@@ -1,0 +1,36 @@
+/**
+ * Set of MathML Core element tag names.
+ * See: https://www.w3.org/TR/mathml-core/#elements
+ */
+export const MATH_TAGS = new Set<string>([
+  "annotation",
+  "annotation-xml",
+  "maction",
+  "math",
+  "merror",
+  "mfrac",
+  "mi",
+  "mmultiscripts",
+  "mn",
+  "mo",
+  "mover",
+  "mpadded",
+  "mphantom",
+  "mprescripts",
+  "mroot",
+  "mrow",
+  "ms",
+  "mspace",
+  "msqrt",
+  "mstyle",
+  "msub",
+  "msubsup",
+  "msup",
+  "mtable",
+  "mtd",
+  "mtext",
+  "mtr",
+  "munder",
+  "munderover",
+  "semantics",
+]);
