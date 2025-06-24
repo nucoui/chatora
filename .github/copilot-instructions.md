@@ -28,11 +28,8 @@ The instructions in this section must be followed absolutely. These are non-nego
 - All instructions must be written in Japanese.
 - All instructions must be output in Japanese.
 - You may think in English, but you must always output in Japanese.
-- When generating a commit message, be sure to output it in English. Also, output the message in the format `<gitmoji> Summary of changes in 100 characters or less`. For `<gitmoji>`, choose a Gitmoji that corresponds to your changes; see [here](https://gitmoji.dev/) for a list of Gitmojis. The second line should be blank. The third and succeeding lines should contain the details of the change in English. The second and subsequent lines are not mandatory. Do not use the notation `feat:` or `hotfix: `.
 - All code must be written as ESM modules.
 - All code must be written in TypeScript. It cannot be written in JavaScript.
-- When "act:translate" is entered, run `git diff .github/copilot-instructions-ja.md | cat` to re-translate the acquired diff into English, and add it to `.github/copilot-instructions.md` to reflect only the translated parts.
-- When “act:cmm” is entered, say “generate commit message”, run `git diff --staged | cat`, and based on the result, generate a commit message in md format code block (` ```md /... / ``` `) to generate the commit message. The commit message should be output in English.
 
 ## Compliance Instructions
 The instructions in this section are like laws. Follow them unless there are special exceptions. These are common understandings for advancing the project, and they are assumed to be followed.

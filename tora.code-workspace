@@ -13,6 +13,10 @@
       "path": "./.github"
     },
     {
+      "name": "⚙️ .rules",
+      "path": "./.rules"
+    },
+    {
       "name": "⚙️ config",
       "path": "./config",
     },
@@ -86,6 +90,22 @@
     },
   ],
   "settings": {
+    "github.copilot.chat.codeGeneration.instructions":[
+      {
+        "file": ".github/copilot-chat-instructions.md",
+        "language": "*"
+      },
+      {
+        "file": ".rules/verified-truth-directive.md",
+        "language": "*"
+      }
+    ],
+    "github.copilot.chat.commitMessageGeneration.instructions": [
+      {
+        "file": ".rules/commit-message.md"
+      },
+    ],
+
     "prettier.enable": false,
     "biome.enabled": false,
     "stylelint.enable": true,
