@@ -1,34 +1,56 @@
 import type { VNode } from "@/functionalCustomElement/vNode";
 import { mount } from "@/functionalCustomElement/mount";
 
+/**
+ * Optimized props patching with minimal DOM operations
+ */
 function patchProps(el: HTMLElement, oldProps: Record<string, any>, newProps: Record<string, any>) {
   if (oldProps === newProps)
     return;
 
-  // Remove old props
+  // Pre-calculate which props to remove and add
+  const toRemove: string[] = [];
+  const toUpdate: Array<[string, any]> = [];
+
+  // Check props to remove
   for (const k in oldProps) {
     if (!(k in newProps)) {
-      if (k[0] === "o" && k[1] === "n") {
-        el.removeEventListener(k.slice(2).toLowerCase(), oldProps[k]);
-      }
-      else {
-        el.removeAttribute(k);
-      }
+      toRemove.push(k);
     }
   }
 
-  // Add/update new props
+  // Check props to add/update
   for (const k in newProps) {
     const newVal = newProps[k];
-    if (newVal === oldProps[k])
-      continue;
+    if (newVal !== oldProps[k]) {
+      toUpdate.push([k, newVal]);
+    }
+  }
+
+  // Batch remove operations
+  for (let i = 0; i < toRemove.length; i++) {
+    const k = toRemove[i];
+    if (k.charCodeAt(0) === 111 && k.charCodeAt(1) === 110) { // "on"
+      el.removeEventListener(k.slice(2).toLowerCase(), oldProps[k]);
+    }
+    else {
+      el.removeAttribute(k);
+    }
+  }
+
+  // Batch update operations
+  for (let i = 0; i < toUpdate.length; i++) {
+    const [k, newVal] = toUpdate[i];
 
     if (newVal == null) {
       el.removeAttribute(k);
+      continue;
     }
-    else if (k[0] === "o" && k[1] === "n") {
-      if (oldProps[k])
+
+    if (k.charCodeAt(0) === 111 && k.charCodeAt(1) === 110) { // "on"
+      if (oldProps[k]) {
         el.removeEventListener(k.slice(2).toLowerCase(), oldProps[k]);
+      }
       el.addEventListener(k.slice(2).toLowerCase(), newVal);
     }
     else if (typeof newVal === "boolean") {
@@ -40,7 +62,9 @@ function patchProps(el: HTMLElement, oldProps: Record<string, any>, newProps: Re
   }
 }
 
-// Optimization for patching child elements
+/**
+ * Highly optimized children patching with minimal DOM operations
+ */
 function patchChildren(
   oldChildren: Array<VNode | string>,
   newChildren: Array<VNode | string>,
@@ -55,79 +79,104 @@ function patchChildren(
   if (oldLen === 0 && newLen === 0)
     return;
 
-  // Fast path: same length and all strings
+  // Fast path: all strings with same length
   if (oldLen === newLen && oldLen > 0) {
-    let allStrings = true;
+    let allStringsMatch = true;
     for (let i = 0; i < oldLen; i++) {
       if (typeof oldChildren[i] !== "string" || typeof newChildren[i] !== "string") {
-        allStrings = false;
+        allStringsMatch = false;
         break;
       }
     }
-    if (allStrings) {
+
+    if (allStringsMatch) {
       for (let i = 0; i < oldLen; i++) {
-        const childDom = getChildDom(i);
-        if (childDom && childDom.nodeType === Node.TEXT_NODE && oldChildren[i] !== newChildren[i]) {
-          childDom.textContent = newChildren[i] as string;
+        if (oldChildren[i] !== newChildren[i]) {
+          const childDom = getChildDom(i);
+          if (childDom && childDom.nodeType === Node.TEXT_NODE) {
+            childDom.textContent = newChildren[i] as string;
+          }
         }
       }
       return;
     }
   }
 
+  // Optimized diff algorithm
   const maxLen = Math.max(oldLen, newLen);
+  const operations: Array<{ type: "patch" | "add" | "remove"; index: number; oldChild?: VNode | string; newChild?: VNode | string; dom?: Node | null }> = [];
 
-  // Normal diff patching (process in reverse to avoid index shift on removal)
-  for (let i = maxLen - 1; i >= 0; i--) {
+  // Collect operations first
+  for (let i = 0; i < maxLen; i++) {
     const oldChild = i < oldLen ? oldChildren[i] : undefined;
     const newChild = i < newLen ? newChildren[i] : undefined;
-    const childDom = getChildDom(i);
+    const dom = getChildDom(i);
 
     if (oldChild && newChild) {
-      // Patch existing node
-      if (childDom) {
-        if (typeof oldChild === "string" && typeof newChild === "string") {
-          // Both are strings: update textContent
-          if (oldChild !== newChild && childDom instanceof Text) {
-            childDom.textContent = newChild;
-          }
-        }
-        else if (typeof oldChild === "string" || typeof newChild === "string") {
-          // One is string: replace with new node
-          const newNode = typeof newChild === "string" ? document.createTextNode(newChild) : mount(newChild);
-          if (parent instanceof Element || parent instanceof ShadowRoot) {
-            parent.replaceChild(newNode, childDom);
-          }
-        }
-        else {
-          // Both are VNode
-          patch(oldChild, newChild, parent, childDom);
-        }
-      }
+      operations.push({ type: "patch", index: i, oldChild, newChild, dom });
     }
     else if (!oldChild && newChild) {
-      // Add new node
-      const newNode = typeof newChild === "string" ? document.createTextNode(newChild) : mount(newChild);
-      if (parent instanceof Element || parent instanceof ShadowRoot) {
-        if (insertRef) {
-          parent.insertBefore(newNode, insertRef);
-        }
-        else {
-          parent.appendChild(newNode);
-        }
-      }
+      operations.push({ type: "add", index: i, newChild });
     }
     else if (oldChild && !newChild) {
-      // Remove old node
-      if (childDom && (parent instanceof Element || parent instanceof ShadowRoot)) {
-        parent.removeChild(childDom);
-      }
+      operations.push({ type: "remove", index: i, dom });
+    }
+  }
+
+  // Execute operations in reverse order to avoid index shifting
+  for (let i = operations.length - 1; i >= 0; i--) {
+    const op = operations[i];
+
+    switch (op.type) {
+      case "patch":
+        if (op.dom && op.oldChild && op.newChild) {
+          if (typeof op.oldChild === "string" && typeof op.newChild === "string") {
+            if (op.oldChild !== op.newChild && op.dom instanceof Text) {
+              op.dom.textContent = op.newChild;
+            }
+          }
+          else if (typeof op.oldChild === "string" || typeof op.newChild === "string") {
+            const newNode = typeof op.newChild === "string"
+              ? document.createTextNode(op.newChild)
+              : mount(op.newChild);
+            if (parent instanceof Element || parent instanceof ShadowRoot) {
+              parent.replaceChild(newNode, op.dom);
+            }
+          }
+          else {
+            patch(op.oldChild, op.newChild, parent, op.dom);
+          }
+        }
+        break;
+
+      case "add":
+        if (op.newChild) {
+          const newNode = typeof op.newChild === "string"
+            ? document.createTextNode(op.newChild)
+            : mount(op.newChild);
+          if (parent instanceof Element || parent instanceof ShadowRoot) {
+            if (insertRef) {
+              parent.insertBefore(newNode, insertRef);
+            }
+            else {
+              parent.appendChild(newNode);
+            }
+          }
+        }
+        break;
+
+      case "remove":
+        if (op.dom && (parent instanceof Element || parent instanceof ShadowRoot)) {
+          parent.removeChild(op.dom);
+        }
+        break;
     }
   }
 }
 
 /**
  * Patch the DOM by comparing oldVNode and newVNode, updating only the changed parts.
+ * Optimized for performance with early returns and minimal DOM operations.
  * @param oldVNode The previous virtual node
  * @param newVNode The new virtual node
  * @param parent The parent DOM node
@@ -140,7 +189,7 @@ export function patch(
   parent: Node,
   domNode: Node,
 ): Node {
-  // Fast path: same VNode object
+  // Fast path: identical VNode objects
   if (oldVNode === newVNode)
     return domNode;
 
@@ -156,52 +205,61 @@ export function patch(
   const oldTag = oldVNode.tag;
   const newTag = newVNode.tag;
 
-  // Early return: tag changed, replace node
+  // Early return: tag changed, replace entire node
   if (oldTag !== newTag) {
     const newDom = mount(newVNode);
     parent.replaceChild(newDom, domNode);
     return newDom;
   }
 
-  // Optimize text node
+  // Optimized text node handling
   if (newTag === "#text") {
     if (domNode.nodeType === Node.TEXT_NODE) {
+      const oldText = oldVNode.children.join("");
       const newText = newVNode.children.join("");
-      if (domNode.textContent !== newText) {
+      if (oldText !== newText) {
         domNode.textContent = newText;
       }
       return domNode;
     }
+    // Type mismatch - replace node
     const newDom = mount(newVNode);
     parent.replaceChild(newDom, domNode);
     return newDom;
   }
 
-  // Empty node
+  // Empty node - no changes needed
   if (newTag === "#empty") {
     return domNode;
   }
 
-  // Normal HTML element
+  // Normal HTML element - optimized property and children diffing
   if (typeof newTag === "string" && newTag !== "#fragment") {
     const el = domNode as HTMLElement;
+
+    // Only diff props if they actually changed
     const oldProps = oldVNode.props || {};
     const newProps = newVNode.props || {};
+    if (oldProps !== newProps) {
+      patchProps(el, oldProps, newProps);
+    }
 
-    // Diff props
-    patchProps(el, oldProps, newProps);
+    // Only diff children if they changed
+    const oldChildren = oldVNode.children || [];
+    const newChildren = newVNode.children || [];
+    if (oldChildren !== newChildren) {
+      patchChildren(
+        oldChildren,
+        newChildren,
+        el,
+        idx => el.childNodes[idx] || null,
+      );
+    }
 
-    // Diff children
-    patchChildren(
-      oldVNode.children || [],
-      newVNode.children || [],
-      el,
-      idx => el.childNodes[idx] || null,
-    );
     return el;
   }
 
-  // Other cases, mount new
+  // Fallback: mount new node
   const newDom = mount(newVNode);
   parent.replaceChild(newDom, domNode);
   return newDom;
