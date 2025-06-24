@@ -4,17 +4,13 @@ import type { Element, ElementContent, Root } from "hast";
 import { genVNode } from "../functionalCustomElement/vNode";
 
 /**
- * JSX/TSXを使用してDeclarative Shadow DOMのHTML要素を作成する関数です。
- * SSR（サーバーサイドレンダリング）用途に最適化されています。
- * functionalCustomElementと同じ引数を取りますが、DOM操作ではなくhastオブジェクトを返します。
- *
  * Creates Declarative Shadow DOM HTML elements using JSX/TSX for server-side rendering.
  * Takes the same arguments as functionalCustomElement but returns a hast object instead of manipulating the DOM.
  *
- * @param callback - ライフサイクルフックやレンダリング関数を登録するコールバック
- * @param options - ShadowRootやForm関連のオプション
- * @param options.props - 初期プロパティ値を指定します (Initial property values)
- * @returns hastオブジェクト (HTML Abstract Syntax Tree)
+ * @param callback - Callback to register lifecycle hooks and rendering functions
+ * @param options - Options for ShadowRoot and Form association
+ * @param options.props - Initial property values
+ * @returns hast object (HTML Abstract Syntax Tree)
  */
 const functionalDeclarativeCustomElement = <
   P extends Record<string, any> = Record<string, never>,
@@ -27,19 +23,19 @@ const functionalDeclarativeCustomElement = <
     props: initialProps,
   } = options || {};
 
-  // プロパティの初期化（SSRでは静的なため、signalは不要）
+  // Initialize props (no signal needed for SSR)
   const _propsData = initialProps || {};
   let jsxResult: ChatoraNode | null = null;
 
-  // SSR用の軽量化されたreactivity実装
+  // Lightweight reactivity for SSR
   const ssrSignal = <T>(value: T): [() => T, (newValue: T | ((prev: T) => T)) => void] => {
     const getter = () => value;
-    const setter = () => {}; // SSRでは更新不要
+    const setter = () => {}; // No update needed for SSR
     return [getter, setter];
   };
 
   const ssrComputed = <T>(fn: () => T) => () => fn();
-  const ssrEffect = () => () => {}; // SSRでは副作用不要
+  const ssrEffect = () => () => {}; // No side effects for SSR
   const noop = () => {};
 
   const render = callback({
@@ -51,22 +47,22 @@ const functionalDeclarativeCustomElement = <
       endBatch: noop,
     },
     /**
-     * 属性変換関数オブジェクトを受け取り、属性値を取得するgetter関数を返します。
-     * SSRでは初期値のみを返します。
+     * Accepts an object of attribute transformer functions and returns a getter function for attribute values.
+     * For SSR, only returns initial values.
      *
-     * @param propsTransformers - 属性変換関数オブジェクト
-     * @returns 属性値を取得するgetter関数
+     * @param propsTransformers - Object of attribute transformer functions
+     * @returns Getter function for attribute values
      */
     defineProps: <T extends AsFunctionType<P>>(propsTransformers: T) => {
-      // プロパティ値を事前計算（SSRでは変更されない）
+      // Precompute property values (not changed in SSR)
       const computedProps: Record<string, any> = {};
 
-      // 変換関数でデフォルト値を生成
+      // Generate default values with transformers
       for (const key of Object.keys(propsTransformers)) {
         computedProps[key] = propsTransformers[key as keyof T](undefined);
       }
 
-      // 初期プロパティで上書き
+      // Overwrite with initial props
       for (const key of Object.keys(_propsData)) {
         if (key in propsTransformers) {
           computedProps[key] = propsTransformers[key as keyof T](
@@ -78,44 +74,43 @@ const functionalDeclarativeCustomElement = <
       return () => computedProps as any;
     },
     /**
-     * イベントハンドラオブジェクトを受け取り、イベントを発火する関数を返します。
-     * SSRではイベントは実行されないためダミー関数を返します。
+     * Accepts an object with event handlers and returns a function to emit events.
+     * For SSR, returns a dummy function.
      *
-     * @param _events - イベントハンドラオブジェクト（SSRでは使用しない）
-     * @returns イベントを発火する関数（SSRではダミー）
+     * @param _events - Object with event handlers (not used in SSR)
+     * @returns Dummy function for SSR
      */
     defineEmits: (_events: Record<`on-${string}`, (detail: any) => void>) => {
-      // SSRでは最小限のダミー関数を返す
+      // Return dummy function for SSR
       const dummyEmit = () => {};
       return dummyEmit as any;
     },
-    // ライフサイクルフックはSSRでは不要
+    // Lifecycle hooks are not needed for SSR
     onConnected: noop,
     onDisconnected: noop,
     onAttributeChanged: noop,
     onAdopted: noop,
     /**
-     * ホスト要素（このカスタム要素自身）を取得します
-     * SSRでは空オブジェクトを返します
+     * Returns the host element (this custom element itself)
+     * For SSR, returns an empty object
      */
     getHost: () => ({} as HTMLElement),
     /**
-     * ShadowRootを取得します
-     * SSRではnullを返します
+     * Returns the ShadowRoot
+     * For SSR, returns null
      */
     getShadowRoot: () => null,
     /**
-     * ElementInternalsを取得します（SSRでは常にundefined）
-     * Returns undefined for SSR (no ElementInternals)
+     * Returns ElementInternals (always undefined for SSR)
      */
     getInternals: () => undefined,
   });
 
   jsxResult = render();
 
-  // VNode化
+  // Convert to VNode
   const vnode = genVNode(jsxResult);
-  // VNode→hast変換
+  // Convert VNode to hast
   const contentElement = vNodeToHast(vnode);
 
   let styles: string | string[] = [];
@@ -128,7 +123,7 @@ const functionalDeclarativeCustomElement = <
     styles = vnode.props.style ?? styles;
   }
 
-  // スタイル要素を事前に生成（存在する場合）
+  // Pre-generate style elements if present
   const styleElements: Element[] = styles
     ? (Array.isArray(styles) ? styles : [styles]).map(cssText => ({
         type: "element",
@@ -138,7 +133,7 @@ const functionalDeclarativeCustomElement = <
       }))
     : [];
 
-  // Declarative Shadow DOMのtemplate要素を作成 (shadowRoot=trueの場合のみ)
+  // Create template element for Declarative Shadow DOM (only if shadowRoot=true)
   if (shadowRoot) {
     const templateChildren = [
       ...styleElements,
@@ -156,7 +151,7 @@ const functionalDeclarativeCustomElement = <
     };
   }
 
-  // shadowRoot=falseの場合は通常のHTML要素を返す
+  // If shadowRoot=false, return normal HTML elements
   return {
     type: "root",
     children: Array.isArray(contentElement) ? contentElement : [contentElement],
@@ -164,13 +159,13 @@ const functionalDeclarativeCustomElement = <
 };
 
 /**
- * ChatoraNode (JSX結果) をhast要素に変換する関数
- * functionalCustomElementのVNode構造と一致するように変換
+ * Converts ChatoraNode (JSX result) to hast element
+ * Converts to match the VNode structure of functionalCustomElement
  */
 function vNodeToHast(node: any): ElementContent | ElementContent[] {
   if (!node)
     return { type: "text", value: "" };
-  // #text, #empty, #fragment, #unknown, string, number, VNode, 配列
+  // #text, #empty, #fragment, #unknown, string, number, VNode, array
   if (Array.isArray(node)) {
     return node.flatMap(vNodeToHast);
   }
@@ -185,10 +180,10 @@ function vNodeToHast(node: any): ElementContent | ElementContent[] {
       return { type: "text", value: "" };
     }
     if (node.tag === "#fragment" || node.tag === "#root") {
-      // fragmentは子要素を平坦化
+      // Flatten children for fragment
       return node.children.flatMap(vNodeToHast);
     }
-    // 通常の要素
+    // Normal element
     const props: Record<string, any> = {};
     for (const [k, v] of Object.entries(node.props ?? {})) {
       if (k === "className")

@@ -57,7 +57,7 @@ import type {
   InputChatoraIntrinsicElement,
   InsChatoraIntrinsicElement,
   KbdChatoraIntrinsicElement,
-  KeygenChatoraIntrinsicElement,
+  KeygenChatoraIntrinsicElement, // Deprecated element: not recommended in HTML Living Standard
   LabelChatoraIntrinsicElement,
   LegendChatoraIntrinsicElement,
   LiChatoraIntrinsicElement,
@@ -196,7 +196,7 @@ declare global {
       input: InputChatoraIntrinsicElement;
       ins: InsChatoraIntrinsicElement;
       kbd: KbdChatoraIntrinsicElement;
-      keygen: KeygenChatoraIntrinsicElement; // 廃止要素: HTML Living Standardでは非推奨
+      keygen: KeygenChatoraIntrinsicElement; // Deprecated element: not recommended in HTML Living Standard
       label: LabelChatoraIntrinsicElement;
       legend: LegendChatoraIntrinsicElement;
       link: LinkChatoraIntrinsicElement;
@@ -275,17 +275,17 @@ declare global {
       slot: SlotChatoraIntrinsicElement;
     }
 
-    // JSX 構文で <div>...</div> のように書いたときに生成される要素（JSX の戻り値）の型
+    // The type of element generated when writing <div>...</div> in JSX syntax (the return type of JSX)
     type Element = ChatoraJSXElement;
 
-    // JSXで使えるタグ（HTMLタグ名または関数コンポーネント）の型
+    // The type of tag usable in JSX (HTML tag name or function component)
     type ElementType<P = any> = string | IC<P>;
 
-    // props型補完のための型
+    // Type for props type completion
     type LibraryManagedAttributes<C, P> =
       C extends (props: infer Props) => any ? Props : P;
 
-    // JSX で子要素を props のどのプロパティ名で受け取るかを指定するための型
+    // Specify which property name in props receives children in JSX
     interface ElementChildrenAttribute {
       children: unknown;
     }

@@ -41,7 +41,7 @@ export function mount(vnode: VNode, parent?: HTMLElement | ShadowRoot | Element 
       return document.createElement(tag);
     })();
 
-    // プロパティ設定
+    // Property setting
     if (props) {
       for (const k in props) {
         const v = props[k];
@@ -49,7 +49,7 @@ export function mount(vnode: VNode, parent?: HTMLElement | ShadowRoot | Element 
         if (v == null || v === undefined)
           continue;
 
-        // イベントハンドラ
+        // Event handler
         if (k.startsWith("on") && typeof v === "function") {
           const event = k.slice(2).toLowerCase();
           el.addEventListener(event, v as EventListenerOrEventListenerObject);
@@ -58,7 +58,7 @@ export function mount(vnode: VNode, parent?: HTMLElement | ShadowRoot | Element 
           v ? el.setAttribute(k, "") : el.removeAttribute(k);
         }
         else if (k === "ref") {
-          // ref属性はsetしない
+          // Do not set ref attribute
         }
         else {
           el.setAttribute(k, String(v));
@@ -66,7 +66,7 @@ export function mount(vnode: VNode, parent?: HTMLElement | ShadowRoot | Element 
       }
     }
 
-    // ref属性のハンドリング
+    // Handling of ref attribute
     if (props && props.ref) {
       const ref = props.ref as RefValue;
       if (typeof ref === "function") {
@@ -77,7 +77,7 @@ export function mount(vnode: VNode, parent?: HTMLElement | ShadowRoot | Element 
       }
     }
 
-    // 子要素の追加
+    // Append child elements
     for (const child of children) {
       const node = typeof child === "string"
         ? document.createTextNode(child)
@@ -87,7 +87,7 @@ export function mount(vnode: VNode, parent?: HTMLElement | ShadowRoot | Element 
     return el;
   }
 
-  // 特殊なタグの処理
+  // Processing of special tags
   if (tag === "#empty") {
     return document.createComment("");
   }
@@ -96,7 +96,7 @@ export function mount(vnode: VNode, parent?: HTMLElement | ShadowRoot | Element 
     return document.createTextNode(children.join(""));
   }
 
-  // 未知のタグの場合はdivとして作成
+  // If the tag is unknown, create as div
   const el = document.createElement("div");
   el.setAttribute("data-unknown-tag", tag);
   return el;

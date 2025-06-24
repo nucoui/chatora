@@ -8,7 +8,6 @@ import { genVNode } from "@/functionalCustomElement/vNode";
 import { computed, effect, endBatch, signal, startBatch } from "@chatora/reactivity";
 
 /**
- * FunctionalCustomElementの型引数を関数使用時に指定できるようにします。
  * Allow generics to be specified at function usage.
  */
 const functionalCustomElement: FunctionalCustomElement = (
@@ -21,20 +20,17 @@ const functionalCustomElement: FunctionalCustomElement = (
   return class extends HTMLElement {
     static formAssociated: boolean = false;
     /**
-     * MutationObserverインスタンス
      * MutationObserver instance for attribute changes
      *
-     * TypeScriptの制約により、エクスポートされるクラスのprivate/protectedプロパティは型エラーとなるためpublicにします。
+     * Due to TypeScript constraints, private/protected properties of exported classes are made public to avoid type errors.
      */
     _attributeObserver: MutationObserver;
     /**
-     * 監視対象属性リスト
      * List of observed attributes
      */
     observedAttributes: readonly string[] = [];
 
     /**
-     * 属性値を保持するリアクティブなprops
      * Reactive props holding attribute values
      */
     props = signal<Record<string, string | undefined>>({});
@@ -42,13 +38,11 @@ const functionalCustomElement: FunctionalCustomElement = (
     _vnode: VNode | null = null;
 
     /**
-     * 最後に登録されたrenderコールバックを保持します。
      * Stores the latest render callback for attribute-triggered re-rendering.
      */
     _renderCallback?: () => void;
 
     /**
-     * effect/renderの初回登録済みフラグ
      * Prevent multiple effect registrations
      */
     _effectInitialized = false;
@@ -69,22 +63,21 @@ const functionalCustomElement: FunctionalCustomElement = (
           endBatch,
         },
         /**
-         * 属性変換関数オブジェクトを受け取り、属性値を取得するgetter関数を返します。
          * Accepts an object of attribute transformer functions and returns a getter function for attribute values.
-         * @param props - 属性変換関数オブジェクト (Object of attribute transformer functions)
-         * @returns 属性値を取得するgetter関数 (Getter function for attribute values)
+         * @param props - Object of attribute transformer functions
+         * @returns Getter function for attribute values
          */
         defineProps: (props: Record<string, (value: string | undefined) => any>) => {
           this.observedAttributes = Object.keys(props);
 
-          // 初期値を設定
+          // Set initial values
           const initialProps: Record<string, string | undefined> = {};
           for (const name of this.observedAttributes) {
             initialProps[name] = this.getAttribute(name) || undefined;
           }
           this.props[1](initialProps);
 
-          // getter関数を返す
+          // Return getter function
           return () => {
             const rawProps = this.props[0]();
             const transformedProps: Record<string, any> = {};
@@ -95,10 +88,9 @@ const functionalCustomElement: FunctionalCustomElement = (
           };
         },
         /**
-         * イベントハンドラオブジェクトを受け取り、イベントを発火する関数を返します。
          * Accepts an object with event handlers and returns a function to emit events.
-         * @param events - イベントハンドラオブジェクト (Object with event handlers)
-         * @returns イベントを発火する関数 (Function to emit events)
+         * @param events - Object with event handlers
+         * @returns Function to emit events
          */
         defineEmits: (events: Record<`on-${string}`, (detail: any) => void>) => {
           const emit = (type: any, detail?: any, options?: { bubbles?: boolean; composed?: boolean; cancelable?: boolean }) => {
@@ -115,7 +107,7 @@ const functionalCustomElement: FunctionalCustomElement = (
             }
           };
 
-          // 各イベント用のヘルパー関数を追加
+          // Add helper functions for each event
           for (const eventName of Object.keys(events)) {
             const methodName = eventName.replace(/^on-/, "");
             (emit as any)[methodName] = (detail: any, options?: any) => {
@@ -138,25 +130,22 @@ const functionalCustomElement: FunctionalCustomElement = (
           onAdopted(cb, this.constructor);
         },
         /**
-         * ホスト要素（このカスタム要素自身）を取得します
          * Returns the host element (this custom element itself)
-         * @returns ホスト要素（HTMLElement）
+         * @returns HTMLElement
          */
         getHost: () => {
           return this;
         },
         /**
-         * ShadowRootを取得します（存在する場合）
          * Returns the ShadowRoot if it exists
-         * @returns ShadowRoot または null
+         * @returns ShadowRoot or null
          */
         getShadowRoot: () => {
           return this.shadowRoot;
         },
         /**
-         * ElementInternalsを取得します（formAssociated時のみ有効）
          * Returns ElementInternals if formAssociated is enabled
-         * @returns ElementInternals または undefined
+         * @returns ElementInternals or undefined
          */
         getInternals: (() => {
           let internals: ElementInternals | undefined;
@@ -197,7 +186,7 @@ const functionalCustomElement: FunctionalCustomElement = (
           }
 
           if (newVNode.tag === "#fragment") {
-            // fragmentの場合は子要素を個別にマウント
+            // If fragment, mount each child element individually
             for (const child of newVNode.children) {
               const childNode = typeof child === "string"
                 ? document.createTextNode(child)
@@ -226,7 +215,7 @@ const functionalCustomElement: FunctionalCustomElement = (
             (this._vnode.tag === "#fragment" && newVNode.tag === "#fragment")
             || (this._vnode.tag === "#root" && newVNode.tag === "#root")
           ) {
-            // 両方fragmentの場合は子要素レベルでpatch
+            // If both are fragments, patch at the child element level
             const oldChildren = this._vnode.children;
             const newChildren = newVNode.children;
             const maxLen = Math.max(oldChildren.length, newChildren.length);
@@ -236,7 +225,7 @@ const functionalCustomElement: FunctionalCustomElement = (
               const newChild = i < newChildren.length ? newChildren[i] : undefined;
 
               if (oldChild && newChild) {
-                // 既存子要素の更新
+                // Update existing child element
                 const childNodes = shadowRootInstance.childNodes;
                 let targetNode: Node | null = null;
                 let nodeIndex = 0;
@@ -268,14 +257,14 @@ const functionalCustomElement: FunctionalCustomElement = (
                 }
               }
               else if (!oldChild && newChild) {
-                // 新しい子要素の追加
+                // Add new child element
                 const childNode = typeof newChild === "string"
                   ? document.createTextNode(newChild)
                   : mount(newChild, shadowRootInstance);
                 shadowRootInstance.appendChild(childNode);
               }
               else if (oldChild && !newChild) {
-                // 古い子要素の削除
+                // Remove old child element
                 const childNodes = shadowRootInstance.childNodes;
                 let targetNode: Node | null = null;
                 let nodeIndex = 0;
@@ -303,8 +292,8 @@ const functionalCustomElement: FunctionalCustomElement = (
             }
           }
           else {
-            // 通常のpatch処理
-            // DOM構造内での適切なインデックスを効率的に見つける
+            // Normal patch process
+            // Efficiently find the appropriate index in the DOM structure
             let domIndex = 0;
             const childNodes = shadowRootInstance.childNodes;
             for (let i = 0; i < childNodes.length; i++) {
@@ -322,18 +311,18 @@ const functionalCustomElement: FunctionalCustomElement = (
       };
       this._renderCallback = renderCallback;
 
-      // MutationObserverのセットアップ（バッチ処理を使って最適化）
+      // Setup MutationObserver (optimized with batch processing)
       this._attributeObserver = new MutationObserver((mutationRecords) => {
         if (mutationRecords.length === 0)
           return;
 
-        // バッチ処理を開始して、複数の属性変更を1度にまとめて処理
+        // Start batch processing to handle multiple attribute changes at once
         startBatch();
 
-        // 変更された属性を格納するオブジェクト
+        // Object to store changed attributes
         const changedAttributes: Record<string, { oldValue: string | null; newValue: string | null }> = {};
 
-        // まず全ての変更を収集
+        // Collect all changes first
         for (const record of mutationRecords) {
           if (
             record.type === "attributes"
@@ -348,7 +337,7 @@ const functionalCustomElement: FunctionalCustomElement = (
           }
         }
 
-        // 一度にpropsを更新
+        // Update props at once
         if (Object.keys(changedAttributes).length > 0) {
           this.props[1]((prev) => {
             const newProps = { ...prev };
@@ -358,20 +347,20 @@ const functionalCustomElement: FunctionalCustomElement = (
             return newProps;
           });
 
-          // 各属性変更に対してハンドラを呼び出し
+          // Call handler for each attribute change
           for (const [name, { oldValue, newValue }] of Object.entries(changedAttributes)) {
             this.handleAttributeChanged(name, oldValue, newValue);
           }
         }
 
-        // バッチ処理を終了
+        // End batch processing
         endBatch();
       });
     }
 
     handleConnected() {}
     connectedCallback() {
-      // observedAttributesが空でない場合のみMutationObserverを設定
+      // Only set MutationObserver if observedAttributes is not empty
       if (this.observedAttributes.length > 0) {
         this._attributeObserver.observe(this, {
           attributes: true,
@@ -380,22 +369,22 @@ const functionalCustomElement: FunctionalCustomElement = (
         });
       }
 
-      // 初回のみeffect/renderCallbackを登録
+      // Register effect/renderCallback only on first call
       if (!this._effectInitialized && this._renderCallback) {
         this._renderCallback();
 
-        // shadowRootの生成とスタイル適用を1回の処理にまとめる
+        // Create shadowRoot and apply styles in a single process
         if (this.#shadowRoot) {
           const shadowRootInstance = this.attachShadow({ mode: this.#shadowRootMode ?? "open" });
-          // スタイルがある場合のみ適用処理を実行
+          // Only apply styles if present
           if (this.#style) {
             applyStyles(shadowRootInstance, this.#style);
           }
         }
 
-        // props変更とレンダリングを連動させるエフェクト
+        // Effect to link props changes and rendering
         effect(() => {
-          this.props[0](); // props値の監視
+          this.props[0](); // Watch props value
           this._renderCallback!();
         });
 
@@ -407,7 +396,7 @@ const functionalCustomElement: FunctionalCustomElement = (
 
     handleDisconnected() {}
     disconnectedCallback() {
-      // MutationObserverの監視停止
+      // Stop observing with MutationObserver
       this._attributeObserver.disconnect();
       this.handleDisconnected();
     }

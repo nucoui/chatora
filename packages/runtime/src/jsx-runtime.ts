@@ -2,8 +2,8 @@ import type { IC } from "@/main";
 import type { ChatoraJSXElement, ChatoraNode } from "../types/JSX.namespace";
 
 /**
- * JSX.Fragment用の関数コンポーネント実装
- * JSX Fragment as a function component - #fragmentタグを返し、normalizeChildrenで平坦化される
+ * Function component implementation for JSX.Fragment
+ * Returns #fragment tag, children are flattened by normalizeChildren
  */
 export const Fragment: IC<{ children: ChatoraNode }> = ({ children }) => {
   return () => ({
@@ -37,10 +37,9 @@ export const Host: IC<HostProps> = ({ children, ...rest }) => {
 };
 
 /**
- * クライアント用: vNodeを生成するJSXランタイム関数
  * JSX runtime function for client: returns ChatoraJSXElement (VNode)
- * @param tag HTMLタグ名または関数コンポーネント
- * @param props 属性＋children
+ * @param tag HTML tag name or function component
+ * @param props props + children
  * @returns ChatoraJSXElement
  */
 export function jsx(

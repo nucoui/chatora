@@ -26,7 +26,7 @@ function normalizeChildren(input: ChatoraNode): Array<VNode | string> {
 
   if (typeof input === "object" && input !== null) {
     const vnode = genVNode(input);
-    // fragmentの場合は子要素を平坦化
+    // If fragment, flatten children
     if (vnode.tag === "#fragment" || vnode.tag === "#root") {
       return vnode.children;
     }
@@ -37,22 +37,22 @@ function normalizeChildren(input: ChatoraNode): Array<VNode | string> {
 }
 
 export function genVNode(node: ChatoraNode): VNode {
-  // nullish値
+  // Nullish values
   if (node == null || node === false || node === true || node === undefined) {
     return { tag: "#empty", props: {}, children: [] };
   }
 
-  // プリミティブ値
+  // Primitive values
   if (typeof node === "string" || typeof node === "number") {
     return { tag: "#text", props: {}, children: [String(node)] };
   }
 
-  // オブジェクトの場合
+  // Object node
   if ("tag" in node && "props" in node) {
     const { tag, props } = node;
     const { children, ...restProps } = props ?? {};
 
-    // 関数コンポーネントの処理
+    // Handle function component
     if (typeof tag === "function") {
       const result = tag(props as any);
       if (typeof result === "function") {
@@ -63,7 +63,7 @@ export function genVNode(node: ChatoraNode): VNode {
       }
     }
 
-    // 文字列タグの処理
+    // Handle string tag
     if (typeof tag === "string") {
       const normalizedChildren = children ? normalizeChildren(children as Array<VNode | string>) : [];
 
@@ -82,7 +82,7 @@ export function genVNode(node: ChatoraNode): VNode {
       };
     }
 
-    // 未知のタグ
+    // Unknown tag
     return {
       tag: "#unknown",
       props: restProps ?? {},

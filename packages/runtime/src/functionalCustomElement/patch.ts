@@ -40,7 +40,7 @@ function patchProps(el: HTMLElement, oldProps: Record<string, any>, newProps: Re
   }
 }
 
-// 子要素パッチの最適化
+// Optimization for patching child elements
 function patchChildren(
   oldChildren: Array<VNode | string>,
   newChildren: Array<VNode | string>,
@@ -51,11 +51,11 @@ function patchChildren(
   const oldLen = oldChildren.length;
   const newLen = newChildren.length;
 
-  // 高速パス: 両方空の場合
+  // Fast path: both sides empty
   if (oldLen === 0 && newLen === 0)
     return;
 
-  // 高速パス: 長さが同じで全て文字列の場合
+  // Fast path: same length and all strings
   if (oldLen === newLen && oldLen > 0) {
     let allStrings = true;
     for (let i = 0; i < oldLen; i++) {
@@ -77,36 +77,36 @@ function patchChildren(
 
   const maxLen = Math.max(oldLen, newLen);
 
-  // 通常の差分パッチ処理（逆順で処理して削除時のインデックスズレを回避）
+  // Normal diff patching (process in reverse to avoid index shift on removal)
   for (let i = maxLen - 1; i >= 0; i--) {
     const oldChild = i < oldLen ? oldChildren[i] : undefined;
     const newChild = i < newLen ? newChildren[i] : undefined;
     const childDom = getChildDom(i);
 
     if (oldChild && newChild) {
-      // 既存ノードをpatch
+      // Patch existing node
       if (childDom) {
         if (typeof oldChild === "string" && typeof newChild === "string") {
-          // 両方文字列の場合はtextContentを更新
+          // Both are strings: update textContent
           if (oldChild !== newChild && childDom instanceof Text) {
             childDom.textContent = newChild;
           }
         }
         else if (typeof oldChild === "string" || typeof newChild === "string") {
-          // 一方が文字列の場合は新しいノードに置き換え
+          // One is string: replace with new node
           const newNode = typeof newChild === "string" ? document.createTextNode(newChild) : mount(newChild);
           if (parent instanceof Element || parent instanceof ShadowRoot) {
             parent.replaceChild(newNode, childDom);
           }
         }
         else {
-          // 両方VNodeの場合
+          // Both are VNode
           patch(oldChild, newChild, parent, childDom);
         }
       }
     }
     else if (!oldChild && newChild) {
-      // 新しいノードを追加
+      // Add new node
       const newNode = typeof newChild === "string" ? document.createTextNode(newChild) : mount(newChild);
       if (parent instanceof Element || parent instanceof ShadowRoot) {
         if (insertRef) {
@@ -118,7 +118,7 @@ function patchChildren(
       }
     }
     else if (oldChild && !newChild) {
-      // 古いノードを削除
+      // Remove old node
       if (childDom && (parent instanceof Element || parent instanceof ShadowRoot)) {
         parent.removeChild(childDom);
       }
@@ -140,11 +140,11 @@ export function patch(
   parent: Node,
   domNode: Node,
 ): Node {
-  // 高速パス: 同じVNodeオブジェクトの場合
+  // Fast path: same VNode object
   if (oldVNode === newVNode)
     return domNode;
 
-  // 早期リターン: ノードが存在しない場合
+  // Early return: domNode does not exist
   if (!domNode) {
     const newDom = mount(newVNode);
     if (parent instanceof Element || parent instanceof ShadowRoot) {
@@ -156,14 +156,14 @@ export function patch(
   const oldTag = oldVNode.tag;
   const newTag = newVNode.tag;
 
-  // 早期リターン: タグが変わった場合は置換
+  // Early return: tag changed, replace node
   if (oldTag !== newTag) {
     const newDom = mount(newVNode);
     parent.replaceChild(newDom, domNode);
     return newDom;
   }
 
-  // テキストノードの最適化
+  // Optimize text node
   if (newTag === "#text") {
     if (domNode.nodeType === Node.TEXT_NODE) {
       const newText = newVNode.children.join("");
@@ -177,21 +177,21 @@ export function patch(
     return newDom;
   }
 
-  // 空ノードの場合
+  // Empty node
   if (newTag === "#empty") {
     return domNode;
   }
 
-  // 通常のHTMLエレメント
+  // Normal HTML element
   if (typeof newTag === "string" && newTag !== "#fragment") {
     const el = domNode as HTMLElement;
     const oldProps = oldVNode.props || {};
     const newProps = newVNode.props || {};
 
-    // プロパティの差分更新
+    // Diff props
     patchProps(el, oldProps, newProps);
 
-    // 子要素の差分更新
+    // Diff children
     patchChildren(
       oldVNode.children || [],
       newVNode.children || [],
@@ -201,7 +201,7 @@ export function patch(
     return el;
   }
 
-  // その他の場合は新しくマウント
+  // Other cases, mount new
   const newDom = mount(newVNode);
   parent.replaceChild(newDom, domNode);
   return newDom;

@@ -1,22 +1,21 @@
 /**
- * スタイルをシャドウルートに適用する関数
  * Function to apply CSS styles to a shadow root
  *
- * @param shadowRoot スタイルを適用するシャドウルート
- * @param css CSSスタイリングを含む文字列、または文字列の配列
- * @returns 挿入されたスタイル要素
+ * @param shadowRoot Shadow root to apply styles to
+ * @param css CSS string or array of strings containing styles
+ * @returns Inserted style element
  */
 export function applyStyles(shadowRoot: ShadowRoot, css: string | string[]): HTMLStyleElement {
   const cssText = Array.isArray(css) ? css.join("\n") : css;
 
-  // 既存のスタイル要素を確認
+  // Check for existing style element
   const existingStyle = shadowRoot.querySelector("style");
   if (existingStyle) {
     existingStyle.textContent = cssText;
     return existingStyle;
   }
 
-  // 新しいスタイル要素を作成
+  // Create new style element
   const styleEl = document.createElement("style");
   styleEl.textContent = cssText;
   shadowRoot.appendChild(styleEl);

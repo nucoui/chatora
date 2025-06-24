@@ -1,13 +1,7 @@
 // @ts-check
 
 /**
- * functionalCustomElement の型定義ファイル
- *
- * JSX/TSXでWeb ComponentsのCustom Element Classを生成するためのファクトリ関数です。
- *
- * @param callback - ライフサイクルフックやレンダリング関数を登録するコールバック
- * @param options - ShadowRootやForm関連のオプション
- * @returns CustomElementクラス
+ * Type definition file for functionalCustomElement
  *
  * Factory function for creating Web Components Custom Element Class using JSX/TSX.
  *
@@ -39,11 +33,10 @@ export type ChatoraComponent<P extends Record<string, any> = Record<string, neve
     endBatch: typeof import("@chatora/reactivity").endBatch;
   };
   /**
-   * Propsの定義を行う関数
    * Define the props
    *
    * @example
-   *   // 変換関数を使用
+   *   // Use transformer functions
    *   const props = defineProps({
    *     disabled: toBoolean,
    *     value: (v) => v
@@ -56,42 +49,36 @@ export type ChatoraComponent<P extends Record<string, any> = Record<string, neve
       : Required<P[K]>
   };
   /**
-   * Emitsの定義を行う関数
    * Define the emits
    *
    * @example
-   *   // 型安全なイベント定義
+   *   // Type-safe event definition
    *   const emits = defineEmits({
    *     "on-click": (detail: { count: number }) => {},
    *     "on-change": (detail: string) => {}
    *   })
-   *   emits("on-click", { count: 1 }) // 型安全なCustomEventで発火
+   *   emits("on-click", { count: 1 }) // Type-safe CustomEvent emission
    */
   defineEmits: <T extends { [K in keyof E]: (detail: E[K]) => void }>(events: T) => <K extends keyof E>(type: K, detail?: E[K], options?: EventInit) => void;
   /**
-   * connectedCallback時のフック登録
    * Register hook for connectedCallback
    */
   onConnected: (cb: () => void) => void;
   /**
-   * disconnectedCallback時のフック登録
    * Register hook for disconnectedCallback
    */
   onDisconnected: (cb: () => void) => void;
   /**
-   * 属性の変更を監視する
    * Observe attribute changes
    */
   onAttributeChanged: (cb: (name: string, oldValue: string | null, newValue: string | null) => void) => void;
   /**
-   * adoptedCallback時のフック登録
    * Register hook for adoptedCallback
    */
   onAdopted: (cb: () => void) => void;
   getHost: () => HTMLElement;
   getShadowRoot: () => ShadowRoot | null;
   /**
-   * ElementInternalsを取得します（formAssociated時のみ有効）
    * Returns ElementInternals if formAssociated is enabled
    */
   getInternals: () => ElementInternals | undefined;
