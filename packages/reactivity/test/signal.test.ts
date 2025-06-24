@@ -37,14 +37,34 @@ describe("custom Reactive API", () => {
     const [count, setCount] = signal(1);
     let log = 0;
 
-    effect(() => {
-      log = count();
+    effect(({ isFirstExecution }) => {
+      const value = count();
+
+      if (isFirstExecution)
+        return;
+
+      log = value;
     });
 
-    expect(log).toBe(1);
+    expect(log).toBe(0);
 
     setCount(5);
     expect(log).toBe(5);
+  });
+
+  it("effect should not run if no dependencies change", () => {
+    const [count, setCount] = signal(1);
+    let log = 0;
+
+    effect(() => {
+      count();
+      log++;
+    });
+
+    expect(log).toBe(1); // Initial run
+
+    setCount(1); // No change
+    expect(log).toBe(1); // Should not increment
   });
 
   it("startBatch and endBatch should batch updates", () => {

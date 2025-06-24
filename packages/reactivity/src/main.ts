@@ -196,12 +196,12 @@ export function computed<T>(getter: () => T): Computed<T> {
 
 /**
  * Creates an effect that runs when its dependencies change.
- * @param fn - The effect function to execute.
- * @param options - Optional settings.
- * @param options.immediate - If true, the effect runs immediately (Vue3 watch immediate equivalent). Default: true.
+ * @param fn - The effect function to execute. Receives { isFirstExecution }.
  * @returns A function that can be called to clean up the effect.
  */
-export function effect(fn: () => void, options?: { immediate?: boolean }): () => void {
+export function effect(
+  fn: (ctx: { isFirstExecution: boolean }) => void,
+): () => void {
   const node = {
     fn,
     subs: undefined,
@@ -218,11 +218,12 @@ export function effect(fn: () => void, options?: { immediate?: boolean }): () =>
     link(node, activeScope);
   }
 
+  // 初回は依存トラッキング用として isFirstExecution: true で呼ぶ
   const prev = setCurrentSub(node);
   try {
-    if (options?.immediate === true) {
-      node.fn();
-    }
+    startTracking(node);
+    fn({ isFirstExecution: true });
+    endTracking(node);
   }
   finally {
     setCurrentSub(prev);
@@ -272,7 +273,7 @@ function run(e: any, flags: number): void {
     const prev = setCurrentSub(e);
     startTracking(e);
     try {
-      e.fn();
+      e.fn({ isFirstExecution: false });
     }
     finally {
       setCurrentSub(prev);
@@ -281,7 +282,7 @@ function run(e: any, flags: number): void {
     return;
   }
   else if (flags & ReactiveFlags.Pending) {
-    e.flags = flags & ~ReactiveFlags.Pending;
+    e.flags = flags & ~EFFECT_FLAG_QUEUED;
   }
 
   let linkNode = e.deps;
