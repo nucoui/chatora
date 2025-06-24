@@ -24,7 +24,7 @@ export type Emits = {
 };
 
 export const Button: CC<Props, Emits> = ({
-  reactivity: { computed },
+  reactivity: { computed, effect, signal },
   defineEmits,
   defineProps,
   getHost,
@@ -45,12 +45,11 @@ export const Button: CC<Props, Emits> = ({
   });
 
   const host = getHost();
-  const internals = getInternals();
-
-  console.log(internals)
 
   const handleClick = (e: Event) => {
     emits("on-click", e);
+    setCount(prev => prev + 1);
+
     if (props().type === "submit") {
       host?.closest("form")?.requestSubmit();
     }
@@ -73,6 +72,26 @@ export const Button: CC<Props, Emits> = ({
     "onClick": props().disabled ? undefined : handleClick,
   }));
 
+  const [ref, setRef] = signal<HTMLElement | null>(null);
+
+  effect(() => {
+    const currentRef = ref();
+
+    console.log("Button mounted:", currentRef);
+  });
+
+  const [count, setCount] = signal(0);
+
+  effect(({isFirstExecution}) => {
+    const currentCount = count();
+
+    if (isFirstExecution) {
+      return;
+    }
+
+    console.log("Button click count:", currentCount);
+  });
+
   return () => {
       const type = props().type;
 
@@ -81,6 +100,7 @@ export const Button: CC<Props, Emits> = ({
           return (
             <Host shadowRoot shadowRootMode="open" style={[style]}>
               <a
+                ref={setRef}
                 {...commonAttrs()}
                 tabindex={props().disabled ? -1 : 0}
                 href={props().disabled ? undefined : props().href}
@@ -97,6 +117,7 @@ export const Button: CC<Props, Emits> = ({
           return (
             <Host shadowRoot shadowRootMode="open" style={[style]}>
               <button
+                ref={setRef}
                 {...commonAttrs()}
                 type={type}
               >
@@ -115,7 +136,7 @@ class ButtonElement extends functionalCustomElement(Button) {
   static formAssociated = true;
 }
 
-console.log(functionalDeclarativeCustomElement(Button))
+// console.log(functionalDeclarativeCustomElement(Button))
 
 if (customElements.get("n-button") === undefined) {
   customElements.define("n-button", ButtonElement);
@@ -123,7 +144,7 @@ if (customElements.get("n-button") === undefined) {
 
 const button = document.createElement("n-button");
 document.querySelector("#app")?.appendChild(button);
-button.setAttribute("type", "anchor");
+// button.setAttribute("type", "anchor");
 button.setAttribute("variant", "primary");
 button.setAttribute("size", "medium");
 button.setAttribute("width", "auto");

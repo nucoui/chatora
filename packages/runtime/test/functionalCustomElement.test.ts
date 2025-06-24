@@ -1,3 +1,4 @@
+import type { CC } from "../types/FunctionalCustomElement";
 /**
  * functionalCustomElement のテスト
  *
@@ -16,11 +17,11 @@ const DummyJSX = (): import("../types/JSX.namespace").ChatoraJSXElement => ({
 describe("functionalCustomElement", () => {
   it("customElementクラスを生成できる", () => {
     const tagName = "x-test-el1";
-    const CustomElement = functionalCustomElement(({ onConnected, render }) => {
+    const CustomElement = functionalCustomElement(({ onConnected }) => {
       onConnected(() => {
         /* connected callback */
       });
-      render(() => DummyJSX());
+      return () => DummyJSX();
     }, {});
     if (!customElements.get(tagName))
       customElements.define(tagName, CustomElement);
@@ -32,9 +33,10 @@ describe("functionalCustomElement", () => {
 
   it("shadowRootオプションが有効でshadowRootが存在する", () => {
     const tagName = "x-test-el2";
-    const CustomElement = functionalCustomElement(({ render }) => {
-      render(() => DummyJSX());
-    }, { shadowRoot: true });
+    const component: CC = () => {
+      return () => DummyJSX();
+    };
+    const CustomElement = functionalCustomElement(component);
     if (!customElements.get(tagName))
       customElements.define(tagName, CustomElement);
     const el = document.createElement(tagName) as InstanceType<typeof CustomElement>;
@@ -44,9 +46,10 @@ describe("functionalCustomElement", () => {
 
   it("shadowRootオプションが無効でshadowRootが存在しない", () => {
     const tagName = "x-test-el3";
-    const CustomElement = functionalCustomElement(({ render }) => {
-      render(() => DummyJSX());
-    }, { shadowRoot: false });
+    const component: CC = () => {
+      return () => DummyJSX();
+    };
+    const CustomElement = functionalCustomElement(component);
     if (!customElements.get(tagName))
       customElements.define(tagName, CustomElement);
     const el = document.createElement(tagName) as InstanceType<typeof CustomElement>;
@@ -78,15 +81,16 @@ describe("functionalCustomElement", () => {
   it("defineEmitsのemit関数がイベントを発火する", () => {
     const tagName = "x-test-el-emits";
     let receivedDetail: any = null;
-    const CustomElement = functionalCustomElement(({ defineEmits, render }) => {
+    const component: CC = ({ defineEmits }) => {
       const emits = defineEmits({
         "on-foo": (_detail: any) => {},
         "on-bar": (_detail: any) => {},
       });
-      render(() => DummyJSX());
-      // テスト用にemitを公開
       (window as any).emit = emits;
-    }, {});
+
+      return () => DummyJSX();
+    };
+    const CustomElement = functionalCustomElement(component);
     if (!customElements.get(tagName))
       customElements.define(tagName, CustomElement);
     const el = document.createElement(tagName) as InstanceType<typeof CustomElement>;
@@ -110,15 +114,17 @@ describe("functionalCustomElement", () => {
     const tagName = "x-test-el-emits2";
     let receivedType: string | null = null;
     let receivedDetail: any = null;
-    const CustomElement = functionalCustomElement(({ defineEmits, render }) => {
+    const component: CC = ({ defineEmits }) => {
       // 型推論が効くかどうかのテスト
       const emit = defineEmits({
         "on-foo": (_detail: any) => {},
         "on-bar": (_detail: any) => {},
       });
-      render(() => DummyJSX());
       (window as any).emit = emit;
-    }, {});
+      return () => DummyJSX();
+    };
+    // functionalCustomElementを使ってCustomElementを生成
+    const CustomElement = functionalCustomElement(component);
     if (!customElements.get(tagName))
       customElements.define(tagName, CustomElement);
     const el = document.createElement(tagName) as InstanceType<typeof CustomElement>;

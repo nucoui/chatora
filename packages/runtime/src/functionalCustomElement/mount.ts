@@ -1,9 +1,7 @@
+import type { RefValue } from "@root/types/RefValue";
 import type { VNode } from "./vNode";
 import { MATH_TAGS } from "@/functionalCustomElement/constants/MATH_TAGS";
 import { SVG_TAGS } from "@/functionalCustomElement/constants/SVG_TAGS";
-
-// 空オブジェクトの参照
-const EMPTY_PROPS: Record<string, any> = {};
 
 /**
  * Generates a DOM node from a vNode. Boolean props are set as empty string for true, removed for false.
@@ -43,21 +41,24 @@ export function mount(vnode: VNode, parent?: HTMLElement | ShadowRoot | Element 
       return document.createElement(tag);
     })();
 
-    // プロパティ設定の最適化
-    if (props && props !== EMPTY_PROPS) {
+    // プロパティ設定
+    if (props) {
       for (const k in props) {
         const v = props[k];
 
         if (v == null || v === undefined)
           continue;
 
-        // イベントハンドラの高速チェック
-        if (k.charCodeAt(0) === 111 && k.charCodeAt(1) === 110 && typeof v === "function") { // "on"
+        // イベントハンドラ
+        if (k.startsWith("on") && typeof v === "function") {
           const event = k.slice(2).toLowerCase();
           el.addEventListener(event, v as EventListenerOrEventListenerObject);
         }
         else if (typeof v === "boolean") {
           v ? el.setAttribute(k, "") : el.removeAttribute(k);
+        }
+        else if (k === "ref") {
+          // ref属性はsetしない
         }
         else {
           el.setAttribute(k, String(v));
@@ -65,28 +66,23 @@ export function mount(vnode: VNode, parent?: HTMLElement | ShadowRoot | Element 
       }
     }
 
-    // 子要素の追加最適化
-    if (children.length > 0) {
-      if (children.length === 1) {
-        // 子要素が1つの場合の高速パス
-        const child = children[0];
-        const node = typeof child === "string"
-          ? document.createTextNode(child)
-          : mount(child, el);
-        el.appendChild(node);
+    // ref属性のハンドリング
+    if (props && props.ref) {
+      const ref = props.ref as RefValue;
+      if (typeof ref === "function") {
+        ref(el);
       }
-      else {
-        // 複数の子要素の場合はDocumentFragmentを使用
-        const fragment = document.createDocumentFragment();
-        for (let i = 0; i < children.length; i++) {
-          const child = children[i];
-          const node = typeof child === "string"
-            ? document.createTextNode(child)
-            : mount(child, el);
-          fragment.appendChild(node);
-        }
-        el.appendChild(fragment);
+      else if (ref && typeof ref === "object") {
+        (ref as { current: any }).current = el;
       }
+    }
+
+    // 子要素の追加
+    for (const child of children) {
+      const node = typeof child === "string"
+        ? document.createTextNode(child)
+        : mount(child, el);
+      el.appendChild(node);
     }
     return el;
   }

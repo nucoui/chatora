@@ -5,81 +5,27 @@
  * Test for functionalDeclarativeCustomElement factory function for Declarative Shadow DOM HTML elements using JSX/TSX.
  */
 import type { Element } from "hast";
-import type { ChatoraJSXElement } from "../types/JSX.namespace";
+import type { CC } from "../types/FunctionalCustomElement";
 import { describe, expect, it } from "vitest";
 import { functionalDeclarativeCustomElement } from "../src/functionalDeclarativeCustomElement";
-
-// ダミーのChatoraJSXElementを返す
-const DummyJSX = (): ChatoraJSXElement => ({
-  tag: "div",
-  props: {},
-});
-
-// 複雑なJSX構造を返す
-const ComplexJSX = (): ChatoraJSXElement => ({
-  tag: "div",
-  props: {
-    class: "container",
-    id: "main",
-    children: [
-      {
-        tag: "h1",
-        props: {
-          children: "タイトル",
-        },
-      },
-      {
-        tag: "p",
-        props: {
-          class: "content",
-          children: "これはテストです。",
-        },
-      },
-      {
-        tag: "button",
-        props: {
-          type: "button",
-          onClick: () => {}, // イベントハンドラは無視されるはず
-          children: "クリック",
-        },
-      },
-    ],
-  },
-});
-
-// childrenに配列を含むJSX
-const ArrayChildrenJSX = (): ChatoraJSXElement => ({
-  tag: "ul",
-  props: {
-    children: [1, 2, 3].map(num => ({
-      tag: "li",
-      props: {
-        children: `Item ${num}`,
-      },
-    })),
-  },
-});
-
-// 関数コンポーネントを使ったJSX
-const Greeting = (props: Record<string, unknown>): ChatoraJSXElement => ({
-  tag: "div",
-  props: {
-    children: `こんにちは、${props.name as string}さん！`,
-  },
-});
-
-const FunctionComponentJSX = (): ChatoraJSXElement => ({
-  tag: Greeting,
-  props: {
-    name: "世界",
-  },
-});
+import { Host } from "../src/jsx-runtime";
 
 describe("functionalDeclarativeCustomElement", () => {
   it("基本的なhastオブジェクトを生成できる", () => {
-    const result = functionalDeclarativeCustomElement(({ render }) => {
-      render(() => DummyJSX());
-    }, {});
+    const component: CC = () => {
+      return () => ({
+        tag: Host,
+        props: {
+          shadowRoot: true,
+          shadowRootMode: "open",
+          children: {
+            tag: "div",
+            props: {},
+          },
+        },
+      });
+    };
+    const result = functionalDeclarativeCustomElement(component);
 
     expect(result).toHaveProperty("type", "root");
     expect(result.children).toHaveLength(1);
@@ -87,7 +33,7 @@ describe("functionalDeclarativeCustomElement", () => {
     expect(result.children[0]).toHaveProperty("tagName", "template");
 
     const template = result.children[0] as Element;
-    expect(template.properties).toHaveProperty("shadowroot", "open");
+    expect(template.properties).toHaveProperty("shadowrootmode", "open");
     expect(template.children).toHaveLength(1);
 
     const div = template.children[0] as Element;
@@ -95,18 +41,35 @@ describe("functionalDeclarativeCustomElement", () => {
   });
 
   it("shadowRootモードを指定できる", () => {
-    const result = functionalDeclarativeCustomElement(({ render }) => {
-      render(() => DummyJSX());
-    }, { shadowRoot: true, shadowRootMode: "closed" });
+    const component: CC = () => () => ({
+      tag: Host,
+      props: {
+        shadowRoot: true,
+        shadowRootMode: "closed",
+        children: {
+          tag: "div",
+          props: {},
+        },
+      },
+    });
+    const result = functionalDeclarativeCustomElement(component);
 
     const template = result.children[0] as Element;
-    expect(template.properties).toHaveProperty("shadowroot", "closed");
+    expect(template.properties).toHaveProperty("shadowrootmode", "closed");
   });
 
   it("shadowRootをオフにできる", () => {
-    const result = functionalDeclarativeCustomElement(({ render }) => {
-      render(() => DummyJSX());
-    }, { shadowRoot: false });
+    const component: CC = () => () => ({
+      tag: Host,
+      props: {
+        shadowRoot: false,
+        children: {
+          tag: "div",
+          props: {},
+        },
+      },
+    });
+    const result = functionalDeclarativeCustomElement(component);
 
     // テンプレート要素ではなく、直接コンテンツが返される
     expect(result.children[0]).toHaveProperty("tagName", "div");
@@ -114,9 +77,21 @@ describe("functionalDeclarativeCustomElement", () => {
 
   it("スタイルを適用できる", () => {
     const css = "div { color: red; }";
-    const result = functionalDeclarativeCustomElement(({ render }) => {
-      render(() => DummyJSX());
-    }, { styles: css });
+    const component: CC = () => {
+      return () => ({
+        tag: Host,
+        props: {
+          shadowRoot: true,
+          shadowRootMode: "open",
+          style: [css],
+          children: {
+            tag: "div",
+            props: {},
+          },
+        },
+      });
+    };
+    const result = functionalDeclarativeCustomElement(component);
 
     const template = result.children[0] as Element;
     expect(template.children).toHaveLength(2); // style要素とcontent要素
@@ -130,10 +105,21 @@ describe("functionalDeclarativeCustomElement", () => {
   it("複数のスタイルを適用できる", () => {
     const css1 = "div { color: red; }";
     const css2 = "p { font-size: 16px; }";
-    const result = functionalDeclarativeCustomElement(({ render }) => {
-      render(() => DummyJSX());
-    }, { styles: [css1, css2] });
-
+    const component: CC = () => {
+      return () => ({
+        tag: Host,
+        props: {
+          shadowRoot: true,
+          shadowRootMode: "open",
+          style: [css1, css2],
+          children: {
+            tag: "div",
+            props: {},
+          },
+        },
+      });
+    };
+    const result = functionalDeclarativeCustomElement(component);
     const template = result.children[0] as Element;
     expect(template.children).toHaveLength(3); // 2つのstyle要素とcontent要素
 
@@ -146,9 +132,41 @@ describe("functionalDeclarativeCustomElement", () => {
   });
 
   it("複雑なJSX構造を変換できる", () => {
-    const result = functionalDeclarativeCustomElement(({ render }) => {
-      render(() => ComplexJSX());
-    }, {});
+    const component: CC = () => () => ({
+      tag: Host,
+      props: {
+        shadowRoot: true,
+        shadowRootMode: "open",
+        children: {
+          tag: "div",
+          props: {
+            class: "container",
+            id: "main",
+            children: [
+              {
+                tag: "h1",
+                props: { children: "タイトル" },
+              },
+              {
+                tag: "p",
+                props: { class: "content", children: "これはテストです。" },
+              },
+              {
+                tag: "button",
+                props: {
+                  type: "button",
+                  children: "クリック",
+                  // onClick イベントハンドラは削除される
+                  // eslint-disable-next-line no-console
+                  onClick: () => console.log("クリックされました"),
+                },
+              },
+            ],
+          },
+        },
+      },
+    });
+    const result = functionalDeclarativeCustomElement(component);
 
     const template = result.children[0] as Element;
     const div = template.children[0] as Element;
@@ -176,9 +194,24 @@ describe("functionalDeclarativeCustomElement", () => {
   });
 
   it("配列のchildrenを処理できる", () => {
-    const result = functionalDeclarativeCustomElement(({ render }) => {
-      render(() => ArrayChildrenJSX());
-    }, {});
+    const component: CC = () => () => ({
+      tag: Host,
+      props: {
+        shadowRoot: true,
+        shadowRootMode: "open",
+        children: {
+          tag: "ul",
+          props: {
+            children: [
+              { tag: "li", props: { children: "Item 1" } },
+              { tag: "li", props: { children: "Item 2" } },
+              { tag: "li", props: { children: "Item 3" } },
+            ],
+          },
+        },
+      },
+    });
+    const result = functionalDeclarativeCustomElement(component);
 
     const template = result.children[0] as Element;
     const ul = template.children[0] as Element;
@@ -200,9 +233,23 @@ describe("functionalDeclarativeCustomElement", () => {
   });
 
   it("関数コンポーネントを処理できる", () => {
-    const result = functionalDeclarativeCustomElement(({ render }) => {
-      render(() => FunctionComponentJSX());
-    }, {});
+    const Greeting = ({ name }: { name: string }) => ({
+      tag: "div",
+      props: {
+        children: `こんにちは、${name}さん！`,
+      },
+    });
+
+    const component: CC = () => () => ({
+      tag: Host,
+      props: {
+        shadowRoot: true,
+        shadowRootMode: "open",
+        children: Greeting({ name: "世界" }),
+      },
+    });
+
+    const result = functionalDeclarativeCustomElement(component);
 
     const template = result.children[0] as Element;
     const div = template.children[0] as Element;
@@ -212,20 +259,32 @@ describe("functionalDeclarativeCustomElement", () => {
   });
 
   it("nullやundefinedを安全に処理できる", () => {
-    const result = functionalDeclarativeCustomElement(({ render }) => {
-      render(() => null);
-    }, {});
+    const component: CC = () => () => ({
+      tag: Host,
+      props: {
+        shadowRoot: true,
+        shadowRootMode: "open",
+        children: null, // または undefined
+      },
+    });
+    const result = functionalDeclarativeCustomElement(component);
 
     // 空の状態でも正常に動作する
     expect(result).toHaveProperty("type", "root");
     // 空の場合は空の配列を返す
-    expect(result.children).toHaveLength(0);
+    expect(result.children).toHaveLength(1);
   });
 
   it("プリミティブ値を処理できる", () => {
-    const result = functionalDeclarativeCustomElement(({ render }) => {
-      render(() => "テキストだけ");
-    }, {});
+    const component: CC = () => () => ({
+      tag: Host,
+      props: {
+        shadowRoot: true,
+        shadowRootMode: "open",
+        children: "テキストだけ",
+      },
+    });
+    const result = functionalDeclarativeCustomElement(component);
 
     const template = result.children[0] as Element;
     expect(template.children).toHaveLength(1);
@@ -236,9 +295,15 @@ describe("functionalDeclarativeCustomElement", () => {
   });
 
   it("数値を処理できる", () => {
-    const result = functionalDeclarativeCustomElement(({ render }) => {
-      render(() => 42);
-    }, {});
+    const component: CC = () => () => ({
+      tag: Host,
+      props: {
+        shadowRoot: true,
+        shadowRootMode: "open",
+        children: 42, // 数値を直接渡す
+      },
+    });
+    const result = functionalDeclarativeCustomElement(component);
 
     const template = result.children[0] as Element;
     const textNode = template.children[0];
@@ -248,14 +313,20 @@ describe("functionalDeclarativeCustomElement", () => {
   });
 
   it("classNameをclassプロパティに変換できる", () => {
-    const result = functionalDeclarativeCustomElement(({ render }) => {
-      render(() => ({
-        tag: "div",
-        props: {
-          className: "test-class",
+    const component: CC = () => () => ({
+      tag: Host,
+      props: {
+        shadowRoot: true,
+        shadowRootMode: "open",
+        children: {
+          tag: "div",
+          props: {
+            className: "test-class",
+          },
         },
-      }));
-    }, {});
+      },
+    });
+    const result = functionalDeclarativeCustomElement(component);
 
     const template = result.children[0] as Element;
     const div = template.children[0] as Element;
@@ -265,36 +336,53 @@ describe("functionalDeclarativeCustomElement", () => {
   });
 
   it("データ属性を処理できる", () => {
-    const result = functionalDeclarativeCustomElement(({ render }) => {
-      render(() => ({
-        tag: "div",
-        props: {
-          "data-test": "value",
-          "data-index": "123",
+    const component: CC = () => () => ({
+      tag: Host,
+      props: {
+        shadowRoot: true,
+        shadowRootMode: "open",
+        children: {
+          tag: "div",
+          props: {
+            "data-test": "value",
+            "data-index": 123,
+          },
         },
-      }));
-    }, {});
+      },
+    });
+    const result = functionalDeclarativeCustomElement(component);
 
     const template = result.children[0] as Element;
     const div = template.children[0] as Element;
 
     expect(div.properties).toHaveProperty("data-test", "value");
-    expect(div.properties).toHaveProperty("data-index", "123");
+    expect(div.properties).toHaveProperty("data-index", 123);
   });
 
   it("definePropsが動作する", () => {
-    const result = functionalDeclarativeCustomElement(({ defineProps, render }) => {
+    const component: CC<{
+      name: string;
+      age: number;
+    }> = ({ defineProps }) => {
       const props = defineProps({
-        name: v => v,
-        age: v => v,
+        name: v => v as string,
+        age: v => v as unknown as number,
       });
-      render(() => ({
-        tag: "div",
+      return () => ({
+        tag: Host,
         props: {
-          children: `Name: ${props().name}, Age: ${props().age}`,
+          shadowRoot: true,
+          shadowRootMode: "open",
+          children: {
+            tag: "div",
+            props: {
+              children: `Name: ${props().name}, Age: ${props().age}`,
+            },
+          },
         },
-      }));
-    }, {});
+      });
+    };
+    const result = functionalDeclarativeCustomElement(component, {});
 
     // SSRモードではpropsは未定義またはnullになる
     const template = result.children[0] as Element;
@@ -307,13 +395,23 @@ describe("functionalDeclarativeCustomElement", () => {
 
   it("defineEmitsがダミー関数を返す", () => {
     let emitFunction: any;
-    functionalDeclarativeCustomElement(({ defineEmits, render }) => {
+    const component: CC = ({ defineEmits }) => {
       emitFunction = defineEmits({
-        "on-click": (_detail: any) => {},
-        "on-change": (_detail: any) => {},
+        "on-click": (event: any) => event,
       });
-      render(() => DummyJSX());
-    }, {});
+      return () => ({
+        tag: Host,
+        props: {
+          shadowRoot: true,
+          shadowRootMode: "open",
+          children: {
+            tag: "div",
+            props: {},
+          },
+        },
+      });
+    };
+    functionalDeclarativeCustomElement(component, {});
 
     // 関数として呼び出せること
     expect(typeof emitFunction).toBe("function");

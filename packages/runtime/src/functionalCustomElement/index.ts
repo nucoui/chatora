@@ -75,34 +75,22 @@ const functionalCustomElement: FunctionalCustomElement = (
          * @returns 属性値を取得するgetter関数 (Getter function for attribute values)
          */
         defineProps: (props: Record<string, (value: string | undefined) => any>) => {
-          // 属性名のリストを抽出（キャッシュ）
-          const propNames = Object.keys(props);
-          this.observedAttributes = propNames;
+          this.observedAttributes = Object.keys(props);
 
-          // 変換関数のエントリをキャッシュ（Object.entriesを繰り返し実行することを避ける）
-          const transformerEntries = Object.entries(props) as Array<[string, (value: string | undefined) => any]>;
-
-          // インスタンスが持つ全属性値をバッチで一度に初期化
+          // 初期値を設定
           const initialProps: Record<string, string | undefined> = {};
-          for (let i = 0; i < propNames.length; i++) {
-            const name = propNames[i];
+          for (const name of this.observedAttributes) {
             initialProps[name] = this.getAttribute(name) || undefined;
           }
+          this.props[1](initialProps);
 
-          // 一度の更新処理でpropsを設定（バッチ処理）
-          this.props[1](prev => ({ ...prev, ...initialProps }));
-
-          // 変換関数を適用してgetter関数を返す（最適化版）
+          // getter関数を返す
           return () => {
             const rawProps = this.props[0]();
             const transformedProps: Record<string, any> = {};
-
-            // for-ofループではなくfor文を使用し、キャッシュされたエントリを利用
-            for (let i = 0; i < transformerEntries.length; i++) {
-              const [key, transformer] = transformerEntries[i];
+            for (const [key, transformer] of Object.entries(props)) {
               transformedProps[key] = transformer(rawProps[key]);
             }
-
             return transformedProps as any;
           };
         },
@@ -113,43 +101,29 @@ const functionalCustomElement: FunctionalCustomElement = (
          * @returns イベントを発火する関数 (Function to emit events)
          */
         defineEmits: (events: Record<`on-${string}`, (detail: any) => void>) => {
-          // デフォルトのイベントオプション（一度だけ作成）
-          const defaultOptions = { bubbles: true, composed: true, cancelable: true };
-
-          // イベント名の配列を取得（キャッシュ）
-          const eventNames = Object.keys(events);
-          // イベント名のSetを作成（includes()よりも高速なhas()を使用）
-          const eventNameSet = new Set(eventNames);
-
-          // イベント名からメソッド名へのマッピングを事前に作成（on-foo → foo）
-          const methodMap = new Map();
-          for (let i = 0; i < eventNames.length; i++) {
-            const event = eventNames[i];
-            methodMap.set(event, event.replace(/^on-/, ""));
-          }
-
-          // イベント発火の基本関数
-          const emit = (type: any, detail: any, options?: { bubbles?: boolean; composed?: boolean; cancelable?: boolean }) => {
-            if (eventNameSet.has(type)) {
-              // オプションをマージするよりもスプレッド構文の方が効率的
+          const emit = (type: any, detail?: any, options?: { bubbles?: boolean; composed?: boolean; cancelable?: boolean }) => {
+            if (type in events) {
               this.dispatchEvent(
                 new CustomEvent(type, {
                   detail,
-                  ...defaultOptions,
+                  bubbles: true,
+                  composed: true,
+                  cancelable: true,
                   ...options,
                 }),
               );
             }
           };
 
-          // 特定のイベント用のヘルパー関数を追加（on-foo → emit.foo()のようにアクセス可能）
-          for (const [event, methodName] of methodMap.entries()) {
+          // 各イベント用のヘルパー関数を追加
+          for (const eventName of Object.keys(events)) {
+            const methodName = eventName.replace(/^on-/, "");
             (emit as any)[methodName] = (detail: any, options?: any) => {
-              emit(event, detail, options);
+              emit(eventName, detail, options);
             };
           }
 
-          return emit;
+          return emit as any;
         },
         onConnected: (cb) => {
           onConnectedBase(cb, this.constructor);
@@ -423,7 +397,7 @@ const functionalCustomElement: FunctionalCustomElement = (
         effect(() => {
           this.props[0](); // props値の監視
           this._renderCallback!();
-        }, { immediate: true });
+        });
 
         this._effectInitialized = true;
       }

@@ -1,29 +1,15 @@
 import type { VNode } from "@/functionalCustomElement/vNode";
 import { mount } from "@/functionalCustomElement/mount";
 
-// VNode変換の最適化（インライン化）
-function toVNode(child: VNode | string | undefined): VNode {
-  if (typeof child === "string") {
-    return { tag: "#text", props: {}, children: [child] };
-  }
-  if (!child) {
-    return { tag: "#empty", props: {}, children: [] };
-  }
-  return child;
-}
-
-// プロパティパッチの最適化
 function patchProps(el: HTMLElement, oldProps: Record<string, any>, newProps: Record<string, any>) {
-  // 高速パス: プロパティが同じオブジェクトの場合
   if (oldProps === newProps)
     return;
 
-  // 削除されたプロパティを処理
+  // Remove old props
   for (const k in oldProps) {
     if (!(k in newProps)) {
-      if (k.charCodeAt(0) === 111 && k.charCodeAt(1) === 110 && typeof oldProps[k] === "function") { // "on"
-        const event = k.slice(2).toLowerCase();
-        el.removeEventListener(event, oldProps[k]);
+      if (k[0] === "o" && k[1] === "n") {
+        el.removeEventListener(k.slice(2).toLowerCase(), oldProps[k]);
       }
       else {
         el.removeAttribute(k);
@@ -31,34 +17,25 @@ function patchProps(el: HTMLElement, oldProps: Record<string, any>, newProps: Re
     }
   }
 
-  // 新規・更新されたプロパティを処理
+  // Add/update new props
   for (const k in newProps) {
     const newVal = newProps[k];
-    const oldVal = oldProps[k];
-
-    // 値が同じなら何もしない（高速化）
-    if (newVal === oldVal)
+    if (newVal === oldProps[k])
       continue;
 
-    if (newVal == null || newVal === undefined) {
+    if (newVal == null) {
       el.removeAttribute(k);
-      continue;
     }
-
-    if (k.charCodeAt(0) === 111 && k.charCodeAt(1) === 110 && typeof newVal === "function") { // "on"
-      const event = k.slice(2).toLowerCase();
-      if (oldVal)
-        el.removeEventListener(event, oldVal);
-      el.addEventListener(event, newVal);
+    else if (k[0] === "o" && k[1] === "n") {
+      if (oldProps[k])
+        el.removeEventListener(k.slice(2).toLowerCase(), oldProps[k]);
+      el.addEventListener(k.slice(2).toLowerCase(), newVal);
     }
     else if (typeof newVal === "boolean") {
       newVal ? el.setAttribute(k, "") : el.removeAttribute(k);
     }
     else {
-      const newStr = String(newVal);
-      if (el.getAttribute(k) !== newStr) {
-        el.setAttribute(k, newStr);
-      }
+      el.setAttribute(k, String(newVal));
     }
   }
 }
@@ -102,19 +79,35 @@ function patchChildren(
 
   // 通常の差分パッチ処理（逆順で処理して削除時のインデックスズレを回避）
   for (let i = maxLen - 1; i >= 0; i--) {
-    const oldChild = i < oldLen ? toVNode(oldChildren[i]) : undefined;
-    const newChild = i < newLen ? toVNode(newChildren[i]) : undefined;
+    const oldChild = i < oldLen ? oldChildren[i] : undefined;
+    const newChild = i < newLen ? newChildren[i] : undefined;
     const childDom = getChildDom(i);
 
     if (oldChild && newChild) {
       // 既存ノードをpatch
       if (childDom) {
-        patch(oldChild, newChild, parent, childDom);
+        if (typeof oldChild === "string" && typeof newChild === "string") {
+          // 両方文字列の場合はtextContentを更新
+          if (oldChild !== newChild && childDom instanceof Text) {
+            childDom.textContent = newChild;
+          }
+        }
+        else if (typeof oldChild === "string" || typeof newChild === "string") {
+          // 一方が文字列の場合は新しいノードに置き換え
+          const newNode = typeof newChild === "string" ? document.createTextNode(newChild) : mount(newChild);
+          if (parent instanceof Element || parent instanceof ShadowRoot) {
+            parent.replaceChild(newNode, childDom);
+          }
+        }
+        else {
+          // 両方VNodeの場合
+          patch(oldChild, newChild, parent, childDom);
+        }
       }
     }
     else if (!oldChild && newChild) {
       // 新しいノードを追加
-      const newNode = mount(newChild);
+      const newNode = typeof newChild === "string" ? document.createTextNode(newChild) : mount(newChild);
       if (parent instanceof Element || parent instanceof ShadowRoot) {
         if (insertRef) {
           parent.insertBefore(newNode, insertRef);

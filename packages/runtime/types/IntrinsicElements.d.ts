@@ -1,3 +1,5 @@
+import type { RefValue } from "@root/types/RefValue";
+
 /**
  * Common event handler attributes (onXXX) for Chatora Intrinsic Elements.
  * These handlers correspond to standard DOM events and are available on most elements.
@@ -339,6 +341,11 @@ export interface ChatoraIntrinsicElements extends ChatoraEventHandlers {
    * Children nodes
    */
   children?: ChatoraNode;
+  /**
+   * ref属性: 要素インスタンスを取得するためのコールバックまたはオブジェクト
+   * signalのsetterやReact/Vue風のref利用が可能
+   */
+  ref?: RefValue;
 }
 
 /**
@@ -395,7 +402,7 @@ export interface OlChatoraIntrinsicElement extends ChatoraIntrinsicElements {}
  * Attributes for li element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/grouping-content.html#the-li-element
  */
-export interface LiChatoraIntrinsicElement extends ChatoraIntrinsicElements { value?: number; }
+export interface LiChatoraIntrinsicElement extends ChatoraIntrinsicElements { value?: number }
 /**
  * Attributes for span element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/text-level-semantics.html#the-span-element
@@ -405,7 +412,7 @@ export interface SpanChatoraIntrinsicElement extends ChatoraIntrinsicElements {}
  * Attributes for button element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/form-elements.html#the-button-element
  */
-export interface ButtonChatoraIntrinsicElement extends ChatoraIntrinsicElements { autofocus?: boolean; disabled?: boolean; form?: string; formaction?: string; formenctype?: string; formmethod?: string; formnovalidate?: boolean; formtarget?: string; name?: string; type?: "button" | "submit" | "reset"; value?: string | number; }
+export interface ButtonChatoraIntrinsicElement extends ChatoraIntrinsicElements { autofocus?: boolean; disabled?: boolean; form?: string; formaction?: string; formenctype?: string; formmethod?: string; formnovalidate?: boolean; formtarget?: string; name?: string; type?: "button" | "submit" | "reset"; value?: string | number }
 /**
  * Attributes for canvas element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/canvas.html#the-canvas-element
@@ -433,17 +440,17 @@ export interface CodeChatoraIntrinsicElement extends ChatoraIntrinsicElements {}
  * Attributes for col element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/tables.html#the-col-element
  */
-export interface ColChatoraIntrinsicElement extends ChatoraIntrinsicElements { span?: number; width?: number | string; }
+export interface ColChatoraIntrinsicElement extends ChatoraIntrinsicElements { span?: number; width?: number | string }
 /**
  * Attributes for colgroup element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/tables.html#the-colgroup-element
  */
-export interface ColgroupChatoraIntrinsicElement extends ChatoraIntrinsicElements { span?: number; }
+export interface ColgroupChatoraIntrinsicElement extends ChatoraIntrinsicElements { span?: number }
 /**
  * Attributes for data element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/text-level-semantics.html#the-data-element
  */
-export interface DataChatoraIntrinsicElement extends ChatoraIntrinsicElements { value?: string | number; }
+export interface DataChatoraIntrinsicElement extends ChatoraIntrinsicElements { value?: string | number }
 /**
  * Attributes for datalist element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/form-elements.html#the-datalist-element
@@ -458,7 +465,7 @@ export interface DdChatoraIntrinsicElement extends ChatoraIntrinsicElements {}
  * Attributes for del element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/edits.html#the-del-element
  */
-export interface DelChatoraIntrinsicElement extends ChatoraIntrinsicElements { cite?: string; datetime?: string; }
+export interface DelChatoraIntrinsicElement extends ChatoraIntrinsicElements { cite?: string; datetime?: string }
 /**
  * Attributes for details element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/interactive-elements.html#the-details-element
@@ -498,12 +505,12 @@ export interface EmChatoraIntrinsicElement extends ChatoraIntrinsicElements {}
  * Attributes for embed element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/embedded-content.html#the-embed-element
  */
-export interface EmbedChatoraIntrinsicElement extends ChatoraIntrinsicElements { src?: string; type?: string; width?: number | string; height?: number | string; }
+export interface EmbedChatoraIntrinsicElement extends ChatoraIntrinsicElements { src?: string; type?: string; width?: number | string; height?: number | string }
 /**
  * Attributes for fieldset element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/form-elements.html#the-fieldset-element
  */
-export interface FieldsetChatoraIntrinsicElement extends ChatoraIntrinsicElements { disabled?: boolean; form?: string; name?: string; }
+export interface FieldsetChatoraIntrinsicElement extends ChatoraIntrinsicElements { disabled?: boolean; form?: string; name?: string }
 /**
  * Attributes for figcaption element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/grouping-content.html#the-figcaption-element
@@ -558,7 +565,7 @@ export interface HrChatoraIntrinsicElement extends ChatoraIntrinsicElements {}
  * Attributes for html element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/semantics.html#the-html-element
  */
-export interface HtmlChatoraIntrinsicElement extends ChatoraIntrinsicElements { manifest?: string; }
+export interface HtmlChatoraIntrinsicElement extends ChatoraIntrinsicElements { manifest?: string }
 /**
  * Attributes for i element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/text-level-semantics.html#the-i-element
@@ -568,12 +575,12 @@ export interface IChatoraIntrinsicElement extends ChatoraIntrinsicElements {}
  * Attributes for iframe element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/iframe-embed-object.html#the-iframe-element
  */
-export interface IframeChatoraIntrinsicElement extends ChatoraIntrinsicElements { allow?: string; allowfullscreen?: boolean; allowpaymentrequest?: boolean; height?: number | string; loading?: "eager" | "lazy"; name?: string; referrerpolicy?: string; sandbox?: string; src?: string; srcdoc?: string; width?: number | string; }
+export interface IframeChatoraIntrinsicElement extends ChatoraIntrinsicElements { allow?: string; allowfullscreen?: boolean; allowpaymentrequest?: boolean; height?: number | string; loading?: "eager" | "lazy"; name?: string; referrerpolicy?: string; sandbox?: string; src?: string; srcdoc?: string; width?: number | string }
 /**
  * Attributes for img element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/embedded-content.html#the-img-element
  */
-export interface ImgChatoraIntrinsicElement extends ChatoraIntrinsicElements { alt?: string; src?: string; srcset?: string; width?: number | string; height?: number | string; decoding?: "async" | "sync" | "auto"; loading?: "eager" | "lazy"; referrerpolicy?: string; sizes?: string; crossorigin?: "anonymous" | "use-credentials"; usemap?: string; ismap?: boolean; }
+export interface ImgChatoraIntrinsicElement extends ChatoraIntrinsicElements { alt?: string; src?: string; srcset?: string; width?: number | string; height?: number | string; decoding?: "async" | "sync" | "auto"; loading?: "eager" | "lazy"; referrerpolicy?: string; sizes?: string; crossorigin?: "anonymous" | "use-credentials"; usemap?: string; ismap?: boolean }
 /**
  * Attributes for input element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/input.html#the-input-element
@@ -616,7 +623,7 @@ export interface InputChatoraIntrinsicElement extends ChatoraIntrinsicElements, 
  * Attributes for ins element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/edits.html#the-ins-element
  */
-export interface InsChatoraIntrinsicElement extends ChatoraIntrinsicElements { cite?: string; datetime?: string; }
+export interface InsChatoraIntrinsicElement extends ChatoraIntrinsicElements { cite?: string; datetime?: string }
 /**
  * Attributes for kbd element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/text-level-semantics.html#the-kbd-element
@@ -626,12 +633,12 @@ export interface KbdChatoraIntrinsicElement extends ChatoraIntrinsicElements {}
  * Attributes for keygen element (WHATWG HTML spec, obsolete)
  * https://html.spec.whatwg.org/multipage/form-elements.html#the-keygen-element
  */
-export interface KeygenChatoraIntrinsicElement extends ChatoraIntrinsicElements { autofocus?: boolean; challenge?: string; disabled?: boolean; form?: string; keytype?: string; name?: string; }
+export interface KeygenChatoraIntrinsicElement extends ChatoraIntrinsicElements { autofocus?: boolean; challenge?: string; disabled?: boolean; form?: string; keytype?: string; name?: string }
 /**
  * Attributes for label element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/form-elements.html#the-label-element
  */
-export interface LabelChatoraIntrinsicElement extends ChatoraIntrinsicElements { for?: string; form?: string; }
+export interface LabelChatoraIntrinsicElement extends ChatoraIntrinsicElements { for?: string; form?: string }
 /**
  * Attributes for legend element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/form-elements.html#the-legend-element
@@ -641,12 +648,12 @@ export interface LegendChatoraIntrinsicElement extends ChatoraIntrinsicElements 
  * Attributes for li element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/grouping-content.html#the-li-element
  */
-export interface LiChatoraIntrinsicElement extends ChatoraIntrinsicElements { value?: number; }
+export interface LiChatoraIntrinsicElement extends ChatoraIntrinsicElements { value?: number }
 /**
  * Attributes for link element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/semantics.html#the-link-element
  */
-export interface LinkChatoraIntrinsicElement extends ChatoraIntrinsicElements { as?: string; crossorigin?: string; disabled?: boolean; href?: string; hreflang?: string; imagesizes?: string; imagesrcset?: string; integrity?: string; media?: string; referrerpolicy?: string; rel?: string; sizes?: string; title?: string; type?: string; }
+export interface LinkChatoraIntrinsicElement extends ChatoraIntrinsicElements { as?: string; crossorigin?: string; disabled?: boolean; href?: string; hreflang?: string; imagesizes?: string; imagesrcset?: string; integrity?: string; media?: string; referrerpolicy?: string; rel?: string; sizes?: string; title?: string; type?: string }
 /**
  * Attributes for main element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/sections.html#the-main-element
@@ -666,12 +673,12 @@ export interface MarkChatoraIntrinsicElement extends ChatoraIntrinsicElements {}
  * Attributes for menu element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/interactive-elements.html#the-menu-element
  */
-export interface MenuChatoraIntrinsicElement extends ChatoraIntrinsicElements { type?: string; label?: string; }
+export interface MenuChatoraIntrinsicElement extends ChatoraIntrinsicElements { type?: string; label?: string }
 /**
  * Attributes for meta element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/semantics.html#the-meta-element
  */
-export interface MetaChatoraIntrinsicElement extends ChatoraIntrinsicElements { charset?: string; content?: string; httpEquiv?: string; name?: string; }
+export interface MetaChatoraIntrinsicElement extends ChatoraIntrinsicElements { charset?: string; content?: string; httpEquiv?: string; name?: string }
 /**
  * Attributes for meter element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/form-elements.html#the-meter-element
@@ -691,12 +698,12 @@ export interface NoscriptChatoraIntrinsicElement extends ChatoraIntrinsicElement
  * Attributes for object element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/embedded-content.html#the-object-element
  */
-export interface ObjectChatoraIntrinsicElement extends ChatoraIntrinsicElements { data?: string; form?: string; height?: number | string; name?: string; type?: string; typemustmatch?: boolean; usemap?: string; width?: number | string; }
+export interface ObjectChatoraIntrinsicElement extends ChatoraIntrinsicElements { data?: string; form?: string; height?: number | string; name?: string; type?: string; typemustmatch?: boolean; usemap?: string; width?: number | string }
 /**
  * Attributes for ol element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/grouping-content.html#the-ol-element
  */
-export interface OlChatoraIntrinsicElement extends ChatoraIntrinsicElements { reversed?: boolean; start?: number; type?: string; }
+export interface OlChatoraIntrinsicElement extends ChatoraIntrinsicElements { reversed?: boolean; start?: number; type?: string }
 /**
  * Attributes for optgroup element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/form-elements.html#the-optgroup-element
@@ -711,7 +718,7 @@ export interface OptionChatoraIntrinsicElement extends ChatoraIntrinsicElements 
  * Attributes for output element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/form-elements.html#the-output-element
  */
-export interface OutputChatoraIntrinsicElement extends ChatoraIntrinsicElements { for?: string; form?: string; name?: string; }
+export interface OutputChatoraIntrinsicElement extends ChatoraIntrinsicElements { for?: string; form?: string; name?: string }
 /**
  * Attributes for p element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/paragraphs.html#the-p-element
@@ -721,7 +728,7 @@ export interface PChatoraIntrinsicElement extends ChatoraIntrinsicElements {}
  * Attributes for param element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/embedded-content.html#the-param-element
  */
-export interface ParamChatoraIntrinsicElement extends ChatoraIntrinsicElements { name?: string; value?: string | number; }
+export interface ParamChatoraIntrinsicElement extends ChatoraIntrinsicElements { name?: string; value?: string | number }
 /**
  * Attributes for picture element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/embedded-content.html#the-picture-element
@@ -741,7 +748,7 @@ export interface ProgressChatoraIntrinsicElement extends ChatoraIntrinsicElement
  * Attributes for q element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/text-level-semantics.html#the-q-element
  */
-export interface QChatoraIntrinsicElement extends ChatoraIntrinsicElements { cite?: string; }
+export interface QChatoraIntrinsicElement extends ChatoraIntrinsicElements { cite?: string }
 /**
  * Attributes for rp element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/semantics.html#the-rp-element
@@ -771,7 +778,7 @@ export interface SampChatoraIntrinsicElement extends ChatoraIntrinsicElements {}
  * Attributes for script element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/scripting.html#the-script-element
  */
-export interface ScriptChatoraIntrinsicElement extends ChatoraIntrinsicElements { async?: boolean; charset?: string; crossorigin?: string; defer?: boolean; integrity?: string; nomodule?: boolean; nonce?: string; referrerpolicy?: string; src?: string; type?: string; }
+export interface ScriptChatoraIntrinsicElement extends ChatoraIntrinsicElements { async?: boolean; charset?: string; crossorigin?: string; defer?: boolean; integrity?: string; nomodule?: boolean; nonce?: string; referrerpolicy?: string; src?: string; type?: string }
 /**
  * Attributes for section element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/sections.html#the-section-element
@@ -781,7 +788,7 @@ export interface SectionChatoraIntrinsicElement extends ChatoraIntrinsicElements
  * Attributes for select element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/form-elements.html#the-select-element
  */
-export interface SelectChatoraIntrinsicElement extends ChatoraIntrinsicElements, InputChatoraEventHandlers { autofocus?: boolean; disabled?: boolean; form?: string; multiple?: boolean; name?: string; required?: boolean; size?: number; }
+export interface SelectChatoraIntrinsicElement extends ChatoraIntrinsicElements, InputChatoraEventHandlers { autofocus?: boolean; disabled?: boolean; form?: string; multiple?: boolean; name?: string; required?: boolean; size?: number }
 /**
  * Attributes for small element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/text-level-semantics.html#the-small-element
@@ -806,7 +813,7 @@ export interface StrongChatoraIntrinsicElement extends ChatoraIntrinsicElements 
  * Attributes for style element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/semantics.html#the-style-element
  */
-export interface StyleChatoraIntrinsicElement extends ChatoraIntrinsicElements { media?: string; nonce?: string; scoped?: boolean; type?: string; }
+export interface StyleChatoraIntrinsicElement extends ChatoraIntrinsicElements { media?: string; nonce?: string; scoped?: boolean; type?: string }
 /**
  * Attributes for sub element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/text-level-semantics.html#the-sub-and-sup-elements
@@ -826,7 +833,7 @@ export interface SupChatoraIntrinsicElement extends ChatoraIntrinsicElements {}
  * Attributes for table element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/tables.html#the-table-element
  */
-export interface TableChatoraIntrinsicElement extends ChatoraIntrinsicElements { border?: number | string; }
+export interface TableChatoraIntrinsicElement extends ChatoraIntrinsicElements { border?: number | string }
 /**
  * Attributes for tbody element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/tables.html#the-tbody-element
@@ -836,7 +843,7 @@ export interface TbodyChatoraIntrinsicElement extends ChatoraIntrinsicElements {
  * Attributes for td element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/tables.html#the-td-element
  */
-export interface TdChatoraIntrinsicElement extends ChatoraIntrinsicElements { colspan?: number; headers?: string; rowspan?: number; }
+export interface TdChatoraIntrinsicElement extends ChatoraIntrinsicElements { colspan?: number; headers?: string; rowspan?: number }
 /**
  * Attributes for template element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/scripting.html#the-template-element
@@ -846,7 +853,7 @@ export interface TemplateChatoraIntrinsicElement extends ChatoraIntrinsicElement
  * Attributes for textarea element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/form-elements.html#the-textarea-element
  */
-export interface TextareaChatoraIntrinsicElement extends ChatoraIntrinsicElements, InputChatoraEventHandlers { autofocus?: boolean; cols?: number; dirname?: string; disabled?: boolean; form?: string; maxlength?: number; minlength?: number; name?: string; placeholder?: string; readonly?: boolean; required?: boolean; rows?: number; wrap?: string; }
+export interface TextareaChatoraIntrinsicElement extends ChatoraIntrinsicElements, InputChatoraEventHandlers { autofocus?: boolean; cols?: number; dirname?: string; disabled?: boolean; form?: string; maxlength?: number; minlength?: number; name?: string; placeholder?: string; readonly?: boolean; required?: boolean; rows?: number; wrap?: string }
 /**
  * Attributes for tfoot element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/tables.html#the-tfoot-element
@@ -856,7 +863,7 @@ export interface TfootChatoraIntrinsicElement extends ChatoraIntrinsicElements {
  * Attributes for th element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/tables.html#the-th-element
  */
-export interface ThChatoraIntrinsicElement extends ChatoraIntrinsicElements { abbr?: string; colspan?: number; headers?: string; rowspan?: number; scope?: string; }
+export interface ThChatoraIntrinsicElement extends ChatoraIntrinsicElements { abbr?: string; colspan?: number; headers?: string; rowspan?: number; scope?: string }
 /**
  * Attributes for thead element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/tables.html#the-thead-element
@@ -866,7 +873,7 @@ export interface TheadChatoraIntrinsicElement extends ChatoraIntrinsicElements {
  * Attributes for time element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/text-level-semantics.html#the-time-element
  */
-export interface TimeChatoraIntrinsicElement extends ChatoraIntrinsicElements { datetime?: string; }
+export interface TimeChatoraIntrinsicElement extends ChatoraIntrinsicElements { datetime?: string }
 /**
  * Attributes for title element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/semantics.html#the-title-element
@@ -1040,7 +1047,7 @@ export interface TemplateChatoraIntrinsicElement extends ChatoraIntrinsicElement
  * Attributes for area element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/image-maps.html#the-area-element
  */
-export interface AreaChatoraIntrinsicElement extends ChatoraIntrinsicElements { alt?: string; coords?: string; shape?: string; href?: string; target?: string; download?: string | boolean; rel?: string; referrerpolicy?: string; }
+export interface AreaChatoraIntrinsicElement extends ChatoraIntrinsicElements { alt?: string; coords?: string; shape?: string; href?: string; target?: string; download?: string | boolean; rel?: string; referrerpolicy?: string }
 /**
  * Attributes for slot element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/scripting.html#the-slot-element
@@ -1052,52 +1059,52 @@ export interface SlotChatoraIntrinsicElement extends ChatoraIntrinsicElements, S
  * Attributes for svg element (SVG spec)
  * https://svgwg.org/svg2-draft/struct.html#SVGElement
  */
-export interface SvgChatoraIntrinsicElement extends ChatoraIntrinsicElements { width?: number | string; height?: number | string; viewBox?: string; xmlns?: string; }
+export interface SvgChatoraIntrinsicElement extends ChatoraIntrinsicElements { width?: number | string; height?: number | string; viewBox?: string; xmlns?: string }
 /**
  * Attributes for path element (SVG spec)
  * https://svgwg.org/svg2-draft/paths.html#PathElement
  */
-export interface PathChatoraIntrinsicElement extends ChatoraIntrinsicElements { d?: string; fill?: string; stroke?: string; strokeWidth?: number | string; }
+export interface PathChatoraIntrinsicElement extends ChatoraIntrinsicElements { d?: string; fill?: string; stroke?: string; strokeWidth?: number | string }
 /**
  * Attributes for circle element (SVG spec)
  * https://svgwg.org/svg2-draft/shapes.html#CircleElement
  */
-export interface CircleChatoraIntrinsicElement extends ChatoraIntrinsicElements { cx?: number | string; cy?: number | string; r?: number | string; fill?: string; stroke?: string; strokeWidth?: number | string; }
+export interface CircleChatoraIntrinsicElement extends ChatoraIntrinsicElements { cx?: number | string; cy?: number | string; r?: number | string; fill?: string; stroke?: string; strokeWidth?: number | string }
 /**
  * Attributes for rect element (SVG spec)
  * https://svgwg.org/svg2-draft/shapes.html#RectElement
  */
-export interface RectChatoraIntrinsicElement extends ChatoraIntrinsicElements { x?: number | string; y?: number | string; width?: number | string; height?: number | string; rx?: number | string; ry?: number | string; fill?: string; stroke?: string; strokeWidth?: number | string; }
+export interface RectChatoraIntrinsicElement extends ChatoraIntrinsicElements { x?: number | string; y?: number | string; width?: number | string; height?: number | string; rx?: number | string; ry?: number | string; fill?: string; stroke?: string; strokeWidth?: number | string }
 /**
  * Attributes for line element (SVG spec)
  * https://svgwg.org/svg2-draft/shapes.html#LineElement
  */
-export interface LineChatoraIntrinsicElement extends ChatoraIntrinsicElements { x1?: number | string; y1?: number | string; x2?: number | string; y2?: number | string; stroke?: string; strokeWidth?: number | string; }
+export interface LineChatoraIntrinsicElement extends ChatoraIntrinsicElements { x1?: number | string; y1?: number | string; x2?: number | string; y2?: number | string; stroke?: string; strokeWidth?: number | string }
 /**
  * Attributes for polyline element (SVG spec)
  * https://svgwg.org/svg2-draft/shapes.html#PolylineElement
  */
-export interface PolylineChatoraIntrinsicElement extends ChatoraIntrinsicElements { points?: string; fill?: string; stroke?: string; strokeWidth?: number | string; }
+export interface PolylineChatoraIntrinsicElement extends ChatoraIntrinsicElements { points?: string; fill?: string; stroke?: string; strokeWidth?: number | string }
 /**
  * Attributes for polygon element (SVG spec)
  * https://svgwg.org/svg2-draft/shapes.html#PolygonElement
  */
-export interface PolygonChatoraIntrinsicElement extends ChatoraIntrinsicElements { points?: string; fill?: string; stroke?: string; strokeWidth?: number | string; }
+export interface PolygonChatoraIntrinsicElement extends ChatoraIntrinsicElements { points?: string; fill?: string; stroke?: string; strokeWidth?: number | string }
 /**
  * Attributes for ellipse element (SVG spec)
  * https://svgwg.org/svg2-draft/shapes.html#EllipseElement
  */
-export interface EllipseChatoraIntrinsicElement extends ChatoraIntrinsicElements { cx?: number | string; cy?: number | string; rx?: number | string; ry?: number | string; fill?: string; stroke?: string; strokeWidth?: number | string; }
+export interface EllipseChatoraIntrinsicElement extends ChatoraIntrinsicElements { cx?: number | string; cy?: number | string; rx?: number | string; ry?: number | string; fill?: string; stroke?: string; strokeWidth?: number | string }
 /**
  * Attributes for text element (SVG spec)
  * https://svgwg.org/svg2-draft/text.html#TextElement
  */
-export interface TextChatoraIntrinsicElement extends ChatoraIntrinsicElements { x?: number | string; y?: number | string; dx?: number | string; dy?: number | string; textAnchor?: string; fill?: string; fontSize?: number | string; }
+export interface TextChatoraIntrinsicElement extends ChatoraIntrinsicElements { x?: number | string; y?: number | string; dx?: number | string; dy?: number | string; textAnchor?: string; fill?: string; fontSize?: number | string }
 /**
  * Attributes for math element (MathML spec)
  * https://w3c.github.io/mathml-core/#the-math-element
  */
-export interface MathChatoraIntrinsicElement extends ChatoraIntrinsicElements { display?: "inline" | "block"; }
+export interface MathChatoraIntrinsicElement extends ChatoraIntrinsicElements { display?: "inline" | "block" }
 /**
  * Attributes for mrow element (MathML spec)
  * https://w3c.github.io/mathml-core/#the-mrow-element
@@ -1150,9 +1157,9 @@ export interface AudioChatoraIntrinsicElement extends ChatoraIntrinsicElements, 
  * Attributes for base element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/semantics.html#the-base-element
  */
-export interface BaseChatoraIntrinsicElement extends ChatoraIntrinsicElements { href?: string; target?: string; }
+export interface BaseChatoraIntrinsicElement extends ChatoraIntrinsicElements { href?: string; target?: string }
 /**
  * Attributes for blockquote element (WHATWG HTML spec)
  * https://html.spec.whatwg.org/multipage/grouping-content.html#the-blockquote-element
  */
-export interface BlockquoteChatoraIntrinsicElement extends ChatoraIntrinsicElements { cite?: string; }
+export interface BlockquoteChatoraIntrinsicElement extends ChatoraIntrinsicElements { cite?: string }
