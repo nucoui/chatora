@@ -2,6 +2,7 @@ import type { RefValue } from "@root/types/RefValue";
 import type { VNode } from "./vNode";
 import { MATH_TAGS } from "@/functionalCustomElement/constants/MATH_TAGS";
 import { SVG_TAGS } from "@/functionalCustomElement/constants/SVG_TAGS";
+import { normalizeStyleForDOM } from "./styleObject";
 
 // Cache for namespace checks to avoid repeated lookups
 const namespaceCache = new WeakMap<Element, { isSvg: boolean; isMath: boolean }>();
@@ -65,6 +66,12 @@ function setProps(el: Element, props: Record<string, any>) {
     // Skip ref attribute
     if (k === "ref")
       continue;
+
+    // Handle style attribute specially for objects and arrays
+    if (k === "style") {
+      el.setAttribute(k, normalizeStyleForDOM(v));
+      continue;
+    }
 
     // Fast path for boolean attributes
     if (typeof v === "boolean") {

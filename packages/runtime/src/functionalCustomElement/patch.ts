@@ -1,5 +1,6 @@
 import type { VNode } from "@/functionalCustomElement/vNode";
 import { mount } from "@/functionalCustomElement/mount";
+import { normalizeStyleForDOM } from "@/functionalCustomElement/styleObject";
 
 /**
  * Optimized props patching with minimal DOM operations
@@ -55,6 +56,10 @@ function patchProps(el: HTMLElement, oldProps: Record<string, any>, newProps: Re
     }
     else if (typeof newVal === "boolean") {
       newVal ? el.setAttribute(k, "") : el.removeAttribute(k);
+    }
+    else if (k === "style") {
+      // Handle style attribute specially for objects and arrays
+      el.setAttribute(k, normalizeStyleForDOM(newVal));
     }
     else {
       el.setAttribute(k, String(newVal));

@@ -1,7 +1,30 @@
 import type { AsFunctionType, CC } from "@root/types/FunctionalCustomElement";
 import type { ChatoraNode } from "@root/types/JSX.namespace";
 import type { Element, ElementContent, Root } from "hast";
+import type { StyleInput } from "../functionalCustomElement/styleObject";
+import { normalizeStyleForShadowDOM } from "../functionalCustomElement/styleObject";
 import { genVNode } from "../functionalCustomElement/vNode";
+
+/**
+ * Normalize style input to array of CSS strings for SSR (optimized for SSR)
+ * 
+ * @param styles Style input (string, object, or array)
+ * @returns Array of CSS strings
+ */
+function normalizeStylesForSSR(styles: StyleInput): string[] {
+  if (!styles) return [];
+  
+  if (typeof styles === 'string') {
+    return [styles];
+  }
+  
+  if (Array.isArray(styles)) {
+    return styles.map(item => normalizeStyleForShadowDOM(item));
+  }
+  
+  // styles is CSSStyleObject
+  return [normalizeStyleForShadowDOM(styles)];
+}
 
 /**
  * Creates Declarative Shadow DOM HTML elements using JSX/TSX for server-side rendering.
@@ -113,19 +136,19 @@ const functionalDeclarativeCustomElement = <
   // Convert VNode to hast
   const contentElement = vNodeToHast(vnode);
 
-  let styles: string | string[] = [];
+  let styles: StyleInput | undefined;
   let shadowRoot: boolean = true;
   let shadowRootMode: "open" | "closed" = "open";
 
   if (vnode.tag === "#root") {
     shadowRoot = vnode.props.shadowRoot ?? shadowRoot;
     shadowRootMode = vnode.props.shadowRootMode ?? shadowRootMode;
-    styles = vnode.props.style ?? styles;
+    styles = vnode.props.style;
   }
 
   // Pre-generate style elements if present
   const styleElements: Element[] = styles
-    ? (Array.isArray(styles) ? styles : [styles]).map(cssText => ({
+    ? normalizeStylesForSSR(styles).map(cssText => ({
         type: "element",
         tagName: "style",
         properties: {},

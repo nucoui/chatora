@@ -18,8 +18,6 @@ const Mini: CC = ({ reactivity: { signal, effect } }) => {
 
   effect(() => {
     console.log("Count changed:", count());
-  }, {
-    immediate: true
   });
 
   return () => (
@@ -34,14 +32,41 @@ const Mini: CC = ({ reactivity: { signal, effect } }) => {
         cursor: pointer;
       }
     `]}>
-      <h1>Mini</h1>
+      <h1 style={{
+        color: "darkblue",
+        fontSize: 24,
+        marginBottom: 10,
+        textAlign: "center"
+      }}>Mini</h1>
       <svg xmlns="http://www.w3.org/2000/svg" width="1.5rem" height="1.5rem" viewBox="0 0 24 24">
         <path fill="currentColor" d="M11.475 14.475L7.85 10.85q-.075-.075-.112-.162T7.7 10.5q0-.2.138-.35T8.2 10h7.6q.225 0 .363.15t.137.35q0 .05-.15.35l-3.625 3.625q-.125.125-.25.175T12 14.7t-.275-.05t-.25-.175" />
       </svg>
-      <p>Count: {count()}</p>
+      <p style={{
+        marginTop: 8,
+        lineHeight: 1.6,
+        fontWeight: count() > 5 ? "bold" : "normal"
+      }}>Count: {count()}</p>
       <>
-        <button onClick={() => setCount((c) => c + 1)}>Increment (next value: {count() + 1})</button>
-        <button onClick={() => setCount((c) => c - 1)}>Decrement (next value: {count() - 1})</button>
+        <button style={{
+          backgroundColor: count() % 2 === 0 ? "black" : "blue",
+          fontSize: 14,
+          fontWeight: "bold",
+          border: "2px solid",
+          borderColor: count() > 10 ? "orange" : "transparent",
+          borderRadius: count() > 5 ? 20 : 4,
+          padding: "8px 16px",
+          transition: "all 0.3s ease"
+        }} onClick={() => setCount((c) => c + 1)}>Increment (next value: {count() + 1})</button>
+        <button style={{
+          backgroundColor: "#6c757d",
+          color: "white",
+          border: "none",
+          borderRadius: 4,
+          padding: "8px 16px",
+          marginLeft: 5,
+          opacity: count() <= 0 ? 0.5 : 1,
+          cursor: count() <= 0 ? "not-allowed" : "pointer"
+        }} onClick={() => setCount((c) => c - 1)}>Decrement (next value: {count() - 1})</button>
       </>
       <>
         <p>in fragment</p>

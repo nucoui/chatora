@@ -131,6 +131,78 @@ describe("functionalDeclarativeCustomElement", () => {
     expect(style2.children[0]).toHaveProperty("value", css2);
   });
 
+  it("スタイルオブジェクトを適用できる", () => {
+    const styleObject = {
+      color: "red", 
+      backgroundColor: "blue",
+      fontSize: 16,
+      margin: 10
+    };
+    
+    const component: CC = () => {
+      return () => ({
+        tag: Host,
+        props: {
+          shadowRoot: true,
+          shadowRootMode: "open",
+          style: styleObject,
+          children: {
+            tag: "div",
+            props: {},
+          },
+        },
+      });
+    };
+    const result = functionalDeclarativeCustomElement(component);
+
+    const template = result.children[0] as Element;
+    expect(template.children).toHaveLength(2); // style要素とcontent要素
+
+    const style = template.children[0] as Element;
+    expect(style).toHaveProperty("tagName", "style");
+    expect(style.children[0]).toHaveProperty("type", "text");
+    expect(style.children[0]).toHaveProperty("value", "color: red; background-color: blue; font-size: 16px; margin: 10px;");
+  });
+
+  it("混合スタイル配列を適用できる", () => {
+    const mixedStyles = [
+      "color: red;",
+      { backgroundColor: "blue", fontSize: 16 },
+      "border: 1px solid black;"
+    ];
+    
+    const component: CC = () => {
+      return () => ({
+        tag: Host,
+        props: {
+          shadowRoot: true,
+          shadowRootMode: "open",
+          style: mixedStyles,
+          children: {
+            tag: "div",
+            props: {},
+          },
+        },
+      });
+    };
+    const result = functionalDeclarativeCustomElement(component);
+
+    const template = result.children[0] as Element;
+    expect(template.children).toHaveLength(4); // 3つのstyle要素とcontent要素
+
+    const style1 = template.children[0] as Element;
+    const style2 = template.children[1] as Element;
+    const style3 = template.children[2] as Element;
+    
+    expect(style1).toHaveProperty("tagName", "style");
+    expect(style2).toHaveProperty("tagName", "style");
+    expect(style3).toHaveProperty("tagName", "style");
+    
+    expect(style1.children[0]).toHaveProperty("value", "color: red;");
+    expect(style2.children[0]).toHaveProperty("value", "background-color: blue; font-size: 16px;");
+    expect(style3.children[0]).toHaveProperty("value", "border: 1px solid black;");
+  });
+
   it("複雑なJSX構造を変換できる", () => {
     const component: CC = () => () => ({
       tag: Host,

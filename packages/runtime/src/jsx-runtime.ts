@@ -1,5 +1,6 @@
 import type { IC } from "@/main";
 import type { ChatoraJSXElement, ChatoraNode } from "../types/JSX.namespace";
+import type { StyleInput } from "./functionalCustomElement/styleObject";
 
 // Pre-allocated objects to reduce memory allocation
 const FRAGMENT_TAG = "#fragment";
@@ -21,7 +22,7 @@ export const Fragment: IC<{ children: ChatoraNode }> = ({ children }) => {
 type HostProps = {
   children: ChatoraNode;
   shadowRoot?: boolean;
-  style?: string | string[];
+  style?: StyleInput;
 } & ({
   shadowRoot?: true;
   shadowRootMode?: "open" | "closed";

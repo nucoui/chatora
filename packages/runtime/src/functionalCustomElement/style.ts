@@ -1,12 +1,15 @@
+import type { StyleInput } from "./styleObject";
+import { normalizeStyleForShadowDOM } from "./styleObject";
+
 /**
  * Function to apply CSS styles to a shadow root
  *
  * @param shadowRoot Shadow root to apply styles to
- * @param css CSS string or array of strings containing styles
+ * @param css CSS string, object, or array containing styles
  * @returns Inserted style element
  */
-export function applyStyles(shadowRoot: ShadowRoot, css: string | string[]): HTMLStyleElement {
-  const cssText = Array.isArray(css) ? css.join("\n") : css;
+export function applyStyles(shadowRoot: ShadowRoot, css: StyleInput): HTMLStyleElement {
+  const cssText = normalizeStyleForShadowDOM(css);
 
   // Check for existing style element
   const existingStyle = shadowRoot.querySelector("style");

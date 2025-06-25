@@ -135,4 +135,53 @@ describe("applyStyles", () => {
     const combinedText = ["background: blue;", "font-size: 14px;"].join("\n");
     expect(styleElements[0].textContent).toBe(combinedText); // Last call overwrites
   });
+
+  it("should handle style objects", () => {
+    const styleObject = {
+      color: "red",
+      backgroundColor: "blue",
+      fontSize: "16px",
+      marginTop: 10,
+      padding: "5px 10px"
+    };
+
+    applyStyles(shadowRoot, styleObject);
+
+    const styleElement = shadowRoot.querySelector("style");
+    expect(styleElement?.textContent).toBe("color: red; background-color: blue; font-size: 16px; margin-top: 10px; padding: 5px 10px;");
+  });
+
+  it("should handle mixed array of strings and objects", () => {
+    const mixedStyles = [
+      "color: red;",
+      { backgroundColor: "blue", fontSize: 14 },
+      "border: 1px solid black;"
+    ];
+
+    applyStyles(shadowRoot, mixedStyles);
+
+    const styleElement = shadowRoot.querySelector("style");
+    const expectedCSS = [
+      "color: red;",
+      "background-color: blue; font-size: 14px;",
+      "border: 1px solid black;"
+    ].join("\n");
+    expect(styleElement?.textContent).toBe(expectedCSS);
+  });
+
+  it("should handle numeric values correctly", () => {
+    const styleObject = {
+      width: 100,          // Should add px
+      height: 200,         // Should add px  
+      zIndex: 999,         // Should NOT add px
+      opacity: 0.5,        // Should NOT add px
+      lineHeight: 1.5,     // Should NOT add px
+      fontWeight: 600      // Should NOT add px
+    };
+
+    applyStyles(shadowRoot, styleObject);
+
+    const styleElement = shadowRoot.querySelector("style");
+    expect(styleElement?.textContent).toBe("width: 100px; height: 200px; z-index: 999; opacity: 0.5; line-height: 1.5; font-weight: 600;");
+  });
 });

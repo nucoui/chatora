@@ -150,6 +150,22 @@ describe("jsx-runtime", () => {
       expect(vnode.props.style).toBe(style);
     });
 
+    it("should handle style object", () => {
+      const children = ["content"];
+      const style = { color: "red", backgroundColor: "blue", fontSize: 16 };
+      const result = Host({ children, style });
+      const vnode = result();
+      expect(vnode.props.style).toBe(style);
+    });
+
+    it("should handle mixed style array", () => {
+      const children = ["content"];
+      const style = ["color: red;", { backgroundColor: "blue", fontSize: 16 }];
+      const result = Host({ children, style });
+      const vnode = result();
+      expect(vnode.props.style).toBe(style);
+    });
+
     it("should handle single child", () => {
       const child = jsx("div", { children: ["single"] });
       const result = Host({ children: child });
