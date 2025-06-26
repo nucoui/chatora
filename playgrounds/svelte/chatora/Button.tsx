@@ -1,5 +1,5 @@
 import { toMatched } from "@chatora/util";
-import { type CC } from "chatora";
+import { signal, type CC } from "chatora";
 import { Host } from "chatora/jsx-runtime";
 
 export type Props = {
@@ -11,7 +11,7 @@ export type Emits = {
   "on-event": { type: string; detail: { count: number } };
 }
 
-export const Button: CC<Props, Emits> = ({ reactivity: { signal, effect }, defineProps, defineEmits }) => {
+export const Button: CC<Props, Emits> = ({ defineProps, defineEmits }) => {
   const props = defineProps({
     type: (v) => toMatched(v, ["button", "submit", "reset"]) || "button",
   });

@@ -1,4 +1,4 @@
-import { functionalCustomElement, functionalDeclarativeCustomElement, type CC } from "chatora";
+import { computed, effect, functionalCustomElement, getHost, onAdopted, onAttributeChanged, onConnected, onDisconnected, signal, type CC } from "chatora";
 import { toBoolean, toMatched, toString } from "@chatora/util";
 import clsx from "clsx";
 import style from "./Button.scss?raw";
@@ -24,11 +24,8 @@ export type Emits = {
 };
 
 export const Button: CC<Props, Emits> = ({
-  reactivity: { computed, effect, signal },
   defineEmits,
   defineProps,
-  getHost,
-  getInternals,
 }) => {
   const props = defineProps({
     type: v => toMatched(v, ["anchor", "submit", "reset", "button"]) ?? "button",
@@ -77,7 +74,7 @@ export const Button: CC<Props, Emits> = ({
   effect(() => {
     const currentRef = ref();
 
-    console.log("Button mounted:", currentRef);
+    console.log("Button ref:", currentRef);
   });
 
   const [count, setCount] = signal(0);
@@ -91,6 +88,25 @@ export const Button: CC<Props, Emits> = ({
 
     console.log("Button click count:", currentCount);
   });
+
+  console.log("getHost:", getHost());
+
+  onConnected(() => {
+    console.log("Mini element connected");
+  });
+
+  onAttributeChanged(() => {
+    console.log("Mini element attributes changed");
+  });
+
+  onDisconnected(() => {
+    console.log("Mini element disconnected");
+  });
+
+  onAdopted(() => {
+    console.log("Mini element adopted to a new document");
+  });
+
 
   return () => {
       const type = props().type;
@@ -155,8 +171,21 @@ button.addEventListener("on-click", (e) => {
   console.log("Button clicked:", customEvent.detail);
 });
 
-setInterval(() => {
-  const currentDisabled = button.getAttribute("disabled");
-  currentDisabled === "" ? button.removeAttribute("disabled") : button.setAttribute("disabled", "");
-  // console.log(`Button variant changed to: ${nextVariant}`);
-}, 2000);
+// setInterval(() => {
+//   const currentDisabled = button.getAttribute("disabled");
+//   currentDisabled === "" ? button.removeAttribute("disabled") : button.setAttribute("disabled", "");
+//   // console.log(`Button variant changed to: ${nextVariant}`);
+// }, 2000);
+
+// // onAdoptedを発火させる
+// setTimeout(() => {
+//   const newButton = button.cloneNode(true) as ButtonElement;
+//   document.body.appendChild(newButton);
+//   console.log("Button adopted to a new document");
+// }, 5000);
+
+// // onDIsconnectedを発火させる
+// setTimeout(() => {
+//   button.remove();
+//   console.log("Button removed from DOM");
+// }, 10000);

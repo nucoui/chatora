@@ -1,5 +1,7 @@
-import { functionalCustomElement, CC, IC, functionalDeclarativeCustomElement } from "chatora";
+import { functionalCustomElement, CC, IC, functionalDeclarativeCustomElement, onAttributeChanged, onDisconnected, onAdopted, getHost, effect, signal } from "chatora";
 import { Host } from "chatora/jsx-runtime";
+
+import { onConnected } from "chatora/runtime";
 
 const Test: IC<{ count: number }> = ({ count }) => {
   return () => {
@@ -13,12 +15,14 @@ const Test: IC<{ count: number }> = ({ count }) => {
   }
 }
 
-const Mini: CC = ({ reactivity: { signal, effect } }) => {
+const Mini: CC = () => {
   const [count, setCount] = signal(0);
 
   effect(() => {
     console.log("Count changed:", count());
   });
+
+  console.log("getHost:", getHost());
 
   return () => (
     <Host shadowRoot shadowRootMode="open" style={[`

@@ -14,6 +14,7 @@
     "vite": "catalog:"
   },
   "dependencies": {
+    "@chatora/reactivity": "workspace:*",
     "@chatora/util": "workspace:*",
     "consola": "^3.4.2",
     "chatora": "workspace:*",
