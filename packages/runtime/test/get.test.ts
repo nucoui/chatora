@@ -9,7 +9,7 @@ import {
   getHost,
   getInternals,
   getShadowRoot,
-  getSlot,
+  getSlots,
   setCurrentCustomElementInstance,
 } from "../src/functionalCustomElement/get";
 
@@ -149,31 +149,33 @@ describe("instance accessor functions", () => {
     });
   });
 
-  describe("getSlot", () => {
-    it("should return the default slot when no name is provided", () => {
+  describe("getSlots", () => {
+    it("should return array of default slots when no name is provided", () => {
       const mockElement = document.createElement("div") as HTMLElement;
       const mockShadowRoot = document.createElement("div");
-      const mockSlot = document.createElement("slot") as HTMLSlotElement;
+      const mockSlot1 = document.createElement("slot") as HTMLSlotElement;
+      const mockSlot2 = document.createElement("slot") as HTMLSlotElement;
 
-      // Setup shadow root with default slot
-      mockShadowRoot.appendChild(mockSlot);
+      // Setup shadow root with default slots
+      mockShadowRoot.appendChild(mockSlot1);
+      mockShadowRoot.appendChild(mockSlot2);
       Object.defineProperty(mockElement, "shadowRoot", {
         value: mockShadowRoot,
         writable: true,
       });
 
-      // Mock querySelector to return our slot
-      mockShadowRoot.querySelector = vi.fn().mockReturnValue(mockSlot);
+      // Mock querySelectorAll to return our slots
+      mockShadowRoot.querySelectorAll = vi.fn().mockReturnValue([mockSlot1, mockSlot2]);
 
       setCurrentCustomElementInstance(mockElement);
 
-      const result = getSlot();
+      const result = getSlots();
 
-      expect(result).toBe(mockSlot);
-      expect(mockShadowRoot.querySelector).toHaveBeenCalledWith("slot");
+      expect(result).toEqual([mockSlot1, mockSlot2]);
+      expect(mockShadowRoot.querySelectorAll).toHaveBeenCalledWith("slot");
     });
 
-    it("should return the named slot when name is provided", () => {
+    it("should return array of named slots when name is provided", () => {
       const mockElement = document.createElement("div") as HTMLElement;
       const mockShadowRoot = document.createElement("div");
       const mockSlot = document.createElement("slot") as HTMLSlotElement;
@@ -185,18 +187,18 @@ describe("instance accessor functions", () => {
         writable: true,
       });
 
-      // Mock querySelector to return our slot
-      mockShadowRoot.querySelector = vi.fn().mockReturnValue(mockSlot);
+      // Mock querySelectorAll to return our slot
+      mockShadowRoot.querySelectorAll = vi.fn().mockReturnValue([mockSlot]);
 
       setCurrentCustomElementInstance(mockElement);
 
-      const result = getSlot("header");
+      const result = getSlots("header");
 
-      expect(result).toBe(mockSlot);
-      expect(mockShadowRoot.querySelector).toHaveBeenCalledWith("slot[name=\"header\"]");
+      expect(result).toEqual([mockSlot]);
+      expect(mockShadowRoot.querySelectorAll).toHaveBeenCalledWith("slot[name=\"header\"]");
     });
 
-    it("should return null and warn when slot is not found", () => {
+    it("should return empty array and warn when slot is not found", () => {
       const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
       const mockElement = document.createElement("div") as HTMLElement;
       const mockShadowRoot = document.createElement("div");
@@ -206,20 +208,20 @@ describe("instance accessor functions", () => {
         writable: true,
       });
 
-      // Mock querySelector to return null (slot not found)
-      mockShadowRoot.querySelector = vi.fn().mockReturnValue(null);
+      // Mock querySelectorAll to return empty NodeList
+      mockShadowRoot.querySelectorAll = vi.fn().mockReturnValue([]);
 
       setCurrentCustomElementInstance(mockElement);
 
-      const result = getSlot();
+      const result = getSlots();
 
-      expect(result).toBeNull();
-      expect(consoleSpy).toHaveBeenCalledWith("getSlot: No slot found.");
+      expect(result).toEqual([]);
+      expect(consoleSpy).toHaveBeenCalledWith("getSlots: No slot found.");
 
       consoleSpy.mockRestore();
     });
 
-    it("should return null and warn when named slot is not found", () => {
+    it("should return empty array and warn when named slot is not found", () => {
       const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
       const mockElement = document.createElement("div") as HTMLElement;
       const mockShadowRoot = document.createElement("div");
@@ -229,15 +231,15 @@ describe("instance accessor functions", () => {
         writable: true,
       });
 
-      // Mock querySelector to return null (slot not found)
-      mockShadowRoot.querySelector = vi.fn().mockReturnValue(null);
+      // Mock querySelectorAll to return empty NodeList
+      mockShadowRoot.querySelectorAll = vi.fn().mockReturnValue([]);
 
       setCurrentCustomElementInstance(mockElement);
 
-      const result = getSlot("nonexistent");
+      const result = getSlots("nonexistent");
 
-      expect(result).toBeNull();
-      expect(consoleSpy).toHaveBeenCalledWith("getSlot: No slot found with name \"nonexistent\".");
+      expect(result).toEqual([]);
+      expect(consoleSpy).toHaveBeenCalledWith("getSlots: No slot found with name \"nonexistent\".");
 
       consoleSpy.mockRestore();
     });
@@ -247,17 +249,17 @@ describe("instance accessor functions", () => {
 
       setCurrentCustomElementInstance(null);
 
-      const result = getSlot();
+      const result = getSlots();
 
-      expect(result).toBeNull();
+      expect(result).toEqual([]);
       expect(consoleSpy).toHaveBeenCalledWith(
-        "getSlot: No host element found. Make sure to call getSlot during component execution.",
+        "getSlots: No host element found. Make sure to call getSlots during component execution.",
       );
 
       consoleSpy.mockRestore();
     });
 
-    it("should return null when host has no shadowRoot", () => {
+    it("should return empty array when host has no shadowRoot", () => {
       const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
       const mockElement = document.createElement("div") as HTMLElement;
 
@@ -269,10 +271,10 @@ describe("instance accessor functions", () => {
 
       setCurrentCustomElementInstance(mockElement);
 
-      const result = getSlot();
+      const result = getSlots();
 
-      expect(result).toBeNull();
-      expect(consoleSpy).toHaveBeenCalledWith("getSlot: No slot found.");
+      expect(result).toEqual([]);
+      expect(consoleSpy).toHaveBeenCalledWith("getSlots: No slot found.");
 
       consoleSpy.mockRestore();
     });

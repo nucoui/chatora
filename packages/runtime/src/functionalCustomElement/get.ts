@@ -73,27 +73,27 @@ const getInternals = (): ElementInternals | null => {
  * @param name - The name of the slot (optional)
  * @returns HTMLSlotElement or null if not found
  */
-const getSlot = (name?: string): HTMLSlotElement | null => {
+const getSlots = (name?: string) => {
   const host = getHost();
 
   if (!host) {
-    console.warn("getSlot: No host element found. Make sure to call getSlot during component execution.");
-    return null;
+    console.warn("getSlots: No host element found. Make sure to call getSlots during component execution.");
+    return [];
   }
 
-  const slot = host.shadowRoot?.querySelector(`slot${name ? `[name="${name}"]` : ""}`) ?? null;
+  const slots = host.shadowRoot?.querySelectorAll(`slot${name ? `[name="${name}"]` : ""}`) ?? [];
 
-  if (!slot) {
-    console.warn(`getSlot: No slot found${name ? ` with name "${name}"` : ""}.`);
+  if (slots.length === 0) {
+    console.warn(`getSlots: No slot found${name ? ` with name "${name}"` : ""}.`);
   }
 
-  return slot as HTMLSlotElement | null;
+  return Array.from(slots);
 };
 
 export {
   getHost,
   getInternals,
   getShadowRoot,
-  getSlot,
+  getSlots,
   setCurrentCustomElementInstance,
 };
