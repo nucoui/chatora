@@ -381,6 +381,6 @@ const functionalCustomElement: FunctionalCustomElement = (
 };
 
 export { functionalCustomElement };
-export { getHost, getInternals, getShadowRoot } from "@/functionalCustomElement/get";
-export { onAdopted, onAttributeChanged, onConnected, onDisconnected } from "@/functionalCustomElement/on";
+export * from "@/functionalCustomElement/get";
+export * from "@/functionalCustomElement/on";
 export { computed, effect, endBatch, signal, startBatch };
