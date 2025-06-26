@@ -7,21 +7,22 @@ import { genVNode } from "../functionalCustomElement/vNode";
 
 /**
  * Normalize style input to array of CSS strings for SSR (optimized for SSR)
- * 
+ *
  * @param styles Style input (string, object, or array)
  * @returns Array of CSS strings
  */
 function normalizeStylesForSSR(styles: StyleInput): string[] {
-  if (!styles) return [];
-  
-  if (typeof styles === 'string') {
+  if (!styles)
+    return [];
+
+  if (typeof styles === "string") {
     return [styles];
   }
-  
+
   if (Array.isArray(styles)) {
     return styles.map(item => normalizeStyleForShadowDOM(item));
   }
-  
+
   // styles is CSSStyleObject
   return [normalizeStyleForShadowDOM(styles)];
 }
@@ -50,25 +51,7 @@ const functionalDeclarativeCustomElement = <
   const _propsData = initialProps || {};
   let jsxResult: ChatoraNode | null = null;
 
-  // Lightweight reactivity for SSR
-  const ssrSignal = <T>(value: T): [() => T, (newValue: T | ((prev: T) => T)) => void] => {
-    const getter = () => value;
-    const setter = () => {}; // No update needed for SSR
-    return [getter, setter];
-  };
-
-  const ssrComputed = <T>(fn: () => T) => () => fn();
-  const ssrEffect = () => () => {}; // No side effects for SSR
-  const noop = () => {};
-
   const render = callback({
-    reactivity: {
-      signal: ssrSignal,
-      effect: ssrEffect,
-      computed: ssrComputed,
-      startBatch: noop,
-      endBatch: noop,
-    },
     /**
      * Accepts an object of attribute transformer functions and returns a getter function for attribute values.
      * For SSR, only returns initial values.
@@ -108,25 +91,6 @@ const functionalDeclarativeCustomElement = <
       const dummyEmit = () => {};
       return dummyEmit as any;
     },
-    // Lifecycle hooks are not needed for SSR
-    onConnected: noop,
-    onDisconnected: noop,
-    onAttributeChanged: noop,
-    onAdopted: noop,
-    /**
-     * Returns the host element (this custom element itself)
-     * For SSR, returns an empty object
-     */
-    getHost: () => ({} as HTMLElement),
-    /**
-     * Returns the ShadowRoot
-     * For SSR, returns null
-     */
-    getShadowRoot: () => null,
-    /**
-     * Returns ElementInternals (always undefined for SSR)
-     */
-    getInternals: () => undefined,
   });
 
   jsxResult = render();

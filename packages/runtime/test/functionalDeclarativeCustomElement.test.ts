@@ -133,12 +133,12 @@ describe("functionalDeclarativeCustomElement", () => {
 
   it("スタイルオブジェクトを適用できる", () => {
     const styleObject = {
-      color: "red", 
+      color: "red",
       backgroundColor: "blue",
       fontSize: 16,
-      margin: 10
+      margin: 10,
     };
-    
+
     const component: CC = () => {
       return () => ({
         tag: Host,
@@ -168,9 +168,9 @@ describe("functionalDeclarativeCustomElement", () => {
     const mixedStyles = [
       "color: red;",
       { backgroundColor: "blue", fontSize: 16 },
-      "border: 1px solid black;"
+      "border: 1px solid black;",
     ];
-    
+
     const component: CC = () => {
       return () => ({
         tag: Host,
@@ -193,11 +193,11 @@ describe("functionalDeclarativeCustomElement", () => {
     const style1 = template.children[0] as Element;
     const style2 = template.children[1] as Element;
     const style3 = template.children[2] as Element;
-    
+
     expect(style1).toHaveProperty("tagName", "style");
     expect(style2).toHaveProperty("tagName", "style");
     expect(style3).toHaveProperty("tagName", "style");
-    
+
     expect(style1.children[0]).toHaveProperty("value", "color: red;");
     expect(style2.children[0]).toHaveProperty("value", "background-color: blue; font-size: 16px;");
     expect(style3.children[0]).toHaveProperty("value", "border: 1px solid black;");

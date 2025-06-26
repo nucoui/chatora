@@ -84,6 +84,9 @@ importers:
       '@chatora/runtime':
         specifier: workspace:*
         version: link:../runtime
+      '@chatora/util':
+        specifier: workspace:*
+        version: link:../util
     devDependencies:
       '@chatora/config':
         specifier: workspace:*
@@ -475,6 +478,9 @@ importers:
 
   playgrounds/vanilla:
     dependencies:
+      '@chatora/reactivity':
+        specifier: workspace:*
+        version: link:../../packages/reactivity
       '@chatora/util':
         specifier: workspace:*
         version: link:../../packages/util

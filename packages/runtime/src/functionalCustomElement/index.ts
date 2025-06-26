@@ -1,11 +1,12 @@
 import type { VNode } from "@/functionalCustomElement/vNode";
 import type { FunctionalCustomElement } from "@root/types/FunctionalCustomElement";
+import { setCurrentCustomElementInstance } from "@/functionalCustomElement/get";
 import { mount } from "@/functionalCustomElement/mount";
-import { onAdopted, onAttributeChangedBase, onConnectedBase, onDisconnectedBase } from "@/functionalCustomElement/on";
+import { setCurrentCustomElementContext } from "@/functionalCustomElement/on";
 import { patch } from "@/functionalCustomElement/patch";
+import { computed, effect, endBatch, signal, startBatch } from "@/functionalCustomElement/reactivity";
 import { applyStyles } from "@/functionalCustomElement/style";
 import { genVNode } from "@/functionalCustomElement/vNode";
-import { computed, effect, endBatch, signal, startBatch } from "@chatora/reactivity";
 
 // Pre-allocated empty objects to reduce memory allocations
 const EMPTY_OBJECT = Object.freeze({});
@@ -57,14 +58,11 @@ const functionalCustomElement: FunctionalCustomElement = (
     constructor() {
       super();
 
+      // Set the current context for external lifecycle hooks
+      setCurrentCustomElementContext(this.constructor);
+      setCurrentCustomElementInstance(this);
+
       const render = callback({
-        reactivity: {
-          signal,
-          effect,
-          computed,
-          startBatch,
-          endBatch,
-        },
         /**
          * Optimized defineProps with minimal object creation
          */
@@ -121,48 +119,12 @@ const functionalCustomElement: FunctionalCustomElement = (
 
           return emit as any;
         },
-        onConnected: (cb) => {
-          onConnectedBase(cb, this.constructor);
-        },
-        onDisconnected: (cb) => {
-          onDisconnectedBase(cb, this.constructor);
-        },
-        onAttributeChanged: (cb) => {
-          onAttributeChangedBase(cb, this.constructor);
-        },
-        onAdopted: (cb) => {
-          onAdopted(cb, this.constructor);
-        },
-        /**
-         * Returns the host element (this custom element itself)
-         * @returns HTMLElement
-         */
-        getHost: () => {
-          return this;
-        },
-        /**
-         * Returns the ShadowRoot if it exists
-         * @returns ShadowRoot or null
-         */
-        getShadowRoot: () => {
-          return this.shadowRoot;
-        },
-        /**
-         * Returns ElementInternals if formAssociated is enabled
-         * @returns ElementInternals or undefined
-         */
-        getInternals: (() => {
-          let internals: ElementInternals | undefined;
-          return () => {
-            if (!internals && (this.constructor as any).formAssociated && this.attachInternals) {
-              internals = this.attachInternals();
-            }
-            return internals;
-          };
-        })(),
       });
 
+      // Context will remain available for the lifetime of this instance
+
       const renderCallback = () => {
+        // Instance context is already set in constructor, no need to set/clear here
         const node = render();
 
         if (!node && node !== 0)
@@ -419,3 +381,6 @@ const functionalCustomElement: FunctionalCustomElement = (
 };
 
 export { functionalCustomElement };
+export { getHost, getInternals, getShadowRoot } from "@/functionalCustomElement/get";
+export { onAdopted, onAttributeChanged, onConnected, onDisconnected } from "@/functionalCustomElement/on";
+export { computed, effect, endBatch, signal, startBatch };

@@ -6,7 +6,7 @@ describe("normalizeStyleForDOM", () => {
     const styleObject: CSSStyleObject = {
       color: "red",
       backgroundColor: "blue",
-      fontSize: "16px"
+      fontSize: "16px",
     };
 
     const result = normalizeStyleForDOM(styleObject);
@@ -18,7 +18,7 @@ describe("normalizeStyleForDOM", () => {
       backgroundColor: "red",
       marginTop: "10px",
       borderBottomWidth: "2px",
-      textAlign: "center"
+      textAlign: "center",
     };
 
     const result = normalizeStyleForDOM(styleObject);
@@ -32,7 +32,7 @@ describe("normalizeStyleForDOM", () => {
       margin: 15,
       padding: 10,
       fontSize: 16,
-      borderWidth: 2
+      borderWidth: 2,
     };
 
     const result = normalizeStyleForDOM(styleObject);
@@ -44,7 +44,7 @@ describe("normalizeStyleForDOM", () => {
       zIndex: 999,
       opacity: 0.5,
       fontWeight: 600,
-      flexGrow: 1
+      flexGrow: 1,
     };
 
     const result = normalizeStyleForDOM(styleObject);
@@ -53,11 +53,11 @@ describe("normalizeStyleForDOM", () => {
 
   it("should handle mixed string and numeric values", () => {
     const styleObject: CSSStyleObject = {
-      width: 100,           // numeric -> should add px
-      height: "auto",       // string -> should not add px
-      zIndex: 999,          // numeric -> should not add px (not a pixel property)
+      width: 100, // numeric -> should add px
+      height: "auto", // string -> should not add px
+      zIndex: 999, // numeric -> should not add px (not a pixel property)
       backgroundColor: "red", // string -> should not add px
-      margin: 20            // numeric -> should add px
+      margin: 20, // numeric -> should add px
     };
 
     const result = normalizeStyleForDOM(styleObject);
@@ -76,7 +76,7 @@ describe("normalizeStyleForDOM", () => {
       borderRadius: 5,
       boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
       transform: "translateX(10px)",
-      transition: "all 0.3s ease"
+      transition: "all 0.3s ease",
     };
 
     const result = normalizeStyleForDOM(styleObject);
@@ -87,7 +87,7 @@ describe("normalizeStyleForDOM", () => {
     const styleObject: CSSStyleObject = {
       "--primary-color": "blue",
       "--secondary-color": "red",
-      color: "var(--primary-color)"
+      "color": "var(--primary-color)",
     };
 
     const result = normalizeStyleForDOM(styleObject);
@@ -103,7 +103,7 @@ describe("normalizeStyleForDOM", () => {
     const styles = [
       "color: red;",
       { backgroundColor: "blue", fontSize: 14 },
-      "border: 1px solid black;"
+      "border: 1px solid black;",
     ];
 
     const result = normalizeStyleForDOM(styles);

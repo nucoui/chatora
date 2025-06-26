@@ -66,9 +66,9 @@ npm install chatora
 ### 3. Create a custom element
 ```tsx
 // MiniElement.tsx
-import { functionalCustomElement, CC } from "chatora";
-import { toString } from "@chatora/util";
+import { functionalCustomElement, signal, type CC } from "chatora";
 import { Host } from "chatora/jsx-runtime";
+import { toString } from "chatora/util";
 
 type Props = {
   name?: string;
@@ -78,7 +78,7 @@ export type Emits = {
   "on-click": Event;
 };
 
-const Comp: CC<Props, Emits> = ({ reactivity: { signal }, defineProps, defineEmits }) => {
+const Comp: CC<Props, Emits> = ({ defineProps, defineEmits }) => {
     const props = defineProps({
       name: v => toString(v),
     });

@@ -3,21 +3,51 @@
  *
  * Tests for component lifecycle functions
  */
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { onAdopted, onAttributeChangedBase, onConnectedBase, onDisconnectedBase } from "../src/functionalCustomElement/on";
+import {
+  onAdopted,
+  onAttributeChanged,
+  onConnected,
+  onDisconnected,
+  setCurrentCustomElementContext,
+} from "../src/functionalCustomElement/on";
 
 describe("lifecycle functions", () => {
-  describe("onConnectedBase", () => {
-    it("should register connected callback", () => {
+  beforeEach(() => {
+    // Clear any existing context before each test
+    vi.clearAllMocks();
+  });
+
+  describe("onConnected", () => {
+    it("should register connected callback when context is set", () => {
       const callback = vi.fn();
       const MockConstructor = class extends HTMLElement {};
 
-      onConnectedBase(callback, MockConstructor);
+      // Set the context as the functionalCustomElement would
+      setCurrentCustomElementContext(MockConstructor);
+
+      onConnected(callback);
 
       // Check if the callback was registered
       expect((MockConstructor as any).prototype.handleConnected).toBeDefined();
       expect((MockConstructor as any).prototype.handleConnected).toBe(callback);
+    });
+
+    it("should warn when no context is set", () => {
+      const callback = vi.fn();
+      const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+      // Clear context
+      setCurrentCustomElementContext(null);
+
+      onConnected(callback);
+
+      expect(consoleSpy).toHaveBeenCalledWith(
+        "onConnected: No custom element context found. Make sure to call onConnected during component definition.",
+      );
+
+      consoleSpy.mockRestore();
     });
 
     it("should handle multiple connected callbacks by overwriting", () => {
@@ -25,33 +55,42 @@ describe("lifecycle functions", () => {
       const callback2 = vi.fn();
       const MockConstructor = class extends HTMLElement {};
 
-      onConnectedBase(callback1, MockConstructor);
-      onConnectedBase(callback2, MockConstructor);
+      setCurrentCustomElementContext(MockConstructor);
+
+      onConnected(callback1);
+      onConnected(callback2);
 
       // The last callback should overwrite the previous one
       expect((MockConstructor as any).prototype.handleConnected).toBe(callback2);
     });
-
-    it("should set callback directly on prototype", () => {
-      const callback = vi.fn();
-      const MockConstructor = class extends HTMLElement {};
-
-      onConnectedBase(callback, MockConstructor);
-
-      expect((MockConstructor as any).prototype.handleConnected).toBeDefined();
-      expect(typeof (MockConstructor as any).prototype.handleConnected).toBe("function");
-    });
   });
 
-  describe("onDisconnectedBase", () => {
-    it("should register disconnected callback", () => {
+  describe("onDisconnected", () => {
+    it("should register disconnected callback when context is set", () => {
       const callback = vi.fn();
       const MockConstructor = class extends HTMLElement {};
 
-      onDisconnectedBase(callback, MockConstructor);
+      setCurrentCustomElementContext(MockConstructor);
+
+      onDisconnected(callback);
 
       expect((MockConstructor as any).prototype.handleDisconnected).toBeDefined();
       expect((MockConstructor as any).prototype.handleDisconnected).toBe(callback);
+    });
+
+    it("should warn when no context is set", () => {
+      const callback = vi.fn();
+      const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+      setCurrentCustomElementContext(null);
+
+      onDisconnected(callback);
+
+      expect(consoleSpy).toHaveBeenCalledWith(
+        "onDisconnected: No custom element context found. Make sure to call onDisconnected during component definition.",
+      );
+
+      consoleSpy.mockRestore();
     });
 
     it("should handle multiple disconnected callbacks by overwriting", () => {
@@ -59,22 +98,41 @@ describe("lifecycle functions", () => {
       const callback2 = vi.fn();
       const MockConstructor = class extends HTMLElement {};
 
-      onDisconnectedBase(callback1, MockConstructor);
-      onDisconnectedBase(callback2, MockConstructor);
+      setCurrentCustomElementContext(MockConstructor);
+
+      onDisconnected(callback1);
+      onDisconnected(callback2);
 
       expect((MockConstructor as any).prototype.handleDisconnected).toBe(callback2);
     });
   });
 
-  describe("onAttributeChangedBase", () => {
-    it("should register attribute changed callback", () => {
+  describe("onAttributeChanged", () => {
+    it("should register attribute changed callback when context is set", () => {
       const callback = vi.fn();
       const MockConstructor = class extends HTMLElement {};
 
-      onAttributeChangedBase(callback, MockConstructor);
+      setCurrentCustomElementContext(MockConstructor);
+
+      onAttributeChanged(callback);
 
       expect((MockConstructor as any).prototype.handleAttributeChanged).toBeDefined();
       expect((MockConstructor as any).prototype.handleAttributeChanged).toBe(callback);
+    });
+
+    it("should warn when no context is set", () => {
+      const callback = vi.fn();
+      const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+      setCurrentCustomElementContext(null);
+
+      onAttributeChanged(callback);
+
+      expect(consoleSpy).toHaveBeenCalledWith(
+        "onAttributeChanged: No custom element context found. Make sure to call onAttributeChanged during component definition.",
+      );
+
+      consoleSpy.mockRestore();
     });
 
     it("should handle multiple attribute changed callbacks by overwriting", () => {
@@ -82,22 +140,41 @@ describe("lifecycle functions", () => {
       const callback2 = vi.fn();
       const MockConstructor = class extends HTMLElement {};
 
-      onAttributeChangedBase(callback1, MockConstructor);
-      onAttributeChangedBase(callback2, MockConstructor);
+      setCurrentCustomElementContext(MockConstructor);
+
+      onAttributeChanged(callback1);
+      onAttributeChanged(callback2);
 
       expect((MockConstructor as any).prototype.handleAttributeChanged).toBe(callback2);
     });
   });
 
   describe("onAdopted", () => {
-    it("should register adopted callback", () => {
+    it("should register adopted callback when context is set", () => {
       const callback = vi.fn();
       const MockConstructor = class extends HTMLElement {};
 
-      onAdopted(callback, MockConstructor);
+      setCurrentCustomElementContext(MockConstructor);
+
+      onAdopted(callback);
 
       expect((MockConstructor as any).prototype.handleAdopted).toBeDefined();
       expect((MockConstructor as any).prototype.handleAdopted).toBe(callback);
+    });
+
+    it("should warn when no context is set", () => {
+      const callback = vi.fn();
+      const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+      setCurrentCustomElementContext(null);
+
+      onAdopted(callback);
+
+      expect(consoleSpy).toHaveBeenCalledWith(
+        "onAdopted: No custom element context found. Make sure to call onAdopted during component definition.",
+      );
+
+      consoleSpy.mockRestore();
     });
 
     it("should handle multiple adopted callbacks by overwriting", () => {
@@ -105,8 +182,10 @@ describe("lifecycle functions", () => {
       const callback2 = vi.fn();
       const MockConstructor = class extends HTMLElement {};
 
-      onAdopted(callback1, MockConstructor);
-      onAdopted(callback2, MockConstructor);
+      setCurrentCustomElementContext(MockConstructor);
+
+      onAdopted(callback1);
+      onAdopted(callback2);
 
       expect((MockConstructor as any).prototype.handleAdopted).toBe(callback2);
     });
@@ -119,8 +198,11 @@ describe("lifecycle functions", () => {
       const MockConstructor1 = class extends HTMLElement {};
       const MockConstructor2 = class extends HTMLElement {};
 
-      onConnectedBase(callback1, MockConstructor1);
-      onConnectedBase(callback2, MockConstructor2);
+      setCurrentCustomElementContext(MockConstructor1);
+      onConnected(callback1);
+
+      setCurrentCustomElementContext(MockConstructor2);
+      onConnected(callback2);
 
       expect((MockConstructor1 as any).prototype.handleConnected).toBe(callback1);
       expect((MockConstructor2 as any).prototype.handleConnected).toBe(callback2);
@@ -133,10 +215,12 @@ describe("lifecycle functions", () => {
       const adoptedCb = vi.fn();
       const MockConstructor = class extends HTMLElement {};
 
-      onConnectedBase(connectedCb, MockConstructor);
-      onDisconnectedBase(disconnectedCb, MockConstructor);
-      onAttributeChangedBase(attributeChangedCb, MockConstructor);
-      onAdopted(adoptedCb, MockConstructor);
+      setCurrentCustomElementContext(MockConstructor);
+
+      onConnected(connectedCb);
+      onDisconnected(disconnectedCb);
+      onAttributeChanged(attributeChangedCb);
+      onAdopted(adoptedCb);
 
       expect((MockConstructor as any).prototype.handleConnected).toBe(connectedCb);
       expect((MockConstructor as any).prototype.handleDisconnected).toBe(disconnectedCb);
@@ -152,7 +236,8 @@ describe("lifecycle functions", () => {
         }
       };
 
-      onConnectedBase(callback, MockConstructor);
+      setCurrentCustomElementContext(MockConstructor);
+      onConnected(callback);
 
       expect((MockConstructor as any).prototype.handleConnected).toBeDefined();
       expect((MockConstructor as any).prototype.existingMethod).toBeDefined();

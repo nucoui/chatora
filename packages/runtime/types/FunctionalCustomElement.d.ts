@@ -25,13 +25,6 @@ export type CC<
 > = ChatoraComponent<P, E>;
 
 export type ChatoraComponent<P extends Record<string, any> = Record<string, never>, E extends Record<`on-${string}`, any> = Record<`on-${string}`, never>> = (params: {
-  reactivity: {
-    signal: typeof import("@chatora/reactivity").signal;
-    computed: typeof import("@chatora/reactivity").computed;
-    effect: typeof import("@chatora/reactivity").effect;
-    startBatch: typeof import("@chatora/reactivity").startBatch;
-    endBatch: typeof import("@chatora/reactivity").endBatch;
-  };
   /**
    * Define the props
    *
@@ -60,28 +53,6 @@ export type ChatoraComponent<P extends Record<string, any> = Record<string, neve
    *   emits("on-click", { count: 1 }) // Type-safe CustomEvent emission
    */
   defineEmits: <T extends { [K in keyof E]: (detail: E[K]) => void }>(events: T) => <K extends keyof E>(type: K, detail?: E[K], options?: EventInit) => void;
-  /**
-   * Register hook for connectedCallback
-   */
-  onConnected: (cb: () => void) => void;
-  /**
-   * Register hook for disconnectedCallback
-   */
-  onDisconnected: (cb: () => void) => void;
-  /**
-   * Observe attribute changes
-   */
-  onAttributeChanged: (cb: (name: string, oldValue: string | null, newValue: string | null) => void) => void;
-  /**
-   * Register hook for adoptedCallback
-   */
-  onAdopted: (cb: () => void) => void;
-  getHost: () => HTMLElement;
-  getShadowRoot: () => ShadowRoot | null;
-  /**
-   * Returns ElementInternals if formAssociated is enabled
-   */
-  getInternals: () => ElementInternals | undefined;
 }) => () => ChatoraNode | ChatoraNode[];
 
 export type FunctionalCustomElement = <

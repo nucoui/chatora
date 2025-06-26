@@ -8,6 +8,8 @@ import type { CC } from "../types/FunctionalCustomElement";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { functionalCustomElement } from "../src/functionalCustomElement";
+import { getHost, getInternals, getShadowRoot } from "../src/functionalCustomElement/get";
+import { onConnected, onDisconnected } from "../src/functionalCustomElement/on";
 
 // ダミーのChatoraJSXElementを返す
 const DummyJSX = (): import("../types/JSX.namespace").ChatoraJSXElement => ({
@@ -35,7 +37,7 @@ describe("functionalCustomElement", () => {
 
   it("customElementクラスを生成できる", () => {
     const tagName = "x-test-el1";
-    const CustomElement = functionalCustomElement(({ onConnected }) => {
+    const CustomElement = functionalCustomElement(() => {
       onConnected(() => {
         /* connected callback */
       });
@@ -135,9 +137,12 @@ describe("functionalCustomElement", () => {
     const tagName = "x-test-host";
     let hostElement: any;
 
-    const CustomElement = functionalCustomElement(({ getHost }) => {
-      hostElement = getHost();
-      return () => DummyJSX();
+    const CustomElement = functionalCustomElement(() => {
+      return () => {
+        // getHost is only available during render execution
+        hostElement = getHost();
+        return DummyJSX();
+      };
     });
 
     if (!customElements.get(tagName))
@@ -153,7 +158,7 @@ describe("functionalCustomElement", () => {
     const tagName = "x-test-shadow";
     let shadowRoot: any;
 
-    const CustomElement = functionalCustomElement(({ getShadowRoot }) => {
+    const CustomElement = functionalCustomElement(() => {
       return () => {
         shadowRoot = getShadowRoot();
         return DummyJSX();
@@ -173,9 +178,12 @@ describe("functionalCustomElement", () => {
     const tagName = "x-test-internals";
     let internals: any;
 
-    const CustomElement = functionalCustomElement(({ getInternals }) => {
-      internals = getInternals();
-      return () => DummyJSX();
+    const CustomElement = functionalCustomElement(() => {
+      return () => {
+        // getInternals is only available during render execution
+        internals = getInternals();
+        return DummyJSX();
+      };
     });
 
     CustomElement.formAssociated = true;
@@ -277,7 +285,7 @@ describe("functionalCustomElement", () => {
     const tagName = "x-test-disconnect";
     const disconnectSpy = vi.fn();
 
-    const CustomElement = functionalCustomElement(({ onDisconnected }) => {
+    const CustomElement = functionalCustomElement(() => {
       onDisconnected(disconnectSpy);
       return () => DummyJSX();
     });

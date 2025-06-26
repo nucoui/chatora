@@ -7,6 +7,7 @@ export default defineConfig({
     "src/main.ts",
     "src/reactivity.ts",
     "src/runtime.ts",
+    "src/util.ts",
   ],
   format: ["esm", "cjs"],
   dts: true,

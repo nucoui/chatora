@@ -142,7 +142,7 @@ describe("applyStyles", () => {
       backgroundColor: "blue",
       fontSize: "16px",
       marginTop: 10,
-      padding: "5px 10px"
+      padding: "5px 10px",
     };
 
     applyStyles(shadowRoot, styleObject);
@@ -155,7 +155,7 @@ describe("applyStyles", () => {
     const mixedStyles = [
       "color: red;",
       { backgroundColor: "blue", fontSize: 14 },
-      "border: 1px solid black;"
+      "border: 1px solid black;",
     ];
 
     applyStyles(shadowRoot, mixedStyles);
@@ -164,19 +164,19 @@ describe("applyStyles", () => {
     const expectedCSS = [
       "color: red;",
       "background-color: blue; font-size: 14px;",
-      "border: 1px solid black;"
+      "border: 1px solid black;",
     ].join("\n");
     expect(styleElement?.textContent).toBe(expectedCSS);
   });
 
   it("should handle numeric values correctly", () => {
     const styleObject = {
-      width: 100,          // Should add px
-      height: 200,         // Should add px  
-      zIndex: 999,         // Should NOT add px
-      opacity: 0.5,        // Should NOT add px
-      lineHeight: 1.5,     // Should NOT add px
-      fontWeight: 600      // Should NOT add px
+      width: 100, // Should add px
+      height: 200, // Should add px
+      zIndex: 999, // Should NOT add px
+      opacity: 0.5, // Should NOT add px
+      lineHeight: 1.5, // Should NOT add px
+      fontWeight: 600, // Should NOT add px
     };
 
     applyStyles(shadowRoot, styleObject);
