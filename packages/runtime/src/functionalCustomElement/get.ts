@@ -53,9 +53,10 @@ const getInternals = (): ElementInternals | null => {
 
   // Cache internals on the instance to avoid multiple attachInternals calls
   const internalsKey = "_chatora_internals";
+
   if (!(currentCustomElementInstance as any)[internalsKey]) {
     try {
-      (currentCustomElementInstance as any)[internalsKey] = (currentCustomElementInstance as any).attachInternals();
+      (currentCustomElementInstance as any)[internalsKey] = currentCustomElementInstance.attachInternals();
     }
     catch {
       // attachInternals can fail for non-custom elements or other reasons
@@ -66,9 +67,33 @@ const getInternals = (): ElementInternals | null => {
   return (currentCustomElementInstance as any)[internalsKey];
 };
 
+/**
+ * Returns the slot element by name
+ * This function can be imported and used externally
+ * @param name - The name of the slot (optional)
+ * @returns HTMLSlotElement or null if not found
+ */
+const getSlot = (name?: string): HTMLSlotElement | null => {
+  const host = getHost();
+
+  if (!host) {
+    console.warn("getSlot: No host element found. Make sure to call getSlot during component execution.");
+    return null;
+  }
+
+  const slot = host.shadowRoot?.querySelector(`slot${name ? `[name="${name}"]` : ""}`) ?? null;
+
+  if (!slot) {
+    console.warn(`getSlot: No slot found${name ? ` with name "${name}"` : ""}.`);
+  }
+
+  return slot as HTMLSlotElement | null;
+};
+
 export {
   getHost,
   getInternals,
   getShadowRoot,
+  getSlot,
   setCurrentCustomElementInstance,
 };

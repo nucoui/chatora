@@ -9,6 +9,7 @@ import {
   getHost,
   getInternals,
   getShadowRoot,
+  getSlot,
   setCurrentCustomElementInstance,
 } from "../src/functionalCustomElement/get";
 
@@ -143,6 +144,135 @@ describe("instance accessor functions", () => {
       expect(consoleSpy).toHaveBeenCalledWith(
         "getInternals: No custom element instance found. Make sure to call getInternals during component execution.",
       );
+
+      consoleSpy.mockRestore();
+    });
+  });
+
+  describe("getSlot", () => {
+    it("should return the default slot when no name is provided", () => {
+      const mockElement = document.createElement("div") as HTMLElement;
+      const mockShadowRoot = document.createElement("div");
+      const mockSlot = document.createElement("slot") as HTMLSlotElement;
+
+      // Setup shadow root with default slot
+      mockShadowRoot.appendChild(mockSlot);
+      Object.defineProperty(mockElement, "shadowRoot", {
+        value: mockShadowRoot,
+        writable: true,
+      });
+
+      // Mock querySelector to return our slot
+      mockShadowRoot.querySelector = vi.fn().mockReturnValue(mockSlot);
+
+      setCurrentCustomElementInstance(mockElement);
+
+      const result = getSlot();
+
+      expect(result).toBe(mockSlot);
+      expect(mockShadowRoot.querySelector).toHaveBeenCalledWith("slot");
+    });
+
+    it("should return the named slot when name is provided", () => {
+      const mockElement = document.createElement("div") as HTMLElement;
+      const mockShadowRoot = document.createElement("div");
+      const mockSlot = document.createElement("slot") as HTMLSlotElement;
+
+      // Setup shadow root with named slot
+      mockShadowRoot.appendChild(mockSlot);
+      Object.defineProperty(mockElement, "shadowRoot", {
+        value: mockShadowRoot,
+        writable: true,
+      });
+
+      // Mock querySelector to return our slot
+      mockShadowRoot.querySelector = vi.fn().mockReturnValue(mockSlot);
+
+      setCurrentCustomElementInstance(mockElement);
+
+      const result = getSlot("header");
+
+      expect(result).toBe(mockSlot);
+      expect(mockShadowRoot.querySelector).toHaveBeenCalledWith("slot[name=\"header\"]");
+    });
+
+    it("should return null and warn when slot is not found", () => {
+      const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      const mockElement = document.createElement("div") as HTMLElement;
+      const mockShadowRoot = document.createElement("div");
+
+      Object.defineProperty(mockElement, "shadowRoot", {
+        value: mockShadowRoot,
+        writable: true,
+      });
+
+      // Mock querySelector to return null (slot not found)
+      mockShadowRoot.querySelector = vi.fn().mockReturnValue(null);
+
+      setCurrentCustomElementInstance(mockElement);
+
+      const result = getSlot();
+
+      expect(result).toBeNull();
+      expect(consoleSpy).toHaveBeenCalledWith("getSlot: No slot found.");
+
+      consoleSpy.mockRestore();
+    });
+
+    it("should return null and warn when named slot is not found", () => {
+      const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      const mockElement = document.createElement("div") as HTMLElement;
+      const mockShadowRoot = document.createElement("div");
+
+      Object.defineProperty(mockElement, "shadowRoot", {
+        value: mockShadowRoot,
+        writable: true,
+      });
+
+      // Mock querySelector to return null (slot not found)
+      mockShadowRoot.querySelector = vi.fn().mockReturnValue(null);
+
+      setCurrentCustomElementInstance(mockElement);
+
+      const result = getSlot("nonexistent");
+
+      expect(result).toBeNull();
+      expect(consoleSpy).toHaveBeenCalledWith("getSlot: No slot found with name \"nonexistent\".");
+
+      consoleSpy.mockRestore();
+    });
+
+    it("should warn when no host element is found", () => {
+      const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+      setCurrentCustomElementInstance(null);
+
+      const result = getSlot();
+
+      expect(result).toBeNull();
+      expect(consoleSpy).toHaveBeenCalledWith(
+        "getSlot: No host element found. Make sure to call getSlot during component execution.",
+      );
+
+      consoleSpy.mockRestore();
+    });
+
+    it("should return null when host has no shadowRoot", () => {
+      const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      const mockElement = document.createElement("div") as HTMLElement;
+
+      // Ensure shadowRoot is null
+      Object.defineProperty(mockElement, "shadowRoot", {
+        value: null,
+        writable: true,
+      });
+
+      setCurrentCustomElementInstance(mockElement);
+
+      const result = getSlot();
+
+      expect(result).toBeNull();
+      expect(consoleSpy).toHaveBeenCalledWith("getSlot: No slot found.");
 
       consoleSpy.mockRestore();
     });
