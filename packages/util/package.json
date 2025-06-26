@@ -1,7 +1,7 @@
 {
   "name": "@chatora/util",
   "type": "module",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": false,
   "description": "Framework for creating custom elements with JSX function components",
   "author": "nuco <takuma-ru@takumaru.dev> (https://github.com/takuma-ru/)",
