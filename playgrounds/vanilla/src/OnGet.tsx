@@ -1,4 +1,4 @@
-import { CC, functionalCustomElement, getHost, getInternals, getShadowRoot, getSlotteds, onAdopted, onAttributeChanged, onConnected, onDisconnected, signal } from "chatora";
+import { CC, effect, functionalCustomElement, getHost, getInternals, getShadowRoot, getSlotteds, onAdopted, onAttributeChanged, onConnected, onDisconnected, signal } from "chatora";
 import { Host } from "chatora/jsx-runtime";
 import { Signal } from "@chatora/reactivity";
 
@@ -34,6 +34,11 @@ const lifecycle: CC<Props, Emits> = ({
   const shadowRoot = getShadowRoot();
   const slotteds = getSlotteds();
 
+  effect(() => {
+    console.log("slotteds:", slotteds());
+    // console.log(host()?.querySelectorAll("*"))
+  });
+
   onConnected(() => {
     setStatus((prev) => ({ ...prev, connected: true }));
 
@@ -58,6 +63,12 @@ const lifecycle: CC<Props, Emits> = ({
     setStatus((prev) => ({ ...prev, attributeChanged: true }));
     console.log("Component attributes changed");
   });
+
+  setInterval(() => {
+    const child = document.createElement("p")
+    child.appendChild(document.createTextNode("New paragraph added at " + new Date().toLocaleTimeString()))
+    host()?.appendChild(child);
+  } , 5000);
 
   return () => (
     <Host>
@@ -118,6 +129,7 @@ if (!customElements.get("lifecycle-element")) {
 }
 
 const lifecycleInstance = document.createElement("lifecycle-element");
+
 const child = document.createElement("h1");
 child.textContent = "Hello, World!";
 lifecycleInstance.appendChild(child);
