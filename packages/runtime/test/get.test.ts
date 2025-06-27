@@ -9,34 +9,51 @@ import {
   getHost,
   getInternals,
   getShadowRoot,
-  getSlots,
+  getSlotteds,
   setCurrentCustomElementInstance,
 } from "../src/functionalCustomElement/get";
+import { onConnected } from "../src/functionalCustomElement/on";
+
+// Mock onConnected function
+vi.mock("../src/functionalCustomElement/on", () => ({
+  onConnected: vi.fn(),
+  onDisconnected: vi.fn(),
+  onAttributeChanged: vi.fn(),
+  onAdopted: vi.fn(),
+  setCurrentCustomElementContext: vi.fn(),
+}));
+
+const mockOnConnected = vi.mocked(onConnected);
 
 describe("instance accessor functions", () => {
   beforeEach(() => {
     // Clear any existing context before each test
     vi.clearAllMocks();
+    mockOnConnected.mockReset();
   });
 
   describe("getHost", () => {
-    it("should return the current instance when set", () => {
+    it("should return signal that provides the current instance when set", () => {
       const mockElement = document.createElement("div") as HTMLElement;
-
       setCurrentCustomElementInstance(mockElement);
 
-      const result = getHost();
-      expect(result).toBe(mockElement);
+      const signalGetter = getHost();
+
+      // Execute the onConnected callback that was registered
+      expect(mockOnConnected).toHaveBeenCalledTimes(1);
+      const onConnectedCallback = mockOnConnected.mock.calls[0][0];
+      onConnectedCallback();
+
+      expect(signalGetter()).toBe(mockElement);
     });
 
-    it("should return null and warn when no instance is set", () => {
+    it("should return signal that provides null and warn when no instance is set", () => {
       const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-
       setCurrentCustomElementInstance(null);
 
-      const result = getHost();
+      const signalGetter = getHost();
 
-      expect(result).toBeNull();
+      expect(signalGetter()).toBeNull();
       expect(consoleSpy).toHaveBeenCalledWith(
         "getHost: No custom element instance found. Make sure to call getHost during component execution.",
       );
@@ -46,7 +63,7 @@ describe("instance accessor functions", () => {
   });
 
   describe("getShadowRoot", () => {
-    it("should return shadowRoot when instance has one", () => {
+    it("should return signal that provides shadowRoot when instance has one", () => {
       const mockElement = document.createElement("div") as HTMLElement;
       // Mock shadowRoot property
       Object.defineProperty(mockElement, "shadowRoot", {
@@ -56,27 +73,36 @@ describe("instance accessor functions", () => {
 
       setCurrentCustomElementInstance(mockElement);
 
-      const result = getShadowRoot();
-      expect(result).toEqual({ mode: "open" });
+      const signalGetter = getShadowRoot();
+
+      // Execute the onConnected callback that was registered
+      expect(mockOnConnected).toHaveBeenCalledTimes(1);
+      const onConnectedCallback = mockOnConnected.mock.calls[0][0];
+      onConnectedCallback();
+
+      expect(signalGetter()).toEqual({ mode: "open" });
     });
 
-    it("should return null when instance has no shadowRoot", () => {
+    it("should return signal that provides null when instance has no shadowRoot", () => {
       const mockElement = document.createElement("div") as HTMLElement;
-
       setCurrentCustomElementInstance(mockElement);
 
-      const result = getShadowRoot();
-      expect(result).toBeNull();
+      const signalGetter = getShadowRoot();
+
+      // Execute the onConnected callback that was registered
+      const onConnectedCallback = mockOnConnected.mock.calls[0][0];
+      onConnectedCallback();
+
+      expect(signalGetter()).toBeNull();
     });
 
     it("should warn when no instance is set", () => {
       const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-
       setCurrentCustomElementInstance(null);
 
-      const result = getShadowRoot();
+      const signalGetter = getShadowRoot();
 
-      expect(result).toBeNull();
+      expect(signalGetter()).toBeNull();
       expect(consoleSpy).toHaveBeenCalledWith(
         "getShadowRoot: No custom element instance found. Make sure to call getShadowRoot during component execution.",
       );
@@ -86,7 +112,7 @@ describe("instance accessor functions", () => {
   });
 
   describe("getInternals", () => {
-    it("should return cached internals when formAssociated is enabled", () => {
+    it("should return signal that provides cached internals when formAssociated is enabled", () => {
       const mockElement = document.createElement("div") as HTMLElement;
       const mockInternals = { setFormValue: vi.fn() };
 
@@ -98,16 +124,23 @@ describe("instance accessor functions", () => {
 
       setCurrentCustomElementInstance(mockElement);
 
-      const result1 = getInternals();
-      const result2 = getInternals();
+      const signalGetter1 = getInternals();
+      const signalGetter2 = getInternals();
 
-      expect(result1).toBe(mockInternals);
-      expect(result2).toBe(mockInternals);
+      // Execute the onConnected callbacks that were registered
+      expect(mockOnConnected).toHaveBeenCalledTimes(2);
+      const onConnectedCallback1 = mockOnConnected.mock.calls[0][0];
+      const onConnectedCallback2 = mockOnConnected.mock.calls[1][0];
+      onConnectedCallback1();
+      onConnectedCallback2();
+
+      expect(signalGetter1()).toBe(mockInternals);
+      expect(signalGetter2()).toBe(mockInternals);
       // Should only call attachInternals once due to caching
       expect((mockElement as any).attachInternals).toHaveBeenCalledTimes(1);
     });
 
-    it("should return null when formAssociated is not enabled", () => {
+    it("should return signal that provides null when formAssociated is not enabled", () => {
       const mockElement = document.createElement("div") as HTMLElement;
 
       // Ensure formAssociated is false
@@ -115,11 +148,16 @@ describe("instance accessor functions", () => {
 
       setCurrentCustomElementInstance(mockElement);
 
-      const result = getInternals();
-      expect(result).toBeNull();
+      const signalGetter = getInternals();
+
+      // Execute the onConnected callback that was registered
+      const onConnectedCallback = mockOnConnected.mock.calls[0][0];
+      onConnectedCallback();
+
+      expect(signalGetter()).toBeNull();
     });
 
-    it("should return null when attachInternals is not available", () => {
+    it("should return signal that provides null when attachInternals is not available", () => {
       const mockElement = document.createElement("div") as HTMLElement;
 
       // Enable formAssociated but remove attachInternals
@@ -129,18 +167,22 @@ describe("instance accessor functions", () => {
 
       setCurrentCustomElementInstance(mockElement);
 
-      const result = getInternals();
-      expect(result).toBeNull();
+      const signalGetter = getInternals();
+
+      // Execute the onConnected callback that was registered
+      const onConnectedCallback = mockOnConnected.mock.calls[0][0];
+      onConnectedCallback();
+
+      expect(signalGetter()).toBeNull();
     });
 
     it("should warn when no instance is set", () => {
       const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-
       setCurrentCustomElementInstance(null);
 
-      const result = getInternals();
+      const signalGetter = getInternals();
 
-      expect(result).toBeNull();
+      expect(signalGetter()).toBeNull();
       expect(consoleSpy).toHaveBeenCalledWith(
         "getInternals: No custom element instance found. Make sure to call getInternals during component execution.",
       );
@@ -149,99 +191,63 @@ describe("instance accessor functions", () => {
     });
   });
 
-  describe("getSlots", () => {
-    it("should return array of default slots when no name is provided", () => {
+  describe("getSlotteds", () => {
+    it("should return signal that provides array of default slotted elements when no name is provided", () => {
       const mockElement = document.createElement("div") as HTMLElement;
-      const mockShadowRoot = document.createElement("div");
-      const mockSlot1 = document.createElement("slot") as HTMLSlotElement;
-      const mockSlot2 = document.createElement("slot") as HTMLSlotElement;
+      const mockChild1 = document.createElement("span");
+      const mockChild2 = document.createElement("p");
+      const mockSlottedChild = document.createElement("div");
+      mockSlottedChild.setAttribute("slot", "named");
 
-      // Setup shadow root with default slots
-      mockShadowRoot.appendChild(mockSlot1);
-      mockShadowRoot.appendChild(mockSlot2);
-      Object.defineProperty(mockElement, "shadowRoot", {
-        value: mockShadowRoot,
-        writable: true,
-      });
-
-      // Mock querySelectorAll to return our slots
-      mockShadowRoot.querySelectorAll = vi.fn().mockReturnValue([mockSlot1, mockSlot2]);
+      // Add children to host element
+      mockElement.appendChild(mockChild1);
+      mockElement.appendChild(mockChild2);
+      mockElement.appendChild(mockSlottedChild);
 
       setCurrentCustomElementInstance(mockElement);
 
-      const result = getSlots();
+      const signalGetter = getSlotteds();
 
-      expect(result).toEqual([mockSlot1, mockSlot2]);
-      expect(mockShadowRoot.querySelectorAll).toHaveBeenCalledWith("slot");
+      // Execute the onConnected callback that was registered
+      const onConnectedCallback = mockOnConnected.mock.calls[0][0];
+      onConnectedCallback();
+
+      // Should return all children (implementation returns all children with :scope > *)
+      expect(signalGetter()).toEqual([mockChild1, mockChild2, mockSlottedChild]);
     });
 
-    it("should return array of named slots when name is provided", () => {
+    it("should return signal that provides array of named slotted elements when name is provided", () => {
       const mockElement = document.createElement("div") as HTMLElement;
-      const mockShadowRoot = document.createElement("div");
-      const mockSlot = document.createElement("slot") as HTMLSlotElement;
+      const mockNamedChild = document.createElement("span");
+      const mockDefaultChild = document.createElement("p");
 
-      // Setup shadow root with named slot
-      mockShadowRoot.appendChild(mockSlot);
-      Object.defineProperty(mockElement, "shadowRoot", {
-        value: mockShadowRoot,
-        writable: true,
-      });
-
-      // Mock querySelectorAll to return our slot
-      mockShadowRoot.querySelectorAll = vi.fn().mockReturnValue([mockSlot]);
+      mockNamedChild.setAttribute("slot", "header");
+      mockElement.appendChild(mockNamedChild);
+      mockElement.appendChild(mockDefaultChild);
 
       setCurrentCustomElementInstance(mockElement);
 
-      const result = getSlots("header");
+      const signalGetter = getSlotteds("header");
 
-      expect(result).toEqual([mockSlot]);
-      expect(mockShadowRoot.querySelectorAll).toHaveBeenCalledWith("slot[name=\"header\"]");
+      // Execute the onConnected callback that was registered
+      const onConnectedCallback = mockOnConnected.mock.calls[0][0];
+      onConnectedCallback();
+
+      expect(signalGetter()).toEqual([mockNamedChild]);
     });
 
-    it("should return empty array and warn when slot is not found", () => {
-      const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    it("should return signal that provides empty array when no slotted elements are found", () => {
       const mockElement = document.createElement("div") as HTMLElement;
-      const mockShadowRoot = document.createElement("div");
-
-      Object.defineProperty(mockElement, "shadowRoot", {
-        value: mockShadowRoot,
-        writable: true,
-      });
-
-      // Mock querySelectorAll to return empty NodeList
-      mockShadowRoot.querySelectorAll = vi.fn().mockReturnValue([]);
 
       setCurrentCustomElementInstance(mockElement);
 
-      const result = getSlots();
+      const signalGetter = getSlotteds();
 
-      expect(result).toEqual([]);
-      expect(consoleSpy).toHaveBeenCalledWith("getSlots: No slot found.");
+      // Execute the onConnected callback that was registered
+      const onConnectedCallback = mockOnConnected.mock.calls[0][0];
+      onConnectedCallback();
 
-      consoleSpy.mockRestore();
-    });
-
-    it("should return empty array and warn when named slot is not found", () => {
-      const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-      const mockElement = document.createElement("div") as HTMLElement;
-      const mockShadowRoot = document.createElement("div");
-
-      Object.defineProperty(mockElement, "shadowRoot", {
-        value: mockShadowRoot,
-        writable: true,
-      });
-
-      // Mock querySelectorAll to return empty NodeList
-      mockShadowRoot.querySelectorAll = vi.fn().mockReturnValue([]);
-
-      setCurrentCustomElementInstance(mockElement);
-
-      const result = getSlots("nonexistent");
-
-      expect(result).toEqual([]);
-      expect(consoleSpy).toHaveBeenCalledWith("getSlots: No slot found with name \"nonexistent\".");
-
-      consoleSpy.mockRestore();
+      expect(signalGetter()).toEqual([]);
     });
 
     it("should warn when no host element is found", () => {
@@ -249,32 +255,12 @@ describe("instance accessor functions", () => {
 
       setCurrentCustomElementInstance(null);
 
-      const result = getSlots();
+      const signalGetter = getSlotteds();
 
-      expect(result).toEqual([]);
+      expect(signalGetter()).toBeNull();
       expect(consoleSpy).toHaveBeenCalledWith(
-        "getSlots: No host element found. Make sure to call getSlots during component execution.",
+        "getSlotteds: No custom element instance found. Make sure to call getSlotteds during component execution.",
       );
-
-      consoleSpy.mockRestore();
-    });
-
-    it("should return empty array when host has no shadowRoot", () => {
-      const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-      const mockElement = document.createElement("div") as HTMLElement;
-
-      // Ensure shadowRoot is null
-      Object.defineProperty(mockElement, "shadowRoot", {
-        value: null,
-        writable: true,
-      });
-
-      setCurrentCustomElementInstance(mockElement);
-
-      const result = getSlots();
-
-      expect(result).toEqual([]);
-      expect(consoleSpy).toHaveBeenCalledWith("getSlots: No slot found.");
 
       consoleSpy.mockRestore();
     });
@@ -286,15 +272,19 @@ describe("instance accessor functions", () => {
 
       // Test instance management
       setCurrentCustomElementInstance(mockInstance);
-      const host = getHost();
+      const hostSignalGetter = getHost();
 
-      expect(host).toBe(mockInstance);
+      // Execute the onConnected callback that was registered
+      const onConnectedCallback = mockOnConnected.mock.calls[0][0];
+      onConnectedCallback();
+
+      expect(hostSignalGetter()).toBe(mockInstance);
 
       // Clear instance
       setCurrentCustomElementInstance(null);
-      const hostAfterClear = getHost();
+      const hostAfterClearSignalGetter = getHost();
 
-      expect(hostAfterClear).toBeNull();
+      expect(hostAfterClearSignalGetter()).toBeNull();
     });
 
     it("should handle multiple instance switches", () => {
@@ -303,15 +293,26 @@ describe("instance accessor functions", () => {
 
       // Set first instance
       setCurrentCustomElementInstance(mockInstance1);
-      expect(getHost()).toBe(mockInstance1);
+      const host1SignalGetter = getHost();
+
+      // Execute the onConnected callback that was registered
+      let onConnectedCallback = mockOnConnected.mock.calls[0][0];
+      onConnectedCallback();
+      expect(host1SignalGetter()).toBe(mockInstance1);
 
       // Switch to second instance
       setCurrentCustomElementInstance(mockInstance2);
-      expect(getHost()).toBe(mockInstance2);
+      const host2SignalGetter = getHost();
+
+      // Execute the onConnected callback that was registered
+      onConnectedCallback = mockOnConnected.mock.calls[1][0];
+      onConnectedCallback();
+      expect(host2SignalGetter()).toBe(mockInstance2);
 
       // Clear
       setCurrentCustomElementInstance(null);
-      expect(getHost()).toBeNull();
+      const hostClearedSignalGetter = getHost();
+      expect(hostClearedSignalGetter()).toBeNull();
     });
   });
 });

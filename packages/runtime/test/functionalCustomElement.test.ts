@@ -135,12 +135,13 @@ describe("functionalCustomElement", () => {
 
   it("should handle getHost method", () => {
     const tagName = "x-test-host";
-    let hostElement: any;
+    let hostSignalGetter: any;
 
     const CustomElement = functionalCustomElement(() => {
+      // Get the signal getter function during component definition
+      hostSignalGetter = getHost();
+
       return () => {
-        // getHost is only available during render execution
-        hostElement = getHost();
         return DummyJSX();
       };
     });
@@ -151,16 +152,19 @@ describe("functionalCustomElement", () => {
     const el = document.createElement(tagName) as InstanceType<typeof CustomElement>;
     document.body.appendChild(el);
 
-    expect(hostElement).toBe(el);
+    // After the element is connected, the signal should provide the host element
+    expect(hostSignalGetter()).toBe(el);
   });
 
   it("should handle getShadowRoot method", () => {
     const tagName = "x-test-shadow";
-    let shadowRoot: any;
+    let shadowRootSignalGetter: any;
 
     const CustomElement = functionalCustomElement(() => {
+      // Get the signal getter function during component definition
+      shadowRootSignalGetter = getShadowRoot();
+
       return () => {
-        shadowRoot = getShadowRoot();
         return DummyJSX();
       };
     });
@@ -171,17 +175,19 @@ describe("functionalCustomElement", () => {
     const el = document.createElement(tagName) as InstanceType<typeof CustomElement>;
     document.body.appendChild(el);
 
-    expect(shadowRoot).toBe(el.shadowRoot);
+    // After the element is connected, the signal should provide the shadow root
+    expect(shadowRootSignalGetter()).toBe(el.shadowRoot);
   });
 
   it("should handle getInternals method", () => {
     const tagName = "x-test-internals";
-    let internals: any;
+    let internalsSignalGetter: any;
 
     const CustomElement = functionalCustomElement(() => {
+      // Get the signal getter function during component definition
+      internalsSignalGetter = getInternals();
+
       return () => {
-        // getInternals is only available during render execution
-        internals = getInternals();
         return DummyJSX();
       };
     });
@@ -194,8 +200,9 @@ describe("functionalCustomElement", () => {
     const el = document.createElement(tagName) as InstanceType<typeof CustomElement>;
     document.body.appendChild(el);
 
+    // After the element is connected, the signal should provide the internals
     if (el.attachInternals) {
-      expect(internals).toBeInstanceOf(ElementInternals);
+      expect(internalsSignalGetter()).toBeInstanceOf(ElementInternals);
     }
   });
 
