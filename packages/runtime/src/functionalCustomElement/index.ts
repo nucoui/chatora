@@ -335,6 +335,9 @@ const functionalCustomElement: FunctionalCustomElement = (
 
     handleConnected() {}
     connectedCallback() {
+      // Clear constructor flag - DOM is now ready
+      setCurrentCustomElementInstance(this);
+
       // Only set MutationObserver if observedAttributes is not empty
       if (this.observedAttributes.length > 0) {
         this._attributeObserver.observe(this, {

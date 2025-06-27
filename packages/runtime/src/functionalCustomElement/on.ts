@@ -21,7 +21,18 @@ const onConnected = (callback: () => void) => {
     return;
   }
 
-  currentCustomElementContext.prototype.handleConnected = callback;
+  // Initialize the array if it doesn't exist
+  if (!currentCustomElementContext.prototype.handleConnectedCallbacks) {
+    currentCustomElementContext.prototype.handleConnectedCallbacks = [];
+  }
+
+  // Add the callback to the array
+  currentCustomElementContext.prototype.handleConnectedCallbacks.push(callback);
+
+  // Set or update the handleConnected method to execute all callbacks
+  currentCustomElementContext.prototype.handleConnected = function () {
+    this.handleConnectedCallbacks?.forEach((cb: () => void) => cb());
+  };
 };
 
 /**
@@ -36,7 +47,18 @@ const onDisconnected = (callback: () => void) => {
     return;
   }
 
-  currentCustomElementContext.prototype.handleDisconnected = callback;
+  // Initialize the array if it doesn't exist
+  if (!currentCustomElementContext.prototype.handleDisconnectedCallbacks) {
+    currentCustomElementContext.prototype.handleDisconnectedCallbacks = [];
+  }
+
+  // Add the callback to the array
+  currentCustomElementContext.prototype.handleDisconnectedCallbacks.push(callback);
+
+  // Set or update the handleDisconnected method to execute all callbacks
+  currentCustomElementContext.prototype.handleDisconnected = function () {
+    this.handleDisconnectedCallbacks?.forEach((cb: () => void) => cb());
+  };
 };
 
 /**
@@ -51,7 +73,20 @@ const onAttributeChanged = (callback: (name: string, oldValue: string | null, ne
     return;
   }
 
-  currentCustomElementContext.prototype.handleAttributeChanged = callback;
+  // Initialize the array if it doesn't exist
+  if (!currentCustomElementContext.prototype.handleAttributeChangedCallbacks) {
+    currentCustomElementContext.prototype.handleAttributeChangedCallbacks = [];
+  }
+
+  // Add the callback to the array
+  currentCustomElementContext.prototype.handleAttributeChangedCallbacks.push(callback);
+
+  // Set or update the handleAttributeChanged method to execute all callbacks
+  currentCustomElementContext.prototype.handleAttributeChanged = function (name: string, oldValue: string | null, newValue: string | null) {
+    this.handleAttributeChangedCallbacks?.forEach((cb: (name: string, oldValue: string | null, newValue: string | null) => void) =>
+      cb(name, oldValue, newValue),
+    );
+  };
 };
 
 /**
@@ -66,7 +101,18 @@ const onAdopted = (callback: () => void) => {
     return;
   }
 
-  currentCustomElementContext.prototype.handleAdopted = callback;
+  // Initialize the array if it doesn't exist
+  if (!currentCustomElementContext.prototype.handleAdoptedCallbacks) {
+    currentCustomElementContext.prototype.handleAdoptedCallbacks = [];
+  }
+
+  // Add the callback to the array
+  currentCustomElementContext.prototype.handleAdoptedCallbacks.push(callback);
+
+  // Set or update the handleAdopted method to execute all callbacks
+  currentCustomElementContext.prototype.handleAdopted = function () {
+    this.handleAdoptedCallbacks?.forEach((cb: () => void) => cb());
+  };
 };
 
 export {
