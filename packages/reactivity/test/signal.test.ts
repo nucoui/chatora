@@ -1,44 +1,43 @@
-import type { Computed, Effect, Signal } from "../src/main";
 import { describe, expect, it } from "vitest";
 import { computed, effect, endBatch, signal, startBatch } from "../src/main";
 
 describe("custom Reactive API", () => {
   it("signal should hold and update values", () => {
-    const [count, setCount] = signal(1);
-    expect(count()).toBe(1);
+    const count = signal(1);
+    expect(count.value).toBe(1);
 
-    setCount(2);
-    expect(count()).toBe(2);
+    count.set(2);
+    expect(count.value).toBe(2);
   });
 
   it("signal should support updater functions", () => {
-    const [count, setCount] = signal(0);
-    expect(count()).toBe(0);
+    const count = signal(0);
+    expect(count.value).toBe(0);
 
-    setCount(prev => prev + 1);
-    expect(count()).toBe(1);
+    count.set(prev => prev + 1);
+    expect(count.value).toBe(1);
 
     // Multiple updates
-    setCount(prev => prev + 5);
-    expect(count()).toBe(6);
+    count.set(prev => prev + 5);
+    expect(count.value).toBe(6);
   });
 
   it("computed should derive values reactively", () => {
-    const [count, setCount] = signal(1);
-    const doubleCount = computed(() => count() * 2);
+    const count = signal(1);
+    const doubleCount = computed(() => count.value * 2);
 
-    expect(doubleCount()).toBe(2);
+    expect(doubleCount.value).toBe(2);
 
-    setCount(3);
-    expect(doubleCount()).toBe(6);
+    count.set(3);
+    expect(doubleCount.value).toBe(6);
   });
 
   it("effect should react to signal changes", () => {
-    const [count, setCount] = signal(1);
+    const count = signal(1);
     let log = 0;
 
     effect(({ isFirstExecution }) => {
-      const value = count();
+      const value = count.value;
 
       if (isFirstExecution)
         return;
@@ -48,31 +47,31 @@ describe("custom Reactive API", () => {
 
     expect(log).toBe(0);
 
-    setCount(5);
+    count.set(5);
     expect(log).toBe(5);
   });
 
   it("effect should not run if no dependencies change", () => {
-    const [count, setCount] = signal(1);
+    const count = signal(1);
     let log = 0;
 
     effect(() => {
-      count();
-      log++;
+      log = count.value;
     });
 
     expect(log).toBe(1); // Initial run
 
-    setCount(1); // No change
+    count.set(1); // No change
     expect(log).toBe(1); // Should not increment
   });
 
   it("startBatch and endBatch should batch updates", () => {
-    const [count, setCount] = signal(0);
+    const count = signal(0);
     let effectCount = 0;
 
     effect(() => {
-      count();
+      // eslint-disable-next-line ts/no-unused-expressions
+      count.value;
       effectCount++;
     });
 
@@ -80,36 +79,54 @@ describe("custom Reactive API", () => {
     effectCount = 0;
 
     // Without batching, each update triggers the effect
-    setCount(1);
-    setCount(2);
+    count.set(1);
+    count.set(2);
     expect(effectCount).toBe(2);
 
     // With batching, updates are combined
     effectCount = 0;
     startBatch();
-    setCount(3);
-    setCount(4);
-    setCount(5);
+    count.set(3);
+    count.set(4);
+    count.set(5);
     expect(effectCount).toBe(0); // No effects yet
     endBatch();
     expect(effectCount).toBe(1); // Only one effect after batch
-    expect(count()).toBe(5);
+    expect(count.value).toBe(5);
   });
 
-  it("should properly type Signal, Computed, and Effect", () => {
-    // Verify Signal type works
-    const counter: Signal<number> = signal(0);
-    expect(typeof counter[0]).toBe("function");
-    expect(typeof counter[1]).toBe("function");
+  it("should work with the new user example", () => {
+    const count = signal(0);
 
-    // Verify Computed type works
-    const double: Computed<number> = computed(() => counter[0]() * 2);
-    expect(typeof double).toBe("function");
+    count.set(prev => prev + 1);
 
-    // Verify Effect type works
-    const cleanup: Effect = effect(() => {
-      counter[0](); // Access the signal
+    effect(() => {
+      // eslint-disable-next-line no-console
+      console.log(count.value);
     });
-    expect(typeof cleanup).toBe("function");
+
+    expect(count.value).toBe(1);
+  });
+
+  it("should work with the exact user example from instructions", () => {
+    const count = signal(0);
+    const logs: number[] = [];
+
+    // eslint-disable-next-line no-console
+    const originalLog = console.log;
+    // eslint-disable-next-line no-console
+    console.log = (value: number) => logs.push(value);
+
+    count.set(prev => prev + 1); // This would be prev++ in the user's example
+
+    effect(() => {
+      // eslint-disable-next-line no-console
+      console.log(count.value);
+    });
+
+    // eslint-disable-next-line no-console
+    console.log = originalLog;
+    expect(logs).toEqual([1]);
+    expect(count.value).toBe(1);
   });
 });

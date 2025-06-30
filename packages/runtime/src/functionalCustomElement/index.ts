@@ -76,12 +76,12 @@ const functionalCustomElement: FunctionalCustomElement = (
               const name = this.observedAttributes[i];
               initialProps[name] = this.getAttribute(name) || undefined;
             }
-            this.props[1](initialProps);
+            this.props.set(initialProps);
           }
 
           // Return optimized getter function
           return () => {
-            const rawProps = this.props[0]();
+            const rawProps = this.props.value;
             const transformedProps: Record<string, any> = {};
             for (const [key, transformer] of Object.entries(props)) {
               transformedProps[key] = transformer(rawProps[key]);
@@ -185,7 +185,7 @@ const functionalCustomElement: FunctionalCustomElement = (
 
         // Update props atomically if there are changes
         if (changedAttributes.size > 0) {
-          this.props[1]((prev) => {
+          this.props.set((prev) => {
             const newProps = { ...prev };
             for (const [name, { newValue }] of changedAttributes) {
               newProps[name] = newValue === null ? undefined : newValue;
@@ -362,7 +362,7 @@ const functionalCustomElement: FunctionalCustomElement = (
 
         // Effect to link props changes and rendering
         effect(() => {
-          this.props[0](); // Watch props value
+          this.props.run(); // Trigger reactivity
           this._renderCallback!();
         });
 

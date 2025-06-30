@@ -10,14 +10,24 @@ import {
 } from "alien-signals/system";
 
 /**
- * Represents a signal function type
+ * Represents a reactive value that can be accessed with .value property
  */
-export type Signal<T> = [() => T, (newValue: T | ((prev: T) => T)) => void];
+export interface ReactiveValue<T> {
+  value: T;
+}
+
+/**
+ * Represents a signal that has both .value property and .set() method
+ */
+export interface Signal<T> extends ReactiveValue<T> {
+  set: (newValue: T | ((prev: T) => T)) => void;
+  run: () => T;
+}
 
 /**
  * Represents a computed function type
  */
-export type Computed<T> = () => T;
+export type Computed<T> = ReactiveValue<T>;
 
 /**
  * Represents an effect function type
@@ -98,7 +108,7 @@ function flush(): void {
 
 /**
  * Creates a reactive signal with the given initial value.
- * Returns a tuple containing a getter function and a setter function.
+ * Returns a signal object that has both .value property and .set() method.
  */
 export function signal<T>(initialValue: T): Signal<T> {
   const node = {
@@ -148,7 +158,18 @@ export function signal<T>(initialValue: T): Signal<T> {
     }
   };
 
-  return [get, set];
+  // Create a signal object with both .value and .set()
+  const signal: Signal<T> = {
+    get value() {
+      return get();
+    },
+    set,
+    run: () => {
+      return get();
+    },
+  };
+
+  return signal;
 }
 
 /**
@@ -191,7 +212,8 @@ export function computed<T>(getter: () => T): Computed<T> {
     return node.value!;
   };
 
-  return get;
+  // Create a reactive value that supports both function call and .value access
+  return createReactiveValue(get);
 }
 
 /**
@@ -232,6 +254,20 @@ export function effect(
 }
 
 // --- helpers ---
+
+/**
+ * Creates a reactive value that can be accessed with .value property
+ */
+function createReactiveValue<T>(getter: () => T): ReactiveValue<T> {
+  // Create an object with .value property that calls getter
+  const reactiveValue: ReactiveValue<T> = {
+    get value() {
+      return getter();
+    },
+  };
+
+  return reactiveValue;
+}
 
 function updateComputed(node: any): boolean {
   const prevSub = setCurrentSub(node);

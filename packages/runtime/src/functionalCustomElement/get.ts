@@ -32,12 +32,19 @@ const setCurrentCustomElementInstance = (instance: HTMLElement | null) => {
  * This function can be imported and used externally
  * @returns Signal getter function for HTMLElement or null if no context available
  */
-const getHost = (): Signal<HTMLElement | null>[0] => {
-  const [hostElement, setHostElement] = signal<HTMLElement | null>(null);
+const getHost = (): Omit<Signal<HTMLElement | null>, "set"> => {
+  const hostElement = signal<HTMLElement | null>(null);
 
   if (!currentCustomElementInstance) {
     console.warn("getHost: No custom element instance found. Make sure to call getHost during component execution.");
-    return () => null;
+    return {
+      get value() {
+        return hostElement.value;
+      },
+      run: () => {
+        return hostElement.value;
+      },
+    };
   }
 
   const instance = currentCustomElementInstance;
@@ -47,10 +54,10 @@ const getHost = (): Signal<HTMLElement | null>[0] => {
    */
   const updateHostElement = () => {
     if (!instance) {
-      setHostElement(null);
+      hostElement.set(null);
       return;
     }
-    setHostElement(instance);
+    hostElement.set(instance);
   };
 
   /**
@@ -102,7 +109,14 @@ const getHost = (): Signal<HTMLElement | null>[0] => {
     cleanupSubscription();
   });
 
-  return hostElement;
+  return {
+    get value() {
+      return hostElement.value;
+    },
+    run: () => {
+      return hostElement.value;
+    },
+  };
 };
 
 /**
@@ -110,12 +124,19 @@ const getHost = (): Signal<HTMLElement | null>[0] => {
  * This function can be imported and used externally
  * @returns Signal getter function for ShadowRoot or null
  */
-const getShadowRoot = (): Signal<ShadowRoot | null>[0] => {
-  const [shadowRoot, setShadowRoot] = signal<ShadowRoot | null>(null);
+const getShadowRoot = (): Omit<Signal<ShadowRoot | null>, "set"> => {
+  const shadowRoot = signal<ShadowRoot | null>(null);
 
   if (!currentCustomElementInstance) {
     console.warn("getShadowRoot: No custom element instance found. Make sure to call getShadowRoot during component execution.");
-    return () => null;
+    return {
+      get value() {
+        return shadowRoot.value;
+      },
+      run: () => {
+        return shadowRoot.value;
+      },
+    };
   }
 
   const instance = currentCustomElementInstance;
@@ -125,10 +146,10 @@ const getShadowRoot = (): Signal<ShadowRoot | null>[0] => {
    */
   const updateShadowRoot = () => {
     if (!instance) {
-      setShadowRoot(null);
+      shadowRoot.set(null);
       return;
     }
-    setShadowRoot(instance.shadowRoot);
+    shadowRoot.set(instance.shadowRoot);
   };
 
   /**
@@ -180,7 +201,14 @@ const getShadowRoot = (): Signal<ShadowRoot | null>[0] => {
     cleanupSubscription();
   });
 
-  return shadowRoot;
+  return {
+    get value() {
+      return shadowRoot.value;
+    },
+    run: () => {
+      return shadowRoot.value;
+    },
+  };
 };
 
 /**
@@ -188,12 +216,19 @@ const getShadowRoot = (): Signal<ShadowRoot | null>[0] => {
  * This function can be imported and used externally
  * @returns Signal getter function for ElementInternals or null
  */
-const getInternals = (): Signal<ElementInternals | null>[0] => {
-  const [internals, setInternals] = signal<ElementInternals | null>(null);
+const getInternals = (): Omit<Signal<ElementInternals | null>, "set"> => {
+  const internals = signal<ElementInternals | null>(null);
 
   if (!currentCustomElementInstance) {
     console.warn("getInternals: No custom element instance found. Make sure to call getInternals during component execution.");
-    return () => null;
+    return {
+      get value() {
+        return internals.value;
+      },
+      run: () => {
+        return internals.value;
+      },
+    };
   }
 
   const instance = currentCustomElementInstance;
@@ -203,13 +238,13 @@ const getInternals = (): Signal<ElementInternals | null>[0] => {
    */
   const updateInternals = () => {
     if (!instance) {
-      setInternals(null);
+      internals.set(null);
       return;
     }
 
     const elementConstructor = instance.constructor as any;
     if (!elementConstructor.formAssociated || !("attachInternals" in instance)) {
-      setInternals(null);
+      internals.set(null);
       return;
     }
 
@@ -222,12 +257,12 @@ const getInternals = (): Signal<ElementInternals | null>[0] => {
       }
       catch {
         // attachInternals can fail for non-custom elements or other reasons
-        setInternals(null);
+        internals.set(null);
         return;
       }
     }
 
-    setInternals((instance as any)[internalsKey]);
+    internals.set((instance as any)[internalsKey]);
   };
 
   /**
@@ -279,7 +314,14 @@ const getInternals = (): Signal<ElementInternals | null>[0] => {
     cleanupSubscription();
   });
 
-  return internals;
+  return {
+    get value() {
+      return internals.value;
+    },
+    run: () => {
+      return internals.value;
+    },
+    };
 };
 
 /**
@@ -288,12 +330,19 @@ const getInternals = (): Signal<ElementInternals | null>[0] => {
  * @param name - The name of the slot (optional, defaults to default slot)
  * @returns Element[] array of slotted elements
  */
-const getSlotteds = (name?: string): Signal<Element[] | null>[0] => {
-  const [slottedElements, setSlottedElements] = signal<Element[] | null>(null);
+const getSlotteds = (name?: string): Omit<Signal<Element[] | null>, "set"> => {
+  const slottedElements = signal<Element[] | null>(null);
 
   if (!currentCustomElementInstance) {
     console.warn("getSlotteds: No custom element instance found. Make sure to call getSlotteds during component execution.");
-    return () => null;
+    return {
+      get value() {
+        return slottedElements.value;
+      },
+      run: () => {
+        return slottedElements.value;
+      },
+    };
   }
 
   const hostElement = currentCustomElementInstance;
@@ -303,7 +352,7 @@ const getSlotteds = (name?: string): Signal<Element[] | null>[0] => {
    */
   const updateSlottedElements = () => {
     if (!hostElement) {
-      setSlottedElements(null);
+      slottedElements.set(null);
       return;
     }
 
@@ -313,7 +362,7 @@ const getSlotteds = (name?: string): Signal<Element[] | null>[0] => {
       ),
     );
 
-    setSlottedElements(elements.length > 0 ? elements : null);
+    slottedElements.set(elements.length > 0 ? elements : null);
   };
 
   /**
@@ -419,7 +468,14 @@ const getSlotteds = (name?: string): Signal<Element[] | null>[0] => {
     cleanupObserver();
   });
 
-  return slottedElements;
+  return {
+    get value() {
+      return slottedElements.value;
+    },
+    run: () => {
+      return slottedElements.value;
+    },
+  };
 };
 
 export {
