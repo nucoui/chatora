@@ -87,19 +87,19 @@ const Comp: CC<Props, Emits> = ({ defineProps, defineEmits }) => {
       "on-click": () => {},
     });
 
-    const [count, setCount] = signal(0);
+    const count = signal(0);
 
     const handleClick = () => {
-      setCount((c) => c + 1);
+      count.set((c) => c + 1);
       emits("on-click", new Event("click"));
     };
 
     return () => (
       <Host shadowRoot shadowRootMode="open" style={["width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;"]}>
         <h1>Hi {props().name}</h1>
-        <p>Count: {count()}</p>
+        <p>Count: {count.value}</p>
         <button onClick={handleClick}>Increment</button>
-        <button onClick={() => setCount((c) => c - 1)}>Decrement</button>
+        <button onClick={() => count.set((c) => c - 1)}>Decrement</button>
       </Host>
     );
   }
