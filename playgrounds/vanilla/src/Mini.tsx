@@ -1,25 +1,23 @@
-import { functionalCustomElement, CC, IC, functionalDeclarativeCustomElement, onAttributeChanged, onDisconnected, onAdopted, getHost, effect, signal } from "chatora";
+import { functionalCustomElement, CC, IC, functionalDeclarativeCustomElement, getHost, effect, signal } from "chatora";
 import { Host } from "chatora/jsx-runtime";
 
-import { onConnected } from "chatora/runtime";
-
-const Test: IC<{ count: number }> = ({ count }) => {
+const Test: IC<{ count: { value: number } }> = ({ count }) => {
   return () => {
     return (
       <div>
         <h1>Test Component</h1>
         <p>This is a test component.</p>
-        <p>Count: {count}</p>
+        <p>Count: {count.value}</p>
       </div>
     );
   }
 }
 
 const Mini: CC = () => {
-  const [count, setCount] = signal(0);
+  const count = signal(0);
 
   effect(() => {
-    console.log("Count changed:", count());
+    console.log("Count changed:", count.value);
   });
 
   console.log("getHost:", getHost());
@@ -48,36 +46,42 @@ const Mini: CC = () => {
       <p style={{
         marginTop: 8,
         lineHeight: 1.6,
-        fontWeight: count() > 5 ? "bold" : "normal"
-      }}>Count: {count()}</p>
+        fontWeight: count.value > 5 ? "bold" : "normal"
+      }}>Count: {count.value}</p>
       <>
         <button style={{
-          backgroundColor: count() % 2 === 0 ? "black" : "blue",
+          backgroundColor: count.value % 2 === 0 ? "black" : "blue",
           fontSize: 14,
           fontWeight: "bold",
           border: "2px solid",
-          borderColor: count() > 10 ? "orange" : "transparent",
-          borderRadius: count() > 5 ? 20 : 4,
+          borderColor: count.value > 10 ? "orange" : "transparent",
+          borderRadius: count.value > 5 ? 20 : 4,
           padding: "8px 16px",
           transition: "all 0.3s ease"
-        }} onClick={() => setCount((c) => c + 1)}>Increment (next value: {count() + 1})</button>
-        <button style={{
-          backgroundColor: "#6c757d",
-          color: "white",
-          border: "none",
-          borderRadius: 4,
-          padding: "8px 16px",
-          marginLeft: 5,
-          opacity: count() <= 0 ? 0.5 : 1,
-          cursor: count() <= 0 ? "not-allowed" : "pointer"
-        }} onClick={() => setCount((c) => c - 1)}>Decrement (next value: {count() - 1})</button>
+        }} onClick={() => count.set((c) => c + 1)}>Increment (next value: {count.value + 1})</button>
+        <button
+          style={{
+            backgroundColor: "#6c757d",
+            color: "white",
+            border: "none",
+            borderRadius: 4,
+            padding: "8px 16px",
+            marginLeft: 5,
+            opacity: count.value <= 0 ? 0.5 : 1,
+            cursor: count.value <= 0 ? "not-allowed" : "pointer"
+          }}
+          disabled={count.value <= 0} 
+          onClick={() => count.set((c) => c - 1)}
+        >
+          Decrement (next value: {count.value - 1})
+        </button>
       </>
       <>
         <p>in fragment</p>
       </>
       {
-        count() % 2 === 0
-        ? <Test count={count()} />
+        count.value % 2 === 0
+        ? <Test count={count} />
         : <>
             <h2>Odd Count</h2>
             <p>The count is currently odd.</p>

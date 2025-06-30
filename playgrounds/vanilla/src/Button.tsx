@@ -45,10 +45,10 @@ export const Button: CC<Props, Emits> = ({
 
   const handleClick = (e: Event) => {
     emits("on-click", e);
-    setCount(prev => prev + 1);
+    count.set(prev => prev + 1);
 
     if (props().type === "submit") {
-      host?.closest("form")?.requestSubmit();
+      host.value?.closest("form")?.requestSubmit();
     }
   };
 
@@ -69,18 +69,18 @@ export const Button: CC<Props, Emits> = ({
     "onClick": props().disabled ? undefined : handleClick,
   }));
 
-  const [ref, setRef] = signal<HTMLElement | null>(null);
+  const ref = signal<HTMLElement | null>(null);
 
   effect(() => {
-    const currentRef = ref();
+    const currentRef = ref.value;
 
     console.log("Button ref:", currentRef);
   });
 
-  const [count, setCount] = signal(0);
+  const count = signal(0);
 
   effect(({isFirstExecution}) => {
-    const currentCount = count();
+    const currentCount = count.value;
 
     if (isFirstExecution) {
       return;
@@ -116,8 +116,8 @@ export const Button: CC<Props, Emits> = ({
           return (
             <Host shadowRoot shadowRootMode="open" style={[style]}>
               <a
-                ref={setRef}
-                {...commonAttrs()}
+                ref={ref.set}
+                {...commonAttrs.value}
                 tabindex={props().disabled ? -1 : 0}
                 href={props().disabled ? undefined : props().href}
                 target={props().target}
@@ -133,8 +133,8 @@ export const Button: CC<Props, Emits> = ({
           return (
             <Host shadowRoot shadowRootMode="open" style={[style]}>
               <button
-                ref={setRef}
-                {...commonAttrs()}
+                ref={ref.set}
+                {...commonAttrs.value}
                 type={type}
               >
                 <span class="contents">

@@ -21,7 +21,7 @@ export const Button: CC<Props, Emits> = ({ defineProps, defineEmits }) => {
     "on-event": () => {}
   });
 
-  const [clickCount, setClickCount] = signal(0);
+  const clickCount = signal(0);
 
   return () => {
     return (
@@ -29,11 +29,11 @@ export const Button: CC<Props, Emits> = ({ defineProps, defineEmits }) => {
         <button
           type={props().type}
           onClick={() => {
-            setClickCount((count) => count + 2);
-            emits("on-click", { count: clickCount(), msg: "From Chatora.js" });
-            emits("on-event", { type: "click", detail: { count: clickCount() } });
+            clickCount.set((count) => count + 2);
+            emits("on-click", { count: clickCount.value, msg: "From Chatora.js" });
+            emits("on-event", { type: "click", detail: { count: clickCount.value } });
           }}>
-          <span>Click count: {clickCount()}</span>
+          <span>Click count: {clickCount.value}</span>
           <br></br>
           <slot />
           <slot name="slot1" />
