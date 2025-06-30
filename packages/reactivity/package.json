@@ -16,6 +16,19 @@
     "url": "https://github.com/nucoui/chatora/issues",
     "email": "takuma-ru@takumaru.dev"
   },
+  "keywords": [
+    "chatora",
+    "reactivity",
+    "custom-elements",
+    "web-components",
+    "reactive",
+    "jsx",
+    "tsx",
+    "function-components",
+    "web-components",
+    "frontend-framework",
+    "web-components-framework"
+  ],
   "exports": {
     ".": {
       "types": "./dist/main.d.ts",
