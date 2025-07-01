@@ -5,9 +5,9 @@
 ![License](https://img.shields.io/github/license/nucoui/chatora?color=green)
 ![Vitest](https://img.shields.io/badge/tested%20with-vitest-6E9F18.svg?logo=vitest)
 
-```bash
-npm install chatora
-```
+## Demo
+
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/edit/chatora-demo?file=src%2Fmain.tsx)
 
 ## Description
 It is a framework that allows you to implement custom elements in a React-like manner.
