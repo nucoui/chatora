@@ -333,8 +333,8 @@ const functionalCustomElement: FunctionalCustomElement = (
       return null;
     }
 
-    handleConnected() {}
-    connectedCallback() {
+    async handleConnected() {}
+    async connectedCallback() {
       // Clear constructor flag - DOM is now ready
       setCurrentCustomElementInstance(this);
 
@@ -369,17 +369,17 @@ const functionalCustomElement: FunctionalCustomElement = (
         this._effectInitialized = true;
       }
 
-      this.handleConnected();
+      await this.handleConnected();
     }
 
-    handleDisconnected() {}
-    disconnectedCallback() {
+    async handleDisconnected() {}
+    async disconnectedCallback() {
       // Stop observing with MutationObserver
       this._attributeObserver.disconnect();
-      this.handleDisconnected();
+      await this.handleDisconnected();
     }
 
-    handleAttributeChanged(_name: string, _oldValue: string | null, _newValue: string | null) {}
+    async handleAttributeChanged(_name: string, _oldValue: string | null, _newValue: string | null) {}
   };
 };
 

@@ -48,9 +48,21 @@ const lifecycle: CC<Props, Emits> = ({
     console.log("Component connected to the DOM");
   });
 
+  onConnected(async () => {
+    // Simulate some async operation
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    console.log("Async connected operation completed");
+  });
+
   onDisconnected(() => {
     status.set((prev) => ({ ...prev, disconnected: true }));
     console.log("Component disconnected from the DOM");
+  });
+
+  onDisconnected(async () => {
+    // Simulate some async operation
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    console.log("Async disconnected operation completed");
   });
 
   onAdopted(() => {
@@ -61,6 +73,12 @@ const lifecycle: CC<Props, Emits> = ({
   onAttributeChanged(() => {
     status.set((prev) => ({ ...prev, attributeChanged: true }));
     console.log("Component attributes changed");
+  });
+
+  onAttributeChanged(async (name, oldValue, newValue) => {
+    // Simulate some async operation
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    console.log(`Async attribute change detected: ${name} changed from ${oldValue} to ${newValue}`);
   });
 
   // setInterval(() => {

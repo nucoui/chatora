@@ -14,7 +14,7 @@ const setCurrentCustomElementContext = (context: any) => {
  * This function can be imported and used externally
  * @param callback - Function to call when connected
  */
-const onConnected = (callback: () => void) => {
+const onConnected = (callback: () => void | Promise<void>) => {
   if (!currentCustomElementContext) {
     // Only show warnings in development
     console.warn("onConnected: No custom element context found. Make sure to call onConnected during component definition.");
@@ -30,8 +30,10 @@ const onConnected = (callback: () => void) => {
   currentCustomElementContext.prototype.handleConnectedCallbacks.push(callback);
 
   // Set or update the handleConnected method to execute all callbacks
-  currentCustomElementContext.prototype.handleConnected = function () {
-    this.handleConnectedCallbacks?.forEach((cb: () => void) => cb());
+  currentCustomElementContext.prototype.handleConnected = async function () {
+    for (const cb of this.handleConnectedCallbacks) {
+      await cb();
+    }
   };
 };
 
@@ -40,7 +42,7 @@ const onConnected = (callback: () => void) => {
  * This function can be imported and used externally
  * @param callback - Function to call when disconnected
  */
-const onDisconnected = (callback: () => void) => {
+const onDisconnected = (callback: () => void | Promise<void>) => {
   if (!currentCustomElementContext) {
     // Only show warnings in development
     console.warn("onDisconnected: No custom element context found. Make sure to call onDisconnected during component definition.");
@@ -56,8 +58,10 @@ const onDisconnected = (callback: () => void) => {
   currentCustomElementContext.prototype.handleDisconnectedCallbacks.push(callback);
 
   // Set or update the handleDisconnected method to execute all callbacks
-  currentCustomElementContext.prototype.handleDisconnected = function () {
-    this.handleDisconnectedCallbacks?.forEach((cb: () => void) => cb());
+  currentCustomElementContext.prototype.handleDisconnected = async function () {
+    for (const cb of this.handleDisconnectedCallbacks) {
+      await cb();
+    }
   };
 };
 
@@ -66,7 +70,7 @@ const onDisconnected = (callback: () => void) => {
  * This function can be imported and used externally
  * @param callback - Function to call when attributes change
  */
-const onAttributeChanged = (callback: (name: string, oldValue: string | null, newValue: string | null) => void) => {
+const onAttributeChanged = (callback: (name: string, oldValue: string | null, newValue: string | null) => void | Promise<void>) => {
   if (!currentCustomElementContext) {
     // Only show warnings in development
     console.warn("onAttributeChanged: No custom element context found. Make sure to call onAttributeChanged during component definition.");
@@ -82,10 +86,10 @@ const onAttributeChanged = (callback: (name: string, oldValue: string | null, ne
   currentCustomElementContext.prototype.handleAttributeChangedCallbacks.push(callback);
 
   // Set or update the handleAttributeChanged method to execute all callbacks
-  currentCustomElementContext.prototype.handleAttributeChanged = function (name: string, oldValue: string | null, newValue: string | null) {
-    this.handleAttributeChangedCallbacks?.forEach((cb: (name: string, oldValue: string | null, newValue: string | null) => void) =>
-      cb(name, oldValue, newValue),
-    );
+  currentCustomElementContext.prototype.handleAttributeChanged = async function (name: string, oldValue: string | null, newValue: string | null) {
+    for (const cb of this.handleAttributeChangedCallbacks) {
+      await cb(name, oldValue, newValue);
+    }
   };
 };
 
@@ -94,7 +98,7 @@ const onAttributeChanged = (callback: (name: string, oldValue: string | null, ne
  * This function can be imported and used externally
  * @param callback - Function to call when adopted
  */
-const onAdopted = (callback: () => void) => {
+const onAdopted = (callback: () => void | Promise<void>) => {
   if (!currentCustomElementContext) {
     // Only show warnings in development
     console.warn("onAdopted: No custom element context found. Make sure to call onAdopted during component definition.");
@@ -110,8 +114,10 @@ const onAdopted = (callback: () => void) => {
   currentCustomElementContext.prototype.handleAdoptedCallbacks.push(callback);
 
   // Set or update the handleAdopted method to execute all callbacks
-  currentCustomElementContext.prototype.handleAdopted = function () {
-    this.handleAdoptedCallbacks?.forEach((cb: () => void) => cb());
+  currentCustomElementContext.prototype.handleAdopted = async function () {
+    for (const cb of this.handleAdoptedCallbacks) {
+      await cb();
+    }
   };
 };
 
