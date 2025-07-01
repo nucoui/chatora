@@ -2,7 +2,8 @@ import { defineConfig } from "tsup";
 
 export default defineConfig({
   entry: [
-    "src/convert/main.ts",
+    "src/propValidator/main.ts",
+    "src/converter/stringToHast.ts",
     "src/main.ts",
   ],
   format: ["esm", "cjs"],

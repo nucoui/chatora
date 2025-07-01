@@ -10,13 +10,18 @@
     "p:react": "pnpm -C packages/react",
     "p:vue": "pnpm -C packages/vue",
     "p:svelte": "pnpm -C packages/svelte",
+
     "cfg": "pnpm -C config",
+
+    "doc": "pnpm -C docs",
+
     "pg:nextjs:app": "pnpm -C playgrounds/nextjs/app",
     "pg:nextjs:chatora": "pnpm -C playgrounds/nextjs/chatora",
     "pg:react": "pnpm -C playgrounds/react",
     "pg:vanilla": "pnpm -C playgrounds/vanilla",
     "pg:vue": "pnpm -C playgrounds/vue",
     "pg:svelte": "pnpm -C playgrounds/svelte",
+
     "watch": "concurrently \"pnpm p:rtv watch\" \"pnpm p:rt watch\" \"pnpm p:core watch\"",
     "build": "pnpm p:ut build && pnpm p:rtv build && pnpm p:rt build && pnpm p:core build && pnpm p:react build && pnpm p:vue build && pnpm p:svelte build"
   },

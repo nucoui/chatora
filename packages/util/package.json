@@ -21,10 +21,10 @@
       "import": "./dist/main.js",
       "require": "./dist/main.cjs"
     },
-    "./convert": {
-      "types": "./dist/convert/main.d.ts",
-      "import": "./dist/convert/main.js",
-      "require": "./dist/convert/main.cjs"
+    "./propValidator": {
+      "types": "./dist/propValidator/main.d.ts",
+      "import": "./dist/propValidator/main.js",
+      "require": "./dist/propValidator/main.cjs"
     }
   },
   "publishConfig": {
@@ -41,12 +41,13 @@
     "build": "tsup",
     "watch": "tsup --watch",
     "lint": "eslint .",
-    "test": "tsup && vitest run --coverage",
+    "test": "vitest run --coverage",
     "release": "rlse",
     "release:test": "rlse -l patch -k config,commit-changes,create-release-branch --dry-run"
   },
   "devDependencies": {
     "@chatora/config": "workspace:*",
+    "@chatora/runtime": "workspace:*",
     "@takuma-ru/rlse": "catalog:",
     "@vitest/coverage-v8": "3.1.1",
     "eslint": "catalog:",

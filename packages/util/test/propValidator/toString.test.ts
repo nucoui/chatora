@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { toString } from "../../src/convert/toString";
+import { toString } from "../../src/propValidator/toString";
 
 describe("toString", () => {
-  it("should return null for null input", () => {
-    expect(toString(null)).toBe(null);
+  it("should return undefined for undefined input", () => {
+    expect(toString(undefined)).toBe(undefined);
   });
 
-  it("should return null for empty string", () => {
-    expect(toString("")).toBe(null);
+  it("should return undefined for empty string", () => {
+    expect(toString("")).toBe(undefined);
   });
 
   it("should convert non-empty strings to string value", () => {

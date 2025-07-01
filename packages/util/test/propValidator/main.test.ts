@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import * as convertExports from "../../src/convert/main";
+import * as convertExports from "../../src/propValidator/main";
 
 describe("convert/main exports", () => {
   it("should export toBoolean function", () => {

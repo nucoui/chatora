@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { toNumber } from "../../src/convert/toNumber";
+import { toNumber } from "../../src/propValidator/toNumber";
 
 describe("toNumber", () => {
-  it("should return null for null input", () => {
-    expect(toNumber(null)).toBe(null);
+  it("should return undefined for undefined input", () => {
+    expect(toNumber(undefined)).toBe(undefined);
   });
 
-  it("should return null for empty string", () => {
-    expect(toNumber("")).toBe(null);
+  it("should return undefined for empty string", () => {
+    expect(toNumber("")).toBe(undefined);
   });
 
   it("should convert numeric strings to numbers", () => {
@@ -18,10 +18,10 @@ describe("toNumber", () => {
     expect(toNumber("-123.45")).toBe(-123.45);
   });
 
-  it("should return null for non-numeric strings", () => {
-    expect(toNumber("hello")).toBe(null);
-    expect(toNumber("123abc")).toBe(null);
-    expect(toNumber("abc123")).toBe(null);
+  it("should return undefined for non-numeric strings", () => {
+    expect(toNumber("hello")).toBe(undefined);
+    expect(toNumber("123abc")).toBe(undefined);
+    expect(toNumber("abc123")).toBe(undefined);
   });
 
   it("should handle special numeric formats", () => {
