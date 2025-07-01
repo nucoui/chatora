@@ -23,7 +23,7 @@
     "pg:svelte": "pnpm -C playgrounds/svelte",
 
     "watch": "concurrently \"pnpm p:rtv watch\" \"pnpm p:rt watch\" \"pnpm p:core watch\"",
-    "build": "pnpm p:ut build && pnpm p:rtv build && pnpm p:rt build && pnpm p:core build && pnpm p:react build && pnpm p:vue build && pnpm p:svelte build"
+    "build": "pnpm p:rtv build && pnpm p:rt build && pnpm p:core build && pnpm p:ut build && pnpm p:react build && pnpm p:vue build && pnpm p:svelte build"
   },
   "devDependencies": {
     "concurrently": "^9.1.2",
