@@ -6,6 +6,7 @@ import { jsx } from "react/jsx-runtime";
 export type Props<P extends Record<string, unknown>> = PropsWithChildren<{
   props: P;
   tag: string;
+  formAssociated?: boolean;
   component: CC<P>;
 }>;
 
@@ -23,7 +24,7 @@ const splitProps = (props: Record<string, unknown>) => {
   return { props: filteredProps, emits };
 };
 
-export const ChatoraWrapper = <P extends Record<string, unknown>>({ tag, component, children, props }: Props<P>) => {
+export const ChatoraWrapper = <P extends Record<string, unknown>>({ tag, component, children, props, formAssociated = false }: Props<P>) => {
   const id = useId();
 
   const { props: filteredProps, emits } = useMemo(() => splitProps(props || {}), [props]);
@@ -43,12 +44,16 @@ export const ChatoraWrapper = <P extends Record<string, unknown>>({ tag, compone
     if (!customElements || customElements.get(tag)) {
       return;
     }
-    const element = functionalCustomElement(component);
+
+    const element = class extends functionalCustomElement(component) {
+      static formAssociated = formAssociated;
+    };
+
     customElements.define(tag, element);
     setIsDefined(true);
-  }, [tag, component]);
+  }, [tag, component, formAssociated]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (typeof window !== "undefined") {
       setIsWindow(true);
       if (customElements && customElements.get(tag)) {
@@ -57,7 +62,7 @@ export const ChatoraWrapper = <P extends Record<string, unknown>>({ tag, compone
     }
   }, [tag]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     defineElement();
   }, [defineElement]);
 
