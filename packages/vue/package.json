@@ -1,7 +1,7 @@
 {
   "name": "@chatora/vue",
   "type": "module",
-  "version": "1.0.8-beta.0",
+  "version": "1.0.8-beta.2",
   "private": false,
   "description": "Framework for creating custom elements with JSX function components",
   "author": "nuco <takuma-ru@takumaru.dev> (https://github.com/takuma-ru/)",
