@@ -150,10 +150,10 @@ const lifecycleInstance = document.createElement("lifecycle-element");
 const child = document.createElement("h1");
 child.textContent = "Hello, World!";
 lifecycleInstance.appendChild(child);
+lifecycleInstance.setAttribute("name", "Chatora");
 
 document.querySelector("#app")?.appendChild(lifecycleInstance);
 
-lifecycleInstance.setAttribute("name", "Chatora");
 
 // setInterval(() => {
 //   const child = document.createElement("p");

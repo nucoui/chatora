@@ -69,18 +69,21 @@ const functionalCustomElement: FunctionalCustomElement = (
           defineProps: (props: Record<string, (value: string | undefined) => any>) => {
             this.observedAttributes = Object.keys(props);
 
-            // Initialize props efficiently
-            if (this.observedAttributes.length > 0) {
-              const initialProps: Record<string, string | undefined> = {};
-              for (let i = 0; i < this.observedAttributes.length; i++) {
-                const name = this.observedAttributes[i];
-                initialProps[name] = this.getAttribute(name) || undefined;
-              }
-              this.props.set(initialProps);
-            }
+            let isInitialized = false;
 
             // Return optimized getter function
             return () => {
+              // Lazy initialization of props to handle pre-connected setAttribute calls
+              if (!isInitialized) {
+                const initialProps: Record<string, string | undefined> = {};
+                for (let i = 0; i < this.observedAttributes.length; i++) {
+                  const name = this.observedAttributes[i];
+                  initialProps[name] = this.getAttribute(name) || undefined;
+                }
+                this.props.set(initialProps);
+                isInitialized = true;
+              }
+
               const rawProps = this.props.value;
               const transformedProps: Record<string, any> = {};
               for (const [key, transformer] of Object.entries(props)) {
