@@ -77,6 +77,10 @@
       "path": "playgrounds/nextjs"
     },
     {
+      "name": "🎮 react router",
+      "path": "playgrounds/react-router"
+    },
+    {
       "name": "🎮 vue",
       "path": "playgrounds/vue"
     },
