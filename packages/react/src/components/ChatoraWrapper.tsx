@@ -36,6 +36,7 @@ export const ChatoraWrapper = <P extends Record<string, unknown>>({ tag, compone
   );
 
   const [isDefined, setIsDefined] = useState(false);
+  const [isWindow, setIsWindow] = useState(false);
   const domRef = useRef<HTMLElement | null>(null);
 
   const defineElement = useCallback(() => {
@@ -46,6 +47,15 @@ export const ChatoraWrapper = <P extends Record<string, unknown>>({ tag, compone
     customElements.define(tag, element);
     setIsDefined(true);
   }, [tag, component]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setIsWindow(true);
+      if (customElements && customElements.get(tag)) {
+        setIsDefined(true);
+      }
+    }
+  }, [tag]);
 
   useEffect(() => {
     defineElement();
@@ -103,6 +113,6 @@ export const ChatoraWrapper = <P extends Record<string, unknown>>({ tag, compone
   return jsx(tag as any, {
     ...filteredProps,
     ref: domRef,
-    children: isDefined ? children : hastToJsx(tag, id, hast, children),
+    children: (isDefined && isWindow) ? children : hastToJsx(tag, id, hast, children),
   });
 };
