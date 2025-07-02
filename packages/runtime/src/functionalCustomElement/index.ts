@@ -1,6 +1,6 @@
 import type { VNode } from "@/functionalCustomElement/vNode";
 import type { FunctionalCustomElement } from "@root/types/FunctionalCustomElement";
-import { setCurrentCustomElementInstance } from "@/functionalCustomElement/get";
+import { withCustomElementContext } from "@/functionalCustomElement/get";
 import { mount } from "@/functionalCustomElement/mount";
 import { setCurrentCustomElementContext } from "@/functionalCustomElement/on";
 import { patch } from "@/functionalCustomElement/patch";
@@ -60,104 +60,106 @@ const functionalCustomElement: FunctionalCustomElement = (
 
       // Set the current context for external lifecycle hooks
       setCurrentCustomElementContext(this.constructor);
-      setCurrentCustomElementInstance(this);
 
-      const render = callback({
-        /**
-         * Optimized defineProps with minimal object creation
-         */
-        defineProps: (props: Record<string, (value: string | undefined) => any>) => {
-          this.observedAttributes = Object.keys(props);
+      const render = withCustomElementContext(this, () =>
+        callback({
+          /**
+           * Optimized defineProps with minimal object creation
+           */
+          defineProps: (props: Record<string, (value: string | undefined) => any>) => {
+            this.observedAttributes = Object.keys(props);
 
-          // Initialize props efficiently
-          if (this.observedAttributes.length > 0) {
-            const initialProps: Record<string, string | undefined> = {};
-            for (let i = 0; i < this.observedAttributes.length; i++) {
-              const name = this.observedAttributes[i];
-              initialProps[name] = this.getAttribute(name) || undefined;
+            // Initialize props efficiently
+            if (this.observedAttributes.length > 0) {
+              const initialProps: Record<string, string | undefined> = {};
+              for (let i = 0; i < this.observedAttributes.length; i++) {
+                const name = this.observedAttributes[i];
+                initialProps[name] = this.getAttribute(name) || undefined;
+              }
+              this.props.set(initialProps);
             }
-            this.props.set(initialProps);
-          }
 
-          // Return optimized getter function
-          return () => {
-            const rawProps = this.props.value;
-            const transformedProps: Record<string, any> = {};
-            for (const [key, transformer] of Object.entries(props)) {
-              transformedProps[key] = transformer(rawProps[key]);
-            }
-            return transformedProps as any;
-          };
-        },
-        /**
-         * Optimized defineEmits with event handler caching
-         */
-        defineEmits: (events: Record<`on-${string}`, (detail: any) => void>) => {
-          const emit = (type: any, detail?: any, options?: { bubbles?: boolean; composed?: boolean; cancelable?: boolean }) => {
-            if (type in events) {
-              this.dispatchEvent(
-                new CustomEvent(type, {
-                  detail,
-                  bubbles: true,
-                  composed: true,
-                  cancelable: true,
-                  ...options,
-                }),
-              );
-            }
-          };
-
-          // Pre-create helper functions for better performance
-          const eventNames = Object.keys(events);
-          for (let i = 0; i < eventNames.length; i++) {
-            const eventName = eventNames[i];
-            const methodName = eventName.replace(/^on-/, "");
-            (emit as any)[methodName] = (detail: any, options?: any) => {
-              emit(eventName, detail, options);
+            // Return optimized getter function
+            return () => {
+              const rawProps = this.props.value;
+              const transformedProps: Record<string, any> = {};
+              for (const [key, transformer] of Object.entries(props)) {
+                transformedProps[key] = transformer(rawProps[key]);
+              }
+              return transformedProps as any;
             };
-          }
+          },
+          /**
+           * Optimized defineEmits with event handler caching
+           */
+          defineEmits: (events: Record<`on-${string}`, (detail: any) => void>) => {
+            const emit = (type: any, detail?: any, options?: { bubbles?: boolean; composed?: boolean; cancelable?: boolean }) => {
+              if (type in events) {
+                this.dispatchEvent(
+                  new CustomEvent(type, {
+                    detail,
+                    bubbles: true,
+                    composed: true,
+                    cancelable: true,
+                    ...options,
+                  }),
+                );
+              }
+            };
 
-          return emit as any;
-        },
-      });
+            // Pre-create helper functions for better performance
+            const eventNames = Object.keys(events);
+            for (let i = 0; i < eventNames.length; i++) {
+              const eventName = eventNames[i];
+              const methodName = eventName.replace(/^on-/, "");
+              (emit as any)[methodName] = (detail: any, options?: any) => {
+                emit(eventName, detail, options);
+              };
+            }
+
+            return emit as any;
+          },
+        }));
 
       // Context will remain available for the lifetime of this instance
 
       const renderCallback = () => {
-        // Instance context is already set in constructor, no need to set/clear here
-        const node = render();
+        // Use context wrapper for all render operations
+        return withCustomElementContext(this, () => {
+          const node = render();
 
-        if (!node && node !== 0)
-          return;
+          if (!node && node !== 0)
+            return;
 
-        const newVNode = genVNode(node);
-        const shadowRootInstance = this.shadowRoot;
+          const newVNode = genVNode(node);
+          const shadowRootInstance = this.shadowRoot;
 
-        if (!shadowRootInstance) {
-          this.#shadowRoot = newVNode.props.shadowRoot ?? true;
-          this.#shadowRootMode = newVNode.props.shadowRootMode ?? "open";
-          this.#style = newVNode.props.style;
-          return;
-        }
-
-        if (this._vnode == null) {
-          // Initial render - optimized cleanup and mounting
-          const children = shadowRootInstance.children;
-          for (let i = children.length - 1; i >= 0; i--) {
-            const child = children[i];
-            if (child.tagName !== "STYLE") {
-              shadowRootInstance.removeChild(child);
-            }
+          if (!shadowRootInstance) {
+            this.#shadowRoot = newVNode.props.shadowRoot ?? true;
+            this.#shadowRootMode = newVNode.props.shadowRootMode ?? "open";
+            this.#style = newVNode.props.style;
+            return;
           }
 
-          this._mountNewVNode(newVNode, shadowRootInstance);
-        }
-        else {
-          // Update render - optimized patching
-          this._patchVNode(this._vnode, newVNode, shadowRootInstance);
-        }
+          if (this._vnode == null) {
+            // Initial render - optimized cleanup and mounting
+            const children = shadowRootInstance.children;
+            for (let i = children.length - 1; i >= 0; i--) {
+              const child = children[i];
+              if (child.tagName !== "STYLE") {
+                shadowRootInstance.removeChild(child);
+              }
+            }
 
-        this._vnode = newVNode;
+            this._mountNewVNode(newVNode, shadowRootInstance);
+          }
+          else {
+            // Update render - optimized patching
+            this._patchVNode(this._vnode, newVNode, shadowRootInstance);
+          }
+
+          this._vnode = newVNode;
+        });
       };
 
       this._renderCallback = renderCallback;
@@ -335,9 +337,6 @@ const functionalCustomElement: FunctionalCustomElement = (
 
     async handleConnected() {}
     async connectedCallback() {
-      // Clear constructor flag - DOM is now ready
-      setCurrentCustomElementInstance(this);
-
       // Only set MutationObserver if observedAttributes is not empty
       if (this.observedAttributes.length > 0) {
         this._attributeObserver.observe(this, {
@@ -360,7 +359,7 @@ const functionalCustomElement: FunctionalCustomElement = (
           }
         }
 
-        // Effect to link props changes and rendering
+        // Effect to link props changes and rendering with context
         effect(() => {
           this.props.run(); // Trigger reactivity
           this._renderCallback!();
@@ -369,14 +368,14 @@ const functionalCustomElement: FunctionalCustomElement = (
         this._effectInitialized = true;
       }
 
-      await this.handleConnected();
+      await withCustomElementContext(this, () => this.handleConnected());
     }
 
     async handleDisconnected() {}
     async disconnectedCallback() {
       // Stop observing with MutationObserver
       this._attributeObserver.disconnect();
-      await this.handleDisconnected();
+      await withCustomElementContext(this, () => this.handleDisconnected());
     }
 
     async handleAttributeChanged(_name: string, _oldValue: string | null, _newValue: string | null) {}

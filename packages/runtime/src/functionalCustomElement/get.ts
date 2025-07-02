@@ -2,8 +2,17 @@ import type { Signal } from "@chatora/reactivity";
 import { onConnected, onDisconnected } from "@/functionalCustomElement/on";
 import { signal } from "@/functionalCustomElement/reactivity";
 
-// Current active instance for external API calls
-let currentCustomElementInstance: HTMLElement | null = null;
+// Instance context interface
+interface InstanceContext {
+  element: HTMLElement;
+  isActive: boolean;
+}
+
+// WeakMap to store context for each element instance
+const instanceContexts = new WeakMap<HTMLElement, InstanceContext>();
+
+// Current active instance stack to handle nested contexts
+const activeInstanceStack: HTMLElement[] = [];
 
 // Global observer management for slotted elements
 const slottedObservers = new WeakMap<HTMLElement, {
@@ -19,12 +28,83 @@ const shadowRootSubscribers = new WeakMap<HTMLElement, Set<() => void>>();
 
 // Global management for internals subscriptions
 const internalsSubscribers = new WeakMap<HTMLElement, Set<() => void>>();
+
 /**
- * Set the current custom element instance
+ * Get the current custom element instance from context stack
+ * @returns Current active instance or null if no context available
+ */
+const getCurrentCustomElementInstance = (): HTMLElement | null => {
+  return activeInstanceStack.length > 0 ? activeInstanceStack[activeInstanceStack.length - 1] : null;
+};
+
+/**
+ * Push a custom element instance to the context stack
+ * @param instance - The custom element instance to push
+ */
+const pushCustomElementInstance = (instance: HTMLElement) => {
+  // Ensure context exists for this instance
+  if (!instanceContexts.has(instance)) {
+    instanceContexts.set(instance, {
+      element: instance,
+      isActive: false,
+    });
+  }
+
+  // Add to stack if not already present
+  if (!activeInstanceStack.includes(instance)) {
+    activeInstanceStack.push(instance);
+  }
+
+  // Mark as active
+  const context = instanceContexts.get(instance)!;
+  context.isActive = true;
+};
+
+/**
+ * Pop the last custom element instance from the context stack
+ * @returns The popped instance or null if stack is empty
+ */
+const popCustomElementInstance = (): HTMLElement | null => {
+  const popped = activeInstanceStack.pop();
+  if (popped) {
+    const context = instanceContexts.get(popped);
+    if (context) {
+      context.isActive = false;
+    }
+  }
+  return popped || null;
+};
+
+/**
+ * Set the current custom element instance (backward compatibility)
  * @param instance - The custom element instance
  */
 const setCurrentCustomElementInstance = (instance: HTMLElement | null) => {
-  currentCustomElementInstance = instance;
+  if (instance === null) {
+    // Clear the entire stack for backward compatibility
+    activeInstanceStack.length = 0;
+    return;
+  }
+
+  // Clear stack and set this instance for backward compatibility
+  activeInstanceStack.length = 0;
+  pushCustomElementInstance(instance);
+};
+
+/**
+ * Execute a function within a specific custom element context
+ * @param instance - The custom element instance to use as context
+ * @param fn - The function to execute
+ * @returns The result of the function execution
+ */
+const withCustomElementContext = <T>(instance: HTMLElement, fn: () => T): T => {
+  pushCustomElementInstance(instance);
+  try {
+    return fn();
+  }
+  finally {
+    popCustomElementInstance();
+  }
 };
 
 /**
@@ -35,19 +115,18 @@ const setCurrentCustomElementInstance = (instance: HTMLElement | null) => {
 const getHost = (): Omit<Signal<HTMLElement | null>, "set"> => {
   const hostElement = signal<HTMLElement | null>(null);
 
-  if (!currentCustomElementInstance) {
+  const currentInstance = getCurrentCustomElementInstance();
+  if (!currentInstance) {
     console.warn("getHost: No custom element instance found. Make sure to call getHost during component execution.");
     return {
       get value() {
-        return hostElement.value;
+        return null;
       },
-      run: () => {
-        return hostElement.value;
-      },
+      run: () => null,
     };
   }
 
-  const instance = currentCustomElementInstance;
+  const instance = currentInstance;
 
   /**
    * Update host element based on current state
@@ -113,9 +192,7 @@ const getHost = (): Omit<Signal<HTMLElement | null>, "set"> => {
     get value() {
       return hostElement.value;
     },
-    run: () => {
-      return hostElement.value;
-    },
+    run: () => hostElement.value,
   };
 };
 
@@ -127,19 +204,18 @@ const getHost = (): Omit<Signal<HTMLElement | null>, "set"> => {
 const getShadowRoot = (): Omit<Signal<ShadowRoot | null>, "set"> => {
   const shadowRoot = signal<ShadowRoot | null>(null);
 
-  if (!currentCustomElementInstance) {
+  const currentInstance = getCurrentCustomElementInstance();
+  if (!currentInstance) {
     console.warn("getShadowRoot: No custom element instance found. Make sure to call getShadowRoot during component execution.");
     return {
       get value() {
-        return shadowRoot.value;
+        return null;
       },
-      run: () => {
-        return shadowRoot.value;
-      },
+      run: () => null,
     };
   }
 
-  const instance = currentCustomElementInstance;
+  const instance = currentInstance;
 
   /**
    * Update shadow root based on current state
@@ -205,9 +281,7 @@ const getShadowRoot = (): Omit<Signal<ShadowRoot | null>, "set"> => {
     get value() {
       return shadowRoot.value;
     },
-    run: () => {
-      return shadowRoot.value;
-    },
+    run: () => shadowRoot.value,
   };
 };
 
@@ -219,19 +293,18 @@ const getShadowRoot = (): Omit<Signal<ShadowRoot | null>, "set"> => {
 const getInternals = (): Omit<Signal<ElementInternals | null>, "set"> => {
   const internals = signal<ElementInternals | null>(null);
 
-  if (!currentCustomElementInstance) {
+  const currentInstance = getCurrentCustomElementInstance();
+  if (!currentInstance) {
     console.warn("getInternals: No custom element instance found. Make sure to call getInternals during component execution.");
     return {
       get value() {
-        return internals.value;
+        return null;
       },
-      run: () => {
-        return internals.value;
-      },
+      run: () => null,
     };
   }
 
-  const instance = currentCustomElementInstance;
+  const instance = currentInstance;
 
   /**
    * Update internals based on current state
@@ -318,10 +391,8 @@ const getInternals = (): Omit<Signal<ElementInternals | null>, "set"> => {
     get value() {
       return internals.value;
     },
-    run: () => {
-      return internals.value;
-    },
-    };
+    run: () => internals.value,
+  };
 };
 
 /**
@@ -333,19 +404,18 @@ const getInternals = (): Omit<Signal<ElementInternals | null>, "set"> => {
 const getSlotteds = (name?: string): Omit<Signal<Element[] | null>, "set"> => {
   const slottedElements = signal<Element[] | null>(null);
 
-  if (!currentCustomElementInstance) {
+  const currentInstance = getCurrentCustomElementInstance();
+  if (!currentInstance) {
     console.warn("getSlotteds: No custom element instance found. Make sure to call getSlotteds during component execution.");
     return {
       get value() {
-        return slottedElements.value;
+        return null;
       },
-      run: () => {
-        return slottedElements.value;
-      },
+      run: () => null,
     };
   }
 
-  const hostElement = currentCustomElementInstance;
+  const hostElement = currentInstance;
 
   /**
    * Update slotted elements based on current DOM state
@@ -362,7 +432,7 @@ const getSlotteds = (name?: string): Omit<Signal<Element[] | null>, "set"> => {
       ),
     );
 
-    slottedElements.set(elements.length > 0 ? elements : null);
+    slottedElements.set(elements.length > 0 ? elements : []);
   };
 
   /**
@@ -472,16 +542,18 @@ const getSlotteds = (name?: string): Omit<Signal<Element[] | null>, "set"> => {
     get value() {
       return slottedElements.value;
     },
-    run: () => {
-      return slottedElements.value;
-    },
+    run: () => slottedElements.value,
   };
 };
 
 export {
+  getCurrentCustomElementInstance,
   getHost,
   getInternals,
   getShadowRoot,
   getSlotteds,
+  popCustomElementInstance,
+  pushCustomElementInstance,
   setCurrentCustomElementInstance,
+  withCustomElementContext,
 };

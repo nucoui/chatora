@@ -50,7 +50,7 @@ describe("lifecycle functions", () => {
       consoleSpy.mockRestore();
     });
 
-    it("should handle multiple connected callbacks by storing all of them", () => {
+    it("should handle multiple connected callbacks by storing all of them", async () => {
       const callback1 = vi.fn();
       const callback2 = vi.fn();
       const callback3 = vi.fn();
@@ -71,18 +71,24 @@ describe("lifecycle functions", () => {
         handleConnectedCallbacks: (MockConstructor as any).prototype.handleConnectedCallbacks,
         handleConnected: (MockConstructor as any).prototype.handleConnected,
       };
-      mockInstance.handleConnected();
+      await mockInstance.handleConnected();
 
       expect(callback1).toHaveBeenCalledOnce();
       expect(callback2).toHaveBeenCalledOnce();
       expect(callback3).toHaveBeenCalledOnce();
     });
 
-    it("should execute all callbacks in registration order", () => {
+    it("should execute all callbacks in registration order", async () => {
       const executionOrder: number[] = [];
-      const callback1 = vi.fn(() => executionOrder.push(1));
-      const callback2 = vi.fn(() => executionOrder.push(2));
-      const callback3 = vi.fn(() => executionOrder.push(3));
+      const callback1 = vi.fn(() => {
+        executionOrder.push(1);
+      });
+      const callback2 = vi.fn(() => {
+        executionOrder.push(2);
+      });
+      const callback3 = vi.fn(() => {
+        executionOrder.push(3);
+      });
       const MockConstructor = class extends HTMLElement {};
 
       setCurrentCustomElementContext(MockConstructor);
@@ -95,12 +101,12 @@ describe("lifecycle functions", () => {
         handleConnectedCallbacks: (MockConstructor as any).prototype.handleConnectedCallbacks,
         handleConnected: (MockConstructor as any).prototype.handleConnected,
       };
-      mockInstance.handleConnected();
+      await mockInstance.handleConnected();
 
       expect(executionOrder).toEqual([1, 2, 3]);
     });
 
-    it("should handle mixed lifecycle callbacks with multiple registrations", () => {
+    it("should handle mixed lifecycle callbacks with multiple registrations", async () => {
       const connectedCb1 = vi.fn();
       const connectedCb2 = vi.fn();
       const disconnectedCb1 = vi.fn();
@@ -124,16 +130,16 @@ describe("lifecycle functions", () => {
         handleDisconnected: (MockConstructor as any).prototype.handleDisconnected,
       };
 
-      mockInstance.handleConnected();
+      await mockInstance.handleConnected();
       expect(connectedCb1).toHaveBeenCalledOnce();
       expect(connectedCb2).toHaveBeenCalledOnce();
 
-      mockInstance.handleDisconnected();
+      await mockInstance.handleDisconnected();
       expect(disconnectedCb1).toHaveBeenCalledOnce();
       expect(disconnectedCb2).toHaveBeenCalledOnce();
     });
 
-    it("should handle error in one callback without affecting others", () => {
+    it("should handle error in one callback without affecting others", async () => {
       const callback1 = vi.fn();
       const callback2 = vi.fn(() => {
         throw new Error("Test error");
@@ -152,11 +158,11 @@ describe("lifecycle functions", () => {
         handleConnected: (MockConstructor as any).prototype.handleConnected,
       };
 
-      expect(() => mockInstance.handleConnected()).toThrow("Test error");
+      // Should not throw error since errors are caught and logged
+      await expect(mockInstance.handleConnected()).resolves.toBeUndefined();
       expect(callback1).toHaveBeenCalledOnce();
       expect(callback2).toHaveBeenCalledOnce();
-      // Note: callback3 won't be called due to the error in callback2
-      // This is expected behavior with the current implementation
+      expect(callback3).toHaveBeenCalledOnce(); // callback3 should still be called
     });
   });
 
@@ -188,7 +194,7 @@ describe("lifecycle functions", () => {
       consoleSpy.mockRestore();
     });
 
-    it("should handle multiple disconnected callbacks by storing all of them", () => {
+    it("should handle multiple disconnected callbacks by storing all of them", async () => {
       const callback1 = vi.fn();
       const callback2 = vi.fn();
       const MockConstructor = class extends HTMLElement {};
@@ -205,7 +211,7 @@ describe("lifecycle functions", () => {
         handleDisconnectedCallbacks: (MockConstructor as any).prototype.handleDisconnectedCallbacks,
         handleDisconnected: (MockConstructor as any).prototype.handleDisconnected,
       };
-      mockInstance.handleDisconnected();
+      await mockInstance.handleDisconnected();
 
       expect(callback1).toHaveBeenCalledOnce();
       expect(callback2).toHaveBeenCalledOnce();
@@ -240,7 +246,7 @@ describe("lifecycle functions", () => {
       consoleSpy.mockRestore();
     });
 
-    it("should handle multiple attribute changed callbacks by storing all of them", () => {
+    it("should handle multiple attribute changed callbacks by storing all of them", async () => {
       const callback1 = vi.fn();
       const callback2 = vi.fn();
       const MockConstructor = class extends HTMLElement {};
@@ -257,7 +263,7 @@ describe("lifecycle functions", () => {
         handleAttributeChangedCallbacks: (MockConstructor as any).prototype.handleAttributeChangedCallbacks,
         handleAttributeChanged: (MockConstructor as any).prototype.handleAttributeChanged,
       };
-      mockInstance.handleAttributeChanged("test", "old", "new");
+      await mockInstance.handleAttributeChanged("test", "old", "new");
 
       expect(callback1).toHaveBeenCalledWith("test", "old", "new");
       expect(callback2).toHaveBeenCalledWith("test", "old", "new");
@@ -292,7 +298,7 @@ describe("lifecycle functions", () => {
       consoleSpy.mockRestore();
     });
 
-    it("should handle multiple adopted callbacks by storing all of them", () => {
+    it("should handle multiple adopted callbacks by storing all of them", async () => {
       const callback1 = vi.fn();
       const callback2 = vi.fn();
       const MockConstructor = class extends HTMLElement {};
@@ -309,7 +315,7 @@ describe("lifecycle functions", () => {
         handleAdoptedCallbacks: (MockConstructor as any).prototype.handleAdoptedCallbacks,
         handleAdopted: (MockConstructor as any).prototype.handleAdopted,
       };
-      mockInstance.handleAdopted();
+      await mockInstance.handleAdopted();
 
       expect(callback1).toHaveBeenCalledOnce();
       expect(callback2).toHaveBeenCalledOnce();
