@@ -1,8 +1,10 @@
+import { toBoolean } from "@chatora/util";
 import { CC, effect, functionalCustomElement, getHost, getInternals, getShadowRoot, getSlotteds, onAdopted, onAttributeChanged, onConnected, onDisconnected, signal } from "chatora";
 import { Host } from "chatora/jsx-runtime";
 
 type Props = {
   name?: string;
+  "is-true"?: boolean;
 };
 
 type Emits = {
@@ -15,6 +17,7 @@ const lifecycle: CC<Props, Emits> = ({
 }) => {
   const props = defineProps({
     name: (v) => v || "World",
+    "is-true": (v) => toBoolean(v),
   });
 
   defineEmits({
@@ -119,6 +122,12 @@ const lifecycle: CC<Props, Emits> = ({
           <p>No attribute changes</p>
         )}
       </div>
+      {props()["is-true"] ? (
+        <div>
+          <h3>True Block</h3>
+          <p>This block is only visible when isTrue is true.</p>
+        </div>
+      ) : null}
       <div>
         <h3>Action</h3>
         <button
@@ -151,6 +160,7 @@ const child = document.createElement("h1");
 child.textContent = "Hello, World!";
 lifecycleInstance.appendChild(child);
 lifecycleInstance.setAttribute("name", "Chatora");
+lifecycleInstance.setAttribute("is-true", "");
 
 document.querySelector("#app")?.appendChild(lifecycleInstance);
 

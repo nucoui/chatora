@@ -78,7 +78,7 @@ const functionalCustomElement: FunctionalCustomElement = (
                 const initialProps: Record<string, string | undefined> = {};
                 for (let i = 0; i < this.observedAttributes.length; i++) {
                   const name = this.observedAttributes[i];
-                  initialProps[name] = this.getAttribute(name) || undefined;
+                  initialProps[name] = this.getAttribute(name) ?? undefined;
                 }
                 this.props.set(initialProps);
                 isInitialized = true;
