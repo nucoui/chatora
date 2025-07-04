@@ -34,7 +34,7 @@ export const Button: CC<Props, Emits> = ({ defineProps, defineEmits }) => {
           }}
           >
           <span>Click count: {clickCount.value}</span>
-          <br></br>
+          <br />
           <slot />
           <slot name="slot1" />
         </button>

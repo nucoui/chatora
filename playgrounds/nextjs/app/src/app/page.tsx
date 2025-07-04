@@ -56,6 +56,7 @@ export default function Home() {
           <NButton type="submit">
             <span>Click me</span>
             <div slot="slot1">Slot 1 content</div>
+            <span>Blue text</span>
           </NButton>
         </div>
       </main>

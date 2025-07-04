@@ -44,6 +44,7 @@ export function Welcome() {
         </div>
         <NButton type="button">
           Click Me
+          <span>Red text</span>
         </NButton>
       </div>
     </main>

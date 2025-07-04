@@ -1,5 +1,5 @@
 import { toBoolean } from "@chatora/util";
-import { CC, effect, functionalCustomElement, getHost, getInternals, getShadowRoot, getSlotteds, onAdopted, onAttributeChanged, onConnected, onDisconnected, signal } from "chatora";
+import { CC, effect, functionalCustomElement, functionalDeclarativeCustomElement, getHost, getInternals, getShadowRoot, getSlotteds, onAdopted, onAttributeChanged, onConnected, onDisconnected, signal } from "chatora";
 import { Host } from "chatora/jsx-runtime";
 
 type Props = {
@@ -150,6 +150,8 @@ const lifecycle: CC<Props, Emits> = ({
 
 const lifecycleElement = functionalCustomElement(lifecycle)
 
+console.log(functionalDeclarativeCustomElement(lifecycle))
+
 if (!customElements.get("lifecycle-element")) {
   customElements.define("lifecycle-element", lifecycleElement);
 }
@@ -160,7 +162,7 @@ const child = document.createElement("h1");
 child.textContent = "Hello, World!";
 lifecycleInstance.appendChild(child);
 lifecycleInstance.setAttribute("name", "Chatora");
-lifecycleInstance.setAttribute("is-true", "");
+lifecycleInstance.setAttribute("is-true", "asd");
 
 document.querySelector("#app")?.appendChild(lifecycleInstance);
 

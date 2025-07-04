@@ -34,6 +34,7 @@ export const Button: CC<Props, Emits> = ({ defineProps, defineEmits }) => {
             clickCount.set((count) => count + 2);
             emits("on-click", {count: clickCount.value});
           }}
+          class="chatora-button"
           >
           <span>Click count: {clickCount.value}</span>
           <br></br>
@@ -46,7 +47,7 @@ export const Button: CC<Props, Emits> = ({ defineProps, defineEmits }) => {
 }
 
 export const ButtonStyle = `
-  button {
+  .chatora-button {
     border: none;
     border-radius: calc(infinity * 1px);
     padding: 0.75em 2em;

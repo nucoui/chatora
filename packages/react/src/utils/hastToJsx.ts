@@ -7,21 +7,38 @@ import { Fragment, jsx } from "react/jsx-runtime";
  * @param id - 追加するID
  * @returns 変換後のCSSコンテンツ
  */
+/**
+ * Add ID attribute to selectors in style content, and convert ::slotted pseudo to slot > selector for tora-container.
+ * @param styleContent - CSS content to transform
+ * @param id - ID to add
+ * @returns Transformed CSS content
+ */
 const transformStyleContent = (styleContent: string, id: string): string => {
   if (!styleContent)
     return styleContent;
 
-  // CSSをパースして各ルールにIDセレクタを追加する簡易的な実装
-  // 注: 実際のCSSパーサーを使用するとより堅牢になります
-  return styleContent
-    .replace(/([^{}]+)(\{[^{}]*\})/g, (_match, selector, rules) => {
-      // セレクタをカンマで分割して各セレクタにID属性を追加
-      const transformedSelector = selector
-        .split(",")
-        .map((s: string) => `[id="${id}"] ${s.trim()}`)
-        .join(", ");
-      return `${transformedSelector} ${rules}`;
-    });
+  // 1. ::slotted(selector) → slot > selector
+  let replaced = styleContent.replace(/::slotted\(([^)]+)\)/g, (_m, slottedSel) => {
+    return `slot > ${slottedSel.trim()}`;
+  });
+
+  // 2. 各セレクタの先頭にIDを付与
+  replaced = replaced.replace(/([^{}]+)(\{[^{}]*\})/g, (_match, selector, rules) => {
+    // セレクタをカンマで分割して各セレクタにID属性を追加
+    const transformedSelector = selector
+      .split(",")
+      .map((s: string) => {
+        // 既に[id=]が先頭にある場合はそのまま
+        const trimmed = s.trim();
+        if (trimmed.startsWith(`[id="${id}"]`))
+          return trimmed;
+        return `[id="${id}"] ${trimmed}`;
+      })
+      .join(", ");
+    return `${transformedSelector} ${rules}`;
+  });
+
+  return replaced;
 };
 
 /**
@@ -194,3 +211,34 @@ export const hastToJsx = (tag: string, id: string, hast: any, children?: ReactNo
     children: nodeChildren,
   }, keyToUse);
 };
+
+/*
+
+[id=":R355:"] .n-breadcrumb {
+  display: flex;
+  gap: var(--n-2);
+  align-items: center;
+}
+.n-breadcrumb [id=":R355:"] slot > n-li {
+  display: flex;
+  align-items: baseline;
+  font-size: var(--n-3);
+  color: var(--cs-text-secondary);
+}
+.n-breadcrumb [id=":R355:"] slot > n-li::before {
+  display: inline-block;
+  margin-right: var(--n-2);
+  content: ">";
+}
+.n-breadcrumb [id=":R355:"] slot > n-li:first-child::before {
+  content: none;
+}
+.n-breadcrumb [id=":R355:"] slot > n-li:last-child {
+  color: var(--cs-text-primary);
+}
+.n-breadcrumb [id=":R355:"] slot > n-li:last-child::before {
+  font-weight: normal;
+  color: var(--cs-text-secondary);
+}
+
+*/

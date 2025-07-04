@@ -53,6 +53,10 @@ export const ButtonStyle = `
     button:hover {
     background-color: orange;
   }
+
+  ::slotted(span) {
+    color: blue;
+  }
 `
 
 // export const NButtonElement = functionalCustomElement(Button, { styles: [ButtonStyle] });
