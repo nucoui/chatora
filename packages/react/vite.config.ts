@@ -52,6 +52,7 @@ export default defineConfig({
         "react/jsx-runtime",
         "react-dom",
         "react-dom/client",
+        "react-dom/server",
         "chatora",
       ],
       output: {

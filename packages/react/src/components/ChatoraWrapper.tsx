@@ -1,6 +1,11 @@
+"use client";
+
+import type { CC } from "chatora";
+import type { PropsWithChildren, ReactNode } from "react";
 import { hastToJsx } from "@/utils/hastToJsx";
-import { type CC, functionalCustomElement, functionalDeclarativeCustomElement } from "chatora";
-import { type PropsWithChildren, useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { functionalCustomElement, functionalDeclarativeCustomElement } from "chatora";
+import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { renderToString } from "react-dom/server";
 import { jsx } from "react/jsx-runtime";
 
 export type Props<P extends Record<string, unknown>> = PropsWithChildren<{
@@ -25,46 +30,35 @@ const splitProps = (props: Record<string, unknown>) => {
 };
 
 export const ChatoraWrapper = <P extends Record<string, unknown>>({ tag, component, children, props, formAssociated = false }: Props<P>) => {
+  const [isDefined, setIsDefined] = useState(false);
+
   const id = useId();
-
   const { props: filteredProps, emits } = useMemo(() => splitProps(props || {}), [props]);
-
   const hast = functionalDeclarativeCustomElement<P>(
     component,
     {
       props: filteredProps as P,
     },
   );
-
-  const [isDefined, setIsDefined] = useState(false);
-  const [isWindow, setIsWindow] = useState(false);
+  const [content, setContent] = useState<ReactNode>(hastToJsx(tag, id, hast, children));
   const domRef = useRef<HTMLElement | null>(null);
 
-  const defineElement = useCallback(() => {
+  useEffect(() => {
+    setContent(children);
+  }, [children]);
+
+  useLayoutEffect(() => {
     if (!customElements || customElements.get(tag)) {
       return;
     }
 
-    const element = class extends functionalCustomElement(component) {
+    class element extends functionalCustomElement(component) {
       static formAssociated = formAssociated;
     };
 
     customElements.define(tag, element);
     setIsDefined(true);
-  }, [tag, component, formAssociated]);
-
-  useLayoutEffect(() => {
-    if (typeof window !== "undefined") {
-      setIsWindow(true);
-      if (customElements && customElements.get(tag)) {
-        setIsDefined(true);
-      }
-    }
-  }, [tag]);
-
-  useLayoutEffect(() => {
-    defineElement();
-  }, [defineElement]);
+  }, [component, formAssociated, tag]);
 
   const toKebabEvent = useCallback((event: string) => {
     return (
@@ -91,7 +85,7 @@ export const ChatoraWrapper = <P extends Record<string, unknown>>({ tag, compone
     handlerMapRef.current = map;
   }, [emits]);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const node = domRef.current;
     if (!node || !emitsRef.current)
       return;
@@ -115,9 +109,19 @@ export const ChatoraWrapper = <P extends Record<string, unknown>>({ tag, compone
     };
   }, [toKebabEvent]);
 
-  return jsx(tag as any, {
-    ...filteredProps,
-    ref: domRef,
-    children: (isDefined && isWindow) ? children : hastToJsx(tag, id, hast, children),
-  });
+  if (!isDefined) {
+    return jsx(tag as any, {
+      dangerouslySetInnerHTML: {
+        __html: renderToString(content),
+      },
+      suppressHydrationWarning: true,
+    }, `${id}-ssr`);
+  }
+  else {
+    return jsx(tag as any, {
+      ref: domRef,
+      children: content,
+      suppressHydrationWarning: true,
+    }, `${id}-hydration`);
+  }
 };
