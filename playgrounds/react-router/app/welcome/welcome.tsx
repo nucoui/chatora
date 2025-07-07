@@ -42,7 +42,7 @@ export function Welcome() {
             </ul>
           </nav>
         </div>
-        <NButton type="button">
+        <NButton type="button" onClick={(e) => console.log(e.detail?.count)}>
           Click Me
           <span>Red text</span>
         </NButton>
