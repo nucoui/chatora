@@ -25,6 +25,7 @@
     "sass-embedded": "^1.89.2",
     "shiki": "^3.7.0",
     "typescript": "catalog:",
-    "vite-tsconfig-paths": "^5.1.4"
+    "vite-tsconfig-paths": "^5.1.4",
+    "wrangler": "^4.23.0"
   }
 }
