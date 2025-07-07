@@ -1,6 +1,47 @@
-.button {
-  border: none;
-  background: none;
-  padding: 1rem 0.5rem;
-  border: 1px solid #ccc;
+.main-content {
+  display: grid;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+  min-height: 100dvh;
+  padding: 2rem;
+
+  > .description {
+    > p {
+      margin-top: 0.5rem;
+      line-height: 1.5;
+    }
+  }
+
+  > .links {
+    display: flex;
+    gap: 1rem;
+
+    span {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+  }
+}
+
+.circle {
+  position: fixed;
+  top: 0;
+  left: -50dvw;
+  transform: translateX(-25dvw);
+  width: 120%;
+  height: 120%;
+  // background-color: var(--cs-app-500);
+  background: linear-gradient(
+    -45deg,
+    var(--p-yellow-500),
+    var(--p-red-500),
+    var(--p-blue-500),
+    var(--p-app-600),
+    var(--p-green-500)
+  );
+  filter: blur(100px) opacity(0.3);
+  border-radius: 50%;
+  z-index: -1;
 }

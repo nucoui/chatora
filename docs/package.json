@@ -1,14 +1,16 @@
 {
   "name": "docs",
+  "type": "module",
   "version": "0.0.0",
   "private": true,
-  "type": "module",
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
     "preview": "NITRO_PORT=5321 node .output/server/index.mjs"
   },
   "dependencies": {
+    "@nuco/react": "0.0.1-beta.1",
+    "@nuco/variable": "0.0.1-beta.1",
     "@tanstack/react-router": "^1.123.0",
     "@tanstack/react-start": "^1.123.0",
     "react": "^19.1.0",
@@ -16,9 +18,12 @@
     "vite": "catalog:"
   },
   "devDependencies": {
+    "@chatora/config": "workspace:*",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
+    "eslint": "catalog:",
     "sass-embedded": "^1.89.2",
+    "shiki": "^3.7.0",
     "typescript": "catalog:",
     "vite-tsconfig-paths": "^5.1.4"
   }
