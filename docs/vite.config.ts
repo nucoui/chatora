@@ -7,6 +7,6 @@ export default defineConfig({
     port: 5320,
   },
   plugins: [tsConfigPaths(), tanstackStart({
-    target: "cloudflare-module",
+    target: "cloudflare-worker",
   })],
 });
