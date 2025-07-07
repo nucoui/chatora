@@ -1,6 +1,7 @@
 import Image from "next/image";
 import styles from "./page.module.css";
 import { NButton } from "@/components/NButton";
+import { Test } from "@/components/Test";
 
 export default function Home() {
   const isSSR = typeof window === "undefined";
@@ -58,6 +59,7 @@ export default function Home() {
             <div slot="slot1">Slot 1 content</div>
             <span>Blue text</span>
           </NButton>
+          {/* <Test /> */}
         </div>
       </main>
       <footer className={styles.footer}>

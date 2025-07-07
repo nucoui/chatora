@@ -53,4 +53,8 @@ export const ButtonStyle = `
     padding: 0.75em 2em;
     cursor: pointer;
   }
+
+  ::slotted(span) {
+    color: red;
+  }
 `
