@@ -9,7 +9,13 @@
   },
   "observability": {
     "enabled": true
-  }
+  },
+  "routes": [
+    {
+      "pattern": "chatora.takumaru.dev",
+      "custom_domain": true
+    }
+  ]
   // "kv_namespaces": [
   //   {
   //     "binding": "CACHE",
