@@ -21,15 +21,10 @@
       "import": "./dist/main.js",
       "require": "./dist/main.cjs"
     },
-    "./components/ChatoraWrapper": {
-      "types": "./dist/types/components/ChatoraWrapper.d.ts",
-      "import": "./dist/components/ChatoraWrapper.js",
-      "require": "./dist/components/ChatoraWrapper.cjs"
-    },
-    "./components/DeclarativeShadowDom": {
-      "types": "./dist/types/components/DeclarativeShadowDom.d.ts",
-      "import": "./dist/components/DeclarativeShadowDom.js",
-      "require": "./dist/components/DeclarativeShadowDom.cjs"
+    "./components/*": {
+      "types": "./dist/types/components/*.d.ts",
+      "import": "./dist/components/*.js",
+      "require": "./dist/components/*.cjs"
     }
   },
   "publishConfig": {

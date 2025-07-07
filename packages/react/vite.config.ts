@@ -26,7 +26,6 @@ export default defineConfig({
     lib: {
       entry: [
         "src/components/ChatoraWrapper.tsx",
-        "src/components/DeclarativeShadowDom.tsx",
         "src/main.tsx",
       ],
       name: "react",
