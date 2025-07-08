@@ -28,20 +28,20 @@
 .circle {
   position: fixed;
   top: 50%;
-  left: -50%;
-  transform: translateX(50%) translateY(-50%);
-  width: 120dvh;
-  height: 120dvh;
+  right: -50%;
+  transform: translateY(-50%);
+  width: 120vmax;
+  height: 120vmax;
   // background-color: var(--cs-app-500);
   background: linear-gradient(
-    -45deg,
+    200deg,
     var(--p-yellow-500),
     var(--p-red-500),
-    var(--p-blue-500),
+    #a63dc6,
     var(--p-app-600),
-    var(--p-green-500)
+    var(--p-blue-500)
   );
-  filter: blur(100px) opacity(0.3);
+  filter: blur(120px) opacity(0.5);
   border-radius: 50%;
   z-index: -1;
 }
