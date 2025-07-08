@@ -27,9 +27,9 @@
 
 .circle {
   position: fixed;
-  top: 0;
-  left: -50dvw;
-  transform: translateX(-25dvw);
+  top: 50%;
+  left: -50%;
+  transform: translateX(50%) translateY(-50%);
   width: 120dvh;
   height: 120dvh;
   // background-color: var(--cs-app-500);
