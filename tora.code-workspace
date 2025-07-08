@@ -96,33 +96,27 @@
   "settings": {
     "github.copilot.chat.codeGeneration.instructions":[
       {
-        "file": ".rules/instructions.md",
-        "language": "*"
+        "file": ".rules/.instructions.md",
       },
       {
-        "file": ".rules/missions.md",
-        "language": "*"
+        "file": ".rules/missions.instructions.md",
       },
       {
-        "file": ".rules/overview.md",
-        "language": "*"
+        "file": ".rules/overview.instructions.md",
       },
       {
-        "file": ".rules/solid.md",
-        "language": "*"
+        "file": ".rules/solid.instructions.md",
       },
       {
-        "file": ".rules/technical.md",
-        "language": "*"
+        "file": ".rules/technical.instructions.md",
       },
       {
-        "file": ".rules/verified-truth-directive.md",
-        "language": "*"
-      }
+        "file": ".rules/verified-truth-directive.instructions.md",
+      },
     ],
     "github.copilot.chat.commitMessageGeneration.instructions": [
       {
-        "file": ".rules/commit-message.md"
+        "file": ".rules/commit-message.instructions.md"
       },
     ],
 
