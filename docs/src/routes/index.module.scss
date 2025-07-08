@@ -1,10 +1,7 @@
-.main-content {
+main {
   display: grid;
-  justify-content: center;
   align-items: center;
   align-content: center;
-  min-height: 100dvh;
-  padding: 2rem;
 
   > .description {
     > p {

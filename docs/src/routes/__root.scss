@@ -4,5 +4,15 @@ html {
 
   font-family: "Poppins", sans-serif;
   min-width: stretch;
+  max-width: 100%;
   min-height: 100dvh;
+}
+
+main {
+  position: relative;
+  min-height: 100dvh;
+  margin: 0 auto;
+  padding: 2rem;
+  width: 1200px;
+  max-width: 100%;
 }
