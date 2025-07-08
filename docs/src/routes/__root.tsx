@@ -69,11 +69,50 @@ function RootComponent() {
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <html>
+    <html lang="en">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0 viewport-fit=cover" />
         <link rel="icon" href="/icon-dark-transparent.svg" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/icon-dark-transparent.svg" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/icon-dark-transparent.svg" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/icon-dark-transparent.svg" />
+        {/* SEO meta tags */}
+        <meta name="description" content="Chatora.js is a library that generates Web Components and static HTML for SSR using JSX/TSX syntax." />
+        <meta name="keywords" content="JSX, TSX, Web Components, SSR, static HTML, TypeScript, Chatora.js, Custom Elements, Library, Reactivity" />
+        <meta name="author" content="takuma-ru@takumaru.dev" />
+        <meta name="publisher" content="takuma-ru@takumaru.dev" />
+        <link rel="canonical" href="https://chatora.dev/" />
+        {/* OGP */}
+        <meta property="og:title" content="Chatora.js" />
+        <meta property="og:description" content="Chatora.js is a library that generates Web Components and static HTML for SSR using JSX/TSX syntax." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://chatora.dev/" />
+        <meta property="og:image" content="https://chatora.dev/icon-dark-transparent.svg" />
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Chatora.js" />
+        <meta name="twitter:description" content="Chatora.js is a library that generates Web Components and static HTML for SSR using JSX/TSX syntax." />
+        <meta name="twitter:image" content="https://chatora.dev/icon-dark-transparent.svg" />
+        {/* Structured Data (JSON-LD) */}
+        <script
+          type="application/ld+json"
+          // eslint-disable-next-line react-dom/no-dangerously-set-innerhtml
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "name": "Chatora.js",
+              "url": "https://chatora.dev/",
+              "description": "Chatora.js is a library that generates Web Components and static HTML for SSR using JSX/TSX syntax.",
+              "publisher": {
+                "@type": "Organization",
+                "name": "Chatora.js Project",
+                "url": "https://chatora.dev/",
+              },
+            }),
+          }}
+        />
         <HeadContent />
       </head>
       <body>
