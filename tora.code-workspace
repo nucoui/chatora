@@ -96,7 +96,23 @@
   "settings": {
     "github.copilot.chat.codeGeneration.instructions":[
       {
-        "file": ".github/copilot-chat-instructions.md",
+        "file": ".rules/instructions.md",
+        "language": "*"
+      },
+      {
+        "file": ".rules/missions.md",
+        "language": "*"
+      },
+      {
+        "file": ".rules/overview.md",
+        "language": "*"
+      },
+      {
+        "file": ".rules/solid.md",
+        "language": "*"
+      },
+      {
+        "file": ".rules/technical.md",
         "language": "*"
       },
       {
