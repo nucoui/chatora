@@ -14,8 +14,11 @@ export default defineConfig({
       outputPath: "sitemap.xml",
     },
     pages: [{
-      sitemap: { priority: 1.0, changefreq: "always" },
       path: "/",
+      sitemap: { priority: 1.0, changefreq: "always" },
+    }, {
+      path: "/get-started",
+      sitemap: { priority: 0.8, changefreq: "never" },
     }],
   })],
 });
