@@ -8,5 +8,14 @@ export default defineConfig({
   },
   plugins: [tsConfigPaths(), tanstackStart({
     target: "cloudflare-module",
+    sitemap: {
+      host: "https://chatora.takumaru.dev",
+      enabled: true,
+      outputPath: "sitemap.xml",
+    },
+    pages: [{
+      sitemap: { priority: 1.0, changefreq: "always" },
+      path: "/",
+    }],
   })],
 });
