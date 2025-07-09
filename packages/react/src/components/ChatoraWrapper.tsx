@@ -3,10 +3,10 @@
 import type { CC } from "chatora";
 import type { ReactNode } from "react";
 import { hastToJsx } from "@/main";
+import { jsxToString } from "@/utils/jsxToString";
 import { splitProps } from "@/utils/splitProps";
 import { functionalCustomElement, functionalDeclarativeCustomElement } from "chatora";
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { renderToString } from "react-dom/server";
 import { jsx } from "react/jsx-runtime";
 
 export type Props<P extends Record<string, unknown>, E extends Record<string, unknown>> = {
@@ -51,7 +51,7 @@ export const ChatoraWrapper = <P extends Record<string, unknown>, E extends Reco
   if (!isDefined) {
     return jsx(tag as any, {
       dangerouslySetInnerHTML: {
-        __html: renderToString(content),
+        __html: jsxToString(content),
       },
       suppressHydrationWarning: true,
     }, `${id}-ssr`);
