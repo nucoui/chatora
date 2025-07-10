@@ -117,7 +117,7 @@ const getHost = (): Omit<Signal<HTMLElement | null>, "set"> => {
 
   const currentInstance = getCurrentCustomElementInstance();
   if (!currentInstance) {
-    console.warn("getHost: No custom element instance found. Make sure to call getHost during component execution.");
+    typeof window !== "undefined" && console.warn("getHost: No custom element instance found. Make sure to call getHost during component execution.");
     return {
       get value() {
         return null;
@@ -206,7 +206,7 @@ const getShadowRoot = (): Omit<Signal<ShadowRoot | null>, "set"> => {
 
   const currentInstance = getCurrentCustomElementInstance();
   if (!currentInstance) {
-    console.warn("getShadowRoot: No custom element instance found. Make sure to call getShadowRoot during component execution.");
+    typeof window !== "undefined" && console.warn("getShadowRoot: No custom element instance found. Make sure to call getShadowRoot during component execution.");
     return {
       get value() {
         return null;
@@ -295,7 +295,7 @@ const getInternals = (): Omit<Signal<ElementInternals | null>, "set"> => {
 
   const currentInstance = getCurrentCustomElementInstance();
   if (!currentInstance) {
-    console.warn("getInternals: No custom element instance found. Make sure to call getInternals during component execution.");
+    typeof window !== "undefined" && console.warn("getInternals: No custom element instance found. Make sure to call getInternals during component execution.");
     return {
       get value() {
         return null;
@@ -406,7 +406,7 @@ const getSlotteds = (name?: string): Omit<Signal<Element[] | null>, "set"> => {
 
   const currentInstance = getCurrentCustomElementInstance();
   if (!currentInstance) {
-    console.warn("getSlotteds: No custom element instance found. Make sure to call getSlotteds during component execution.");
+    typeof window !== "undefined" && console.warn("getSlotteds: No custom element instance found. Make sure to call getSlotteds during component execution.");
     return {
       get value() {
         return null;
