@@ -3,11 +3,13 @@
 import type { CC } from "chatora";
 import type { ReactNode } from "react";
 import { hastToJsx } from "@/main";
+import { disableError } from "@/utils/disableError";
 import { splitProps } from "@/utils/splitProps";
 import { functionalCustomElement, functionalDeclarativeCustomElement } from "chatora";
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { jsx } from "react/jsx-runtime";
-import "@/utils/disableError";
+
+disableError();
 
 export type Props<P extends Record<string, unknown>, E extends Record<string, unknown>> = {
   props: P & E;
