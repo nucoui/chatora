@@ -2,11 +2,12 @@
 
 import type { CC } from "chatora";
 import type { ReactNode } from "react";
+import { useIsClient } from "@/hooks/useIsClient";
 import { hastToJsx } from "@/main";
 import { disableError } from "@/utils/disableError";
 import { splitProps } from "@/utils/splitProps";
 import { functionalCustomElement, functionalDeclarativeCustomElement } from "chatora";
-import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { jsx } from "react/jsx-runtime";
 
 disableError();
@@ -14,21 +15,6 @@ disableError();
 // Constants for browser and DSD support detection
 const isServer = typeof document === "undefined";
 const supportsDSD = !isServer && "shadowRootMode" in HTMLTemplateElement.prototype;
-
-// No-op subscribe function for useSyncExternalStore
-const noopSubscribe = () => () => {};
-
-/**
- * Hook to detect if we're on the client side
- * Uses React's useSyncExternalStore for proper SSR hydration
- */
-function useIsClient() {
-  return useSyncExternalStore(
-    noopSubscribe,
-    () => true,
-    () => false,
-  );
-}
 
 export type Props<P extends Record<string, unknown>, E extends Record<string, unknown>> = {
   props: P & E;
