@@ -1,5 +1,5 @@
 import { toMatched } from "@chatora/util";
-import { signal, type CC } from "chatora";
+import { onConnected, signal, type CC } from "chatora";
 import { Host } from "chatora/jsx-runtime";
 
 export type Emits = {
@@ -22,6 +22,10 @@ export const Button: CC<Props, Emits> = ({ defineProps, defineEmits }) => {
   });
 
   const clickCount = signal(0);
+
+  onConnected(() => {
+    console.log("Button component connected");
+  });
 
   return () => {
     return (

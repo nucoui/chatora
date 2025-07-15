@@ -39,6 +39,7 @@
   ],
   "scripts": {
     "build": "vite build",
+    "watch": "vite build --watch",
     "lint": "eslint .",
     "test": "vitest run --coverage",
     "release": "rlse",

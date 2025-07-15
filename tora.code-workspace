@@ -81,6 +81,10 @@
       "path": "playgrounds/react-router"
     },
     {
+      "name": "🎮 tanstack start",
+      "path": "playgrounds/tanstack-start"
+    },
+    {
       "name": "🎮 vue",
       "path": "playgrounds/vue"
     },

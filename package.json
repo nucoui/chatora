@@ -19,6 +19,7 @@
     "pg:nextjs:chatora": "pnpm -C playgrounds/nextjs/chatora",
     "pg:react": "pnpm -C playgrounds/react",
     "pg:rr": "pnpm -C playgrounds/react-router",
+    "pg:tanstack": "pnpm -C playgrounds/tanstack-start",
     "pg:vanilla": "pnpm -C playgrounds/vanilla",
     "pg:vue": "pnpm -C playgrounds/vue",
     "pg:svelte": "pnpm -C playgrounds/svelte",
