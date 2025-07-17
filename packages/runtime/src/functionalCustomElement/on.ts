@@ -98,7 +98,7 @@ const onConnected = (callback: () => void | Promise<void>) => {
   const currentCustomElementContext = getCurrentCustomElementContext();
   if (!currentCustomElementContext) {
     // Only show warnings in development
-    typeof window !== "undefined" && console.warn("onConnected: No custom element context found. Make sure to call onConnected during component definition.");
+    // typeof window !== "undefined" && console.warn("onConnected: No custom element context found. Make sure to call onConnected during component definition.");
     return;
   }
 
@@ -133,7 +133,7 @@ const onDisconnected = (callback: () => void | Promise<void>) => {
   const currentCustomElementContext = getCurrentCustomElementContext();
   if (!currentCustomElementContext) {
     // Only show warnings in development
-    typeof window !== "undefined" && console.warn("onDisconnected: No custom element context found. Make sure to call onDisconnected during component definition.");
+    // typeof window !== "undefined" && console.warn("onDisconnected: No custom element context found. Make sure to call onDisconnected during component definition.");
     return;
   }
 
@@ -168,7 +168,7 @@ const onAttributeChanged = (callback: (name: string, oldValue: string | null, ne
   const currentCustomElementContext = getCurrentCustomElementContext();
   if (!currentCustomElementContext) {
     // Only show warnings in development
-    typeof window !== "undefined" && console.warn("onAttributeChanged: No custom element context found. Make sure to call onAttributeChanged during component definition.");
+    // typeof window !== "undefined" && console.warn("onAttributeChanged: No custom element context found. Make sure to call onAttributeChanged during component definition.");
     return;
   }
 
@@ -203,7 +203,7 @@ const onAdopted = (callback: () => void | Promise<void>) => {
   const currentCustomElementContext = getCurrentCustomElementContext();
   if (!currentCustomElementContext) {
     // Only show warnings in development
-    typeof window !== "undefined" && console.warn("onAdopted: No custom element context found. Make sure to call onAdopted during component definition.");
+    // typeof window !== "undefined" && console.warn("onAdopted: No custom element context found. Make sure to call onAdopted during component definition.");
     return;
   }
 
