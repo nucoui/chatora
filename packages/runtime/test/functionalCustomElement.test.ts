@@ -153,7 +153,7 @@ describe("functionalCustomElement", () => {
     document.body.appendChild(el);
 
     // After the element is connected, the signal should provide the host element
-    expect(hostSignalGetter()).toBe(el);
+    expect(hostSignalGetter.value).toBe(el);
   });
 
   it("should handle getShadowRoot method", () => {
@@ -176,7 +176,7 @@ describe("functionalCustomElement", () => {
     document.body.appendChild(el);
 
     // After the element is connected, the signal should provide the shadow root
-    expect(shadowRootSignalGetter()).toBe(el.shadowRoot);
+    expect(shadowRootSignalGetter.value).toBe(el.shadowRoot);
   });
 
   it("should handle getInternals method", () => {
@@ -202,7 +202,7 @@ describe("functionalCustomElement", () => {
 
     // After the element is connected, the signal should provide the internals
     if (el.attachInternals) {
-      expect(internalsSignalGetter()).toBeInstanceOf(ElementInternals);
+      expect(internalsSignalGetter.value).toBeInstanceOf(ElementInternals);
     }
   });
 

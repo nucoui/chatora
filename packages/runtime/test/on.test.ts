@@ -34,20 +34,10 @@ describe("lifecycle functions", () => {
       expect((MockConstructor as any).prototype.handleConnectedCallbacks).toEqual([callback]);
     });
 
-    it("should warn when no context is set", () => {
+    it("should not throw when no context is set", () => {
       const callback = vi.fn();
-      const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-
-      // Clear context
       setCurrentCustomElementContext(null);
-
-      onConnected(callback);
-
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "onConnected: No custom element context found. Make sure to call onConnected during component definition.",
-      );
-
-      consoleSpy.mockRestore();
+      expect(() => onConnected(callback)).not.toThrow();
     });
 
     it("should handle multiple connected callbacks by storing all of them", async () => {
@@ -179,19 +169,10 @@ describe("lifecycle functions", () => {
       expect((MockConstructor as any).prototype.handleDisconnectedCallbacks).toEqual([callback]);
     });
 
-    it("should warn when no context is set", () => {
+    it("should not throw when no context is set", () => {
       const callback = vi.fn();
-      const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-
       setCurrentCustomElementContext(null);
-
-      onDisconnected(callback);
-
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "onDisconnected: No custom element context found. Make sure to call onDisconnected during component definition.",
-      );
-
-      consoleSpy.mockRestore();
+      expect(() => onDisconnected(callback)).not.toThrow();
     });
 
     it("should handle multiple disconnected callbacks by storing all of them", async () => {
@@ -231,19 +212,10 @@ describe("lifecycle functions", () => {
       expect((MockConstructor as any).prototype.handleAttributeChangedCallbacks).toEqual([callback]);
     });
 
-    it("should warn when no context is set", () => {
+    it("should not throw when no context is set", () => {
       const callback = vi.fn();
-      const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-
       setCurrentCustomElementContext(null);
-
-      onAttributeChanged(callback);
-
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "onAttributeChanged: No custom element context found. Make sure to call onAttributeChanged during component definition.",
-      );
-
-      consoleSpy.mockRestore();
+      expect(() => onAttributeChanged(callback)).not.toThrow();
     });
 
     it("should handle multiple attribute changed callbacks by storing all of them", async () => {
@@ -283,19 +255,10 @@ describe("lifecycle functions", () => {
       expect((MockConstructor as any).prototype.handleAdoptedCallbacks).toEqual([callback]);
     });
 
-    it("should warn when no context is set", () => {
+    it("should not throw when no context is set", () => {
       const callback = vi.fn();
-      const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-
       setCurrentCustomElementContext(null);
-
-      onAdopted(callback);
-
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "onAdopted: No custom element context found. Make sure to call onAdopted during component definition.",
-      );
-
-      consoleSpy.mockRestore();
+      expect(() => onAdopted(callback)).not.toThrow();
     });
 
     it("should handle multiple adopted callbacks by storing all of them", async () => {

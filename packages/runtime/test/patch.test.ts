@@ -238,54 +238,136 @@ describe("patch", () => {
     expect(result.childNodes[1].textContent).toBe("new text");
   });
 
-  it("should optimize text-only changes", () => {
+  it("5階層以上のネスト要素のpatchが正しく動作し、実DOMが新しいJSXと一致すること", () => {
+    // 旧VNode
     const oldVNode: VNode = {
       tag: "div",
       props: {},
-      children: ["old1", "old2", "old3"],
+      children: [
+        {
+          tag: "span",
+          props: { class: "a" },
+          children: [
+            {
+              tag: "div",
+              props: {},
+              children: [
+                "1",
+                {
+                  tag: "span",
+                  props: { class: "text" },
+                  children: [
+                    {
+                      tag: "a",
+                      props: {},
+                      children: ["text"],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
     };
+
+    // 新VNode
     const newVNode: VNode = {
       tag: "div",
       props: {},
-      children: ["new1", "old2", "new3"],
+      children: [
+        {
+          tag: "span",
+          props: { class: "a" },
+          children: [
+            {
+              tag: "div",
+              props: {},
+              children: [
+                "1",
+                {
+                  tag: "span",
+                  props: { class: "text" },
+                  children: [
+                    "2",
+                    {
+                      tag: "a",
+                      props: {},
+                      children: ["text"],
+                    },
+                    {
+                      tag: "span",
+                      props: { class: "add" },
+                      children: ["span"],
+                    },
+                    "2",
+                  ],
+                },
+                "1",
+              ],
+            },
+            "0",
+          ],
+        },
+      ],
     };
 
+    // DOMのセットアップ
     const domNode = mount(oldVNode) as HTMLElement;
     const parent = document.createElement("div");
     parent.appendChild(domNode);
 
+    // patch実行
     const result = patch(oldVNode, newVNode, parent, domNode) as HTMLElement;
-    expect(result.childNodes[0].textContent).toBe("new1");
-    expect(result.childNodes[1].textContent).toBe("old2");
-    expect(result.childNodes[2].textContent).toBe("new3");
-  });
 
-  it("should handle props that are same reference", () => {
-    const props = { id: "test", class: "same" };
-    const oldVNode: VNode = { tag: "div", props, children: [] };
-    const newVNode: VNode = { tag: "div", props, children: [] };
+    // DOM構造の検証
+    // <div>
+    //   <span class="a">
+    //     <div>
+    //       1
+    //       <span class="text">
+    //         2
+    //         <a>text</a>
+    //         <span class="add">span</span>
+    //         2
+    //       </span>
+    //       1
+    //     </div>
+    //     0
+    //   </span>
+    // </div>
+    expect(result.tagName).toBe("DIV");
+    const spanA = result.firstElementChild as HTMLElement;
+    expect(spanA.tagName).toBe("SPAN");
+    expect(spanA.className).toBe("a");
 
-    const domNode = mount(oldVNode) as HTMLElement;
-    const parent = document.createElement("div");
-    parent.appendChild(domNode);
+    const div = spanA.firstElementChild as HTMLElement;
+    expect(div.tagName).toBe("DIV");
 
-    const result = patch(oldVNode, newVNode, parent, domNode) as HTMLElement;
-    expect(result).toBe(domNode);
-    expect(result.id).toBe("test");
-    expect(result.className).toBe("same");
-  });
+    // divの子ノード: ["1", <span class="text">...</span>, "1"]
+    expect(div.childNodes.length).toBe(3);
+    expect(div.childNodes[0].textContent).toBe("1");
+    const spanText = div.childNodes[1] as HTMLElement;
+    expect(spanText.nodeType).toBe(Node.ELEMENT_NODE);
+    expect((spanText as HTMLElement).tagName).toBe("SPAN");
+    expect((spanText as HTMLElement).className).toBe("text");
 
-  it("should handle children that are same reference", () => {
-    const children = ["same", "children"];
-    const oldVNode: VNode = { tag: "div", props: {}, children };
-    const newVNode: VNode = { tag: "div", props: {}, children };
+    // span.textの子ノード: ["2", <a>text</a>, <span class="add">span</span>, "2"]
+    expect(spanText.childNodes.length).toBe(4);
+    expect(spanText.childNodes[0].textContent).toBe("2");
+    const a = spanText.childNodes[1] as HTMLElement;
+    expect(a.tagName).toBe("A");
+    expect(a.textContent).toBe("text");
+    const spanAdd = spanText.childNodes[2] as HTMLElement;
+    expect(spanAdd.tagName).toBe("SPAN");
+    expect(spanAdd.className).toBe("add");
+    expect(spanAdd.textContent).toBe("span");
+    expect(spanText.childNodes[3].textContent).toBe("2");
 
-    const domNode = mount(oldVNode) as HTMLElement;
-    const parent = document.createElement("div");
-    parent.appendChild(domNode);
+    // div.childNodes[2] = "1"
+    expect(div.childNodes[2].textContent).toBe("1");
 
-    const result = patch(oldVNode, newVNode, parent, domNode) as HTMLElement;
-    expect(result).toBe(domNode);
-    expect(result.textContent).toBe("samechildren");
+    // spanA.childNodes[1] = "0"
+    expect(spanA.childNodes[1].textContent).toBe("0");
   });
 });

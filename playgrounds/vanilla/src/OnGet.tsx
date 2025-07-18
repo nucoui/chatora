@@ -31,6 +31,8 @@ const lifecycle: CC<Props, Emits> = ({
     attributeChanged: false,
   });
 
+  const isShowDeepElement = signal(false);
+
   const host = getHost();
   const internals = getInternals();
   const shadowRoot = getShadowRoot();
@@ -144,6 +146,25 @@ const lifecycle: CC<Props, Emits> = ({
         </h3>
         <slot></slot>
       </div>
+      <div>
+        <h3>Deep elements</h3>
+          <button onClick={() => {
+            isShowDeepElement.set((prev) => !prev);
+          }}>
+            <span>Switch Show Deep Element</span>
+          </button>
+          {isShowDeepElement.value ? (
+            <div>
+              <div>
+                <h4>Deep Element</h4>
+                <p>This is a deep element inside the component.</p>
+                <p class="main-txt">Deep Element is shown!</p>
+              </div>
+            </div>
+          ) : (
+            <p class="main-txt">Deep Element is hidden.</p>
+          )}
+      </div>
     </Host>
   );
 };
@@ -163,6 +184,12 @@ child.textContent = "Hello, World!";
 lifecycleInstance.appendChild(child);
 lifecycleInstance.setAttribute("name", "Chatora");
 lifecycleInstance.setAttribute("is-true", "asd");
+
+const spanA = document.createElement("span");
+spanA.textContent = "This is a slotted element";
+const spanB = document.createElement("span");
+spanB.textContent = "This is another slotted element";
+lifecycleInstance.appendChild(spanA);
 
 document.querySelector("#app")?.appendChild(lifecycleInstance);
 

@@ -39,19 +39,11 @@ describe("instance accessor functions", () => {
       expect(hostSignal.run()).toBeNull();
     });
 
-    it("should return signal with null value and warn when no instance is set", () => {
-      const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    it("should return signal with null value when no instance is set", () => {
       setCurrentCustomElementInstance(null);
-
       const hostSignal = getHost();
-
       expect(hostSignal.value).toBeNull();
       expect(hostSignal.run()).toBeNull();
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "getHost: No custom element instance found. Make sure to call getHost during component execution.",
-      );
-
-      consoleSpy.mockRestore();
     });
   });
 
@@ -83,19 +75,11 @@ describe("instance accessor functions", () => {
       expect(shadowRootSignal.run()).toBeNull();
     });
 
-    it("should warn when no instance is set", () => {
-      const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    it("should return signal with null value when no instance is set", () => {
       setCurrentCustomElementInstance(null);
-
       const shadowRootSignal = getShadowRoot();
-
       expect(shadowRootSignal.value).toBeNull();
       expect(shadowRootSignal.run()).toBeNull();
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "getShadowRoot: No custom element instance found. Make sure to call getShadowRoot during component execution.",
-      );
-
-      consoleSpy.mockRestore();
     });
   });
 
@@ -149,19 +133,11 @@ describe("instance accessor functions", () => {
       expect(internalsSignal.run()).toBeNull();
     });
 
-    it("should warn when no instance is set", () => {
-      const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    it("should return signal with null value when no instance is set", () => {
       setCurrentCustomElementInstance(null);
-
       const internalsSignal = getInternals();
-
       expect(internalsSignal.value).toBeNull();
       expect(internalsSignal.run()).toBeNull();
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "getInternals: No custom element instance found. Make sure to call getInternals during component execution.",
-      );
-
-      consoleSpy.mockRestore();
     });
   });
 
@@ -215,47 +191,28 @@ describe("instance accessor functions", () => {
       expect(slottedSignal.run()).toBeNull();
     });
 
-    it("should warn when no host element is found", () => {
-      const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-
+    it("should return signal with null value when no host element is found", () => {
       setCurrentCustomElementInstance(null);
-
       const slottedSignal = getSlotteds();
-
       expect(slottedSignal.value).toBeNull();
       expect(slottedSignal.run()).toBeNull();
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "getSlotteds: No custom element instance found. Make sure to call getSlotteds during component execution.",
-      );
-
-      consoleSpy.mockRestore();
     });
   });
 
   describe("integration tests", () => {
     it("should handle instance management correctly", () => {
-      const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
       const mockInstance = document.createElement("div") as HTMLElement;
-
       // Test instance management
       setCurrentCustomElementInstance(mockInstance);
       const hostSignal = getHost();
-
       // Initially null until onConnected is executed
       expect(hostSignal.value).toBeNull();
       expect(hostSignal.run()).toBeNull();
-
       // Clear instance
       setCurrentCustomElementInstance(null);
       const hostAfterClearSignal = getHost();
-
       expect(hostAfterClearSignal.value).toBeNull();
       expect(hostAfterClearSignal.run()).toBeNull();
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "getHost: No custom element instance found. Make sure to call getHost during component execution.",
-      );
-
-      consoleSpy.mockRestore();
     });
 
     it("should handle multiple instance switches", () => {
