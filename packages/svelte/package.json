@@ -1,7 +1,7 @@
 {
   "name": "@chatora/svelte",
   "type": "module",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "private": false,
   "description": "Framework for creating custom elements with JSX function components",
   "author": "nuco <takuma-ru@takumaru.dev> (https://github.com/takuma-ru/)",
