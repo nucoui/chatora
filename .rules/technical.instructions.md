@@ -3,7 +3,7 @@
 Please understand the following knowledge. These are assumed to be known when prompts are entered.
 
 ### Directory Structure
-- This project is structured as a monorepo.
+This project is structured as a monorepo.
   - `<root>`: Project root directory
   - `<root>/config`: Project configuration files. Contains ESLint configuration.
   - `<root>/packages/**`: Source code for libraries and common modules. Source code for libraries and common modules used in applications.
@@ -12,6 +12,30 @@ Please understand the following knowledge. These are assumed to be known when pr
     - `<root>/packages/runtime`: Package providing functionality to convert JSX syntax to custom element classes. Also includes implementation to make code transpiled by tsc's react-jsx reactive using packages/reactivity.
     - `<root>/packages/util`: Package providing utility functions for the project. This package is used by other packages.
   - `<root>/playgrounds/**`: Sample code for the project. Stores sample code that works using @chatora/core.
+
+#### Packages Dependency Overview
+
+This monorepo consists of several core packages with the following dependency relationships:
+
+- **core**: Main API for users. Depends on `runtime`, `reactivity`, and `util`.
+- **runtime**: Converts JSX/TSX to custom elements and SSR HTML. Depends on `reactivity` and `util`.
+- **reactivity**: Provides reactive primitives (signal, effect). No internal dependencies.
+- **util**: Utility functions. No internal dependencies.
+- **react**: React integration. Depends on `core`, `runtime`, and `util`.
+- **vue**: Vue integration. Depends on `core`, `runtime`, and `util`.
+- **svelte**: Svelte integration. Depends on `core`, `runtime`, and `util`.
+
+Dependency graph:
+
+```
+reactivity ─┬─> runtime ─┬─> core ─┬─> react
+            │            │         ├─> vue
+            │            │         └─> svelte
+            │            └─> util
+            └────────────┘
+```
+
+All packages are written in TypeScript and use pnpm for dependency management. Each package can be built/tested independently using the provided pnpm commands.
 - This project uses ESLint for linting and formatting.
 - This project is written in TypeScript.
 - This project is tested with Vitest.
