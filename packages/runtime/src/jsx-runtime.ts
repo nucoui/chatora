@@ -2,6 +2,8 @@ import type { IC } from "@/main";
 import type { ChatoraJSXElement, ChatoraNode } from "../types/JSX.namespace";
 import type { StyleInput } from "./functionalCustomElement/styleObject";
 
+export type * from "@root/types/JSX.namespace";
+
 // Pre-allocated objects to reduce memory allocation
 const FRAGMENT_TAG = "#fragment";
 const ROOT_TAG = "#root";
