@@ -1,4 +1,5 @@
-import { functionalCustomElement, CC, IC, functionalDeclarativeCustomElement, getHost, effect, signal } from "chatora";
+import { IC, createCC, signal, effect, getHost } from "chatora";
+import { Button } from "./Button";
 import { Host } from "chatora/jsx-runtime";
 
 const Test: IC<{ count: { value: number } }> = ({ count }) => {
@@ -13,7 +14,9 @@ const Test: IC<{ count: { value: number } }> = ({ count }) => {
   }
 }
 
-const Mini: CC = () => {
+const {
+  define
+} = createCC("mini-element", () => {
   const count = signal(0);
 
   effect(() => {
@@ -70,7 +73,7 @@ const Mini: CC = () => {
             opacity: count.value <= 0 ? 0.5 : 1,
             cursor: count.value <= 0 ? "not-allowed" : "pointer"
           }}
-          disabled={count.value <= 0} 
+          disabled={count.value <= 0}
           onClick={() => count.set((c) => c - 1)}
         >
           Decrement (next value: {count.value - 1})
@@ -78,6 +81,11 @@ const Mini: CC = () => {
       </>
       <>
         <p>in fragment</p>
+      </>
+      <>
+          <Button type="anchor">
+            <span>Primary Button</span>
+          </Button>
       </>
       {
         count.value % 2 === 0
@@ -89,13 +97,11 @@ const Mini: CC = () => {
       }
     </Host>
   )
-}
+}, {
+  formAssociated: false
+})
 
-const MiniElement = functionalCustomElement(Mini);
-
-console.log(functionalDeclarativeCustomElement(Mini));
-
-customElements.define("mini-element", MiniElement);
+define();
 
 const mini = document.createElement("mini-element");
 document.querySelector("#app")?.appendChild(mini);

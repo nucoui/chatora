@@ -6,7 +6,7 @@ import { useIsClient } from "@/hooks/useIsClient";
 import { hastToJsx } from "@/main";
 import { disableError } from "@/utils/disableError";
 import { splitProps } from "@/utils/splitProps";
-import { functionalCustomElement, functionalDeclarativeCustomElement } from "chatora";
+import { genSD, genDSD } from "chatora";
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { jsx } from "react/jsx-runtime";
 
@@ -63,7 +63,7 @@ export const ChatoraWrapper = <P extends Record<string, unknown>, E extends Reco
 
   const id = useId();
   const { props: filteredProps, emits } = useMemo(() => splitProps(props || {}), [props]);
-  const hast = functionalDeclarativeCustomElement<P>(
+  const hast = genDSD<P>(
     component as CC<P, never>,
     {
       props: filteredProps as P,
@@ -81,7 +81,7 @@ export const ChatoraWrapper = <P extends Record<string, unknown>, E extends Reco
       return;
     }
 
-    class element extends functionalCustomElement(component) {
+    class element extends genSD(component) {
       static formAssociated = formAssociated;
     };
 

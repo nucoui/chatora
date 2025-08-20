@@ -1,8 +1,8 @@
-import { computed, effect, functionalCustomElement, getHost, onAdopted, onAttributeChanged, onConnected, onDisconnected, signal, type CC } from "chatora";
-import { toBoolean, toMatched, toString } from "@chatora/util";
 import clsx from "clsx";
 import style from "./Button.scss?raw";
-import { Host } from "chatora/jsx-runtime"
+import { toMatched, toBoolean, toString } from "@chatora/util";
+import { Host } from "chatora/jsx-runtime";
+import { createCC, computed, signal, effect, onConnected, onAttributeChanged, onDisconnected, onAdopted, getHost } from "chatora";
 
 export type Props = {
   variant?: "primary" | "secondary" | "tertiary" | "error";
@@ -20,14 +20,19 @@ export type Props = {
 });
 
 export type Emits = {
-  "on-click": Event;
+  "on-click"?: Event;
 };
 
-export const Button: CC<Props, Emits> = ({
-  defineEmits,
-  defineProps,
-}) => {
-  const props = defineProps({
+export const {
+  component: Button,
+  define: defineButton
+} = createCC<Props, Emits>(
+  "n-button",
+  ({
+    defineEmits,
+    defineProps
+  }) => {
+    const props = defineProps({
     type: v => toMatched(v, ["anchor", "submit", "reset", "button"]) ?? "button",
     variant: v => toMatched(v, ["primary", "secondary", "tertiary", "error"]) ?? "primary",
     disabled: v => toBoolean(v) ?? false,
@@ -146,30 +151,24 @@ export const Button: CC<Props, Emits> = ({
         }
       }
     }
-};
-
-class ButtonElement extends functionalCustomElement(Button) {
-  static formAssociated = true;
-}
-
-// console.log(functionalDeclarativeCustomElement(Button))
-
-if (customElements.get("n-button") === undefined) {
-  customElements.define("n-button", ButtonElement);
-}
-
-const button = document.createElement("n-button");
-document.querySelector("#app")?.appendChild(button);
-// button.setAttribute("type", "anchor");
-button.setAttribute("variant", "primary");
-button.setAttribute("size", "medium");
-button.setAttribute("width", "auto");
-button.setAttribute("disabled", "false");
-button.innerHTML = "Click Me";
-button.addEventListener("on-click", (e) => {
-  const customEvent = e as CustomEvent;
-  console.log("Button clicked:", customEvent.detail);
+}, {
+  formAssociated: true
 });
+
+// console.log(functionalDeclarativeCustomElement(NButton, {props: {}}))
+
+// const button = document.createElement("n-button");
+// document.querySelector("#app")?.appendChild(button);
+// // button.setAttribute("type", "anchor");
+// button.setAttribute("variant", "primary");
+// button.setAttribute("size", "medium");
+// button.setAttribute("width", "auto");
+// button.setAttribute("disabled", "false");
+// button.innerHTML = "Click Me";
+// button.addEventListener("on-click", (e) => {
+//   const customEvent = e as CustomEvent;
+//   console.log("Button clicked:", customEvent.detail);
+// });
 
 // setInterval(() => {
 //   const currentDisabled = button.getAttribute("disabled");

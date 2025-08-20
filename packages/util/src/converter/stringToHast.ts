@@ -1,4 +1,4 @@
-import type { functionalDeclarativeCustomElement } from "@chatora/runtime";
+import type { genDSD } from "@chatora/runtime";
 
 // Define hast types for internal use
 interface Element {
@@ -215,7 +215,7 @@ function buildAST(tokens: Array<{ type: string; content: string; tagName?: strin
  * @param value - HTML string to convert
  * @returns Hast Root object compatible with functionalDeclarativeCustomElement
  */
-export const stringToHast = (value: string): ReturnType<typeof functionalDeclarativeCustomElement> => {
+export const stringToHast = (value: string): ReturnType<typeof genDSD> => {
   // Handle empty or null values
   if (!value || typeof value !== "string") {
     return {

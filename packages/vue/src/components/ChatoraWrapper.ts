@@ -1,4 +1,4 @@
-import { functionalCustomElement, functionalDeclarativeCustomElement } from "chatora";
+import { genDSD, genSD } from "chatora";
 import { defineComponent, getCurrentInstance, h, onMounted, ref } from "vue";
 import { hastToJsx } from "../utils/hastToJsx";
 
@@ -43,7 +43,7 @@ export default defineComponent<WrapperProps>({
     const { props, emits } = splitProps(initialProps);
 
     // SSR用hast生成
-    const hast = functionalDeclarativeCustomElement(
+    const hast = genDSD(
       component as any,
       {
         props,
@@ -53,7 +53,7 @@ export default defineComponent<WrapperProps>({
     onMounted(() => {
       if (!customElements || customElements.get(tag))
         return;
-      const Element = functionalCustomElement(component as any);
+      const Element = genSD(component as any);
       customElements.define(tag, Element);
       isDefined.value = true;
       if (tagRef.value) {

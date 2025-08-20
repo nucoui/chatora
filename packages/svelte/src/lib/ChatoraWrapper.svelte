@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { CC } from "chatora";
-  import { functionalCustomElement } from "chatora";
+  import { genSD } from "chatora";
   import { onMount } from "svelte";
   // import { browser } from '$app/environment'; // SvelteKitの場合
 
@@ -16,7 +16,7 @@
   onMount(() => {
     isClient = true;
 
-    const Element = functionalCustomElement(component);
+    const Element = genSD(component);
 
     isDefined = customElements.get(tag) !== undefined;
 
