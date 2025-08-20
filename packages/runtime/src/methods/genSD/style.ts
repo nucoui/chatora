@@ -1,5 +1,5 @@
-import type { StyleInput } from "./styleObject";
-import { normalizeStyleForShadowDOM } from "./styleObject";
+import type { StyleInput } from "@/methods/genSD/styleObject";
+import { normalizeStyleForShadowDOM } from "@/methods/genSD/styleObject";
 
 /**
  * Function to apply CSS styles to a shadow root
@@ -8,7 +8,7 @@ import { normalizeStyleForShadowDOM } from "./styleObject";
  * @param css CSS string, object, or array containing styles
  * @returns Inserted style element
  */
-export function applyStyles(shadowRoot: ShadowRoot, css: StyleInput): HTMLStyleElement {
+function applyStyles(shadowRoot: ShadowRoot, css: StyleInput): HTMLStyleElement {
   const cssText = normalizeStyleForShadowDOM(css);
 
   // Check for existing style element
@@ -24,3 +24,7 @@ export function applyStyles(shadowRoot: ShadowRoot, css: StyleInput): HTMLStyleE
   shadowRoot.appendChild(styleEl);
   return styleEl;
 }
+
+export {
+  applyStyles,
+};

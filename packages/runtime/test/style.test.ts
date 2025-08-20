@@ -4,8 +4,7 @@
  * Tests for style application functionality
  */
 import { beforeEach, describe, expect, it } from "vitest";
-
-import { applyStyles } from "../src/functionalCustomElement/style";
+import { applyStyles } from "../src/methods/genSD/style";
 
 describe("applyStyles", () => {
   let shadowRoot: ShadowRoot;

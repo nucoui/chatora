@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { type CSSStyleObject, normalizeStyleForDOM } from "../src/functionalCustomElement/styleObject";
+import { type CSSStyleObject, normalizeStyleForDOM } from "../src/methods/genSD/styleObject";
 
 describe("normalizeStyleForDOM", () => {
   it("should convert basic style object to CSS string", () => {

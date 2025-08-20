@@ -1,12 +1,12 @@
-import type { VNode } from "@/functionalCustomElement/vNode";
-import type { FunctionalCustomElement } from "@root/types/FunctionalCustomElement";
-import { withCustomElementContext } from "@/functionalCustomElement/get";
-import { mount } from "@/functionalCustomElement/mount";
-import { setCurrentCustomElementContext } from "@/functionalCustomElement/on";
-import { patch } from "@/functionalCustomElement/patch";
-import { computed, effect, endBatch, signal, startBatch } from "@/functionalCustomElement/reactivity";
-import { applyStyles } from "@/functionalCustomElement/style";
-import { genVNode } from "@/functionalCustomElement/vNode";
+import type { VNode } from "@/methods/core/vNode";
+import type { GenSD } from "@root/types/GenSD";
+import { withCustomElementContext } from "@/methods/core/get";
+import { setCurrentCustomElementContext } from "@/methods/core/on";
+import { genVNode } from "@/methods/core/vNode";
+import { mount } from "@/methods/genSD/mount";
+import { patch } from "@/methods/genSD/patch";
+import { applyStyles } from "@/methods/genSD/style";
+import { computed, effect, endBatch, signal, startBatch } from "@chatora/reactivity";
 
 // Pre-allocated empty objects to reduce memory allocations
 const EMPTY_OBJECT = Object.freeze({});
@@ -14,11 +14,11 @@ const EMPTY_OBJECT = Object.freeze({});
 /**
  * Allow generics to be specified at function usage.
  */
-const functionalCustomElement: FunctionalCustomElement = (
+const genSD: GenSD = (
   callback,
 ) => {
   if (typeof window === "undefined") {
-    throw new TypeError("functionalCustomElement is not supported in SSR environment.");
+    throw new TypeError("genSD is not supported in SSR environment.");
   }
 
   return class extends HTMLElement {
@@ -385,7 +385,7 @@ const functionalCustomElement: FunctionalCustomElement = (
   };
 };
 
-export { functionalCustomElement };
-export * from "@/functionalCustomElement/get";
-export * from "@/functionalCustomElement/on";
+export * from "@/methods/core/get";
+export * from "@/methods/core/on";
+export { genSD };
 export { computed, effect, endBatch, signal, startBatch };

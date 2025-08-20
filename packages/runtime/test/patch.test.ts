@@ -3,12 +3,10 @@
  *
  * Tests for DOM patching and diffing functionality
  */
-import type { VNode } from "../src/functionalCustomElement/vNode";
-
+import type { VNode } from "../src/methods/core/vNode";
 import { beforeEach, describe, expect, it } from "vitest";
-
-import { mount } from "../src/functionalCustomElement/mount";
-import { patch } from "../src/functionalCustomElement/patch";
+import { mount } from "../src/methods/genSD/mount";
+import { patch } from "../src/methods/genSD/patch";
 
 describe("patch", () => {
   beforeEach(() => {

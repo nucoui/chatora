@@ -11,8 +11,8 @@ import {
   getShadowRoot,
   getSlotteds,
   setCurrentCustomElementInstance,
-} from "../src/functionalCustomElement/get";
-import { setCurrentCustomElementContext } from "../src/functionalCustomElement/on";
+} from "../src/methods/core/get";
+import { setCurrentCustomElementContext } from "../src/methods/core/on";
 
 describe("instance accessor functions", () => {
   beforeEach(() => {

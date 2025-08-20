@@ -4,7 +4,7 @@
  * Tests for VNode generation and normalization functions
  */
 import { describe, expect, it } from "vitest";
-import { genVNode } from "../src/functionalCustomElement/vNode";
+import { genVNode } from "../src/methods/core/vNode";
 
 describe("genVNode", () => {
   it("should handle null values", () => {

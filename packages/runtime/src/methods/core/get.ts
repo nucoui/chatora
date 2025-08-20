@@ -1,6 +1,5 @@
-import type { Signal } from "@chatora/reactivity";
-import { onConnected, onDisconnected } from "@/functionalCustomElement/on";
-import { signal } from "@/functionalCustomElement/reactivity";
+import { onConnected, onDisconnected } from "@/methods/core/on";
+import { signal, type Signal } from "@chatora/reactivity";
 
 // Instance context interface
 interface InstanceContext {

@@ -1,7 +1,7 @@
 import type { ChatoraNode } from "@root/types/JSX.namespace";
 import type { RefValue } from "@root/types/RefValue";
 
-export type VNode = {
+type VNode = {
   tag: "#text" | "#empty" | "#fragment" | "#unknown" | string;
   props: Record<string | `on${string}` | "ref", any> & { ref?: RefValue };
   children: Array<VNode | string>;
@@ -60,7 +60,7 @@ function normalizeChildren(input: ChatoraNode): Array<VNode | string> {
   return EMPTY_CHILDREN;
 }
 
-export function genVNode(node: ChatoraNode): VNode {
+function genVNode(node: ChatoraNode): VNode {
   // Nullish values
   if (node == null || node === false || node === true) {
     return { tag: "#empty", props: {}, children: EMPTY_CHILDREN };
@@ -111,4 +111,12 @@ export function genVNode(node: ChatoraNode): VNode {
   }
 
   throw new Error(`Invalid node type: ${typeof node}`);
+};
+
+export type {
+  VNode,
+};
+
+export {
+  genVNode,
 };

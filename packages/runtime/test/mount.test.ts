@@ -1,13 +1,11 @@
+import type { VNode } from "../src/methods/core/vNode";
 /**
  * mount function tests
  *
  * Tests for DOM mounting functionality
  */
-import type { VNode } from "../src/functionalCustomElement/vNode";
-
 import { beforeEach, describe, expect, it } from "vitest";
-
-import { mount } from "../src/functionalCustomElement/mount";
+import { mount } from "../src/methods/genSD/mount";
 
 describe("mount", () => {
   beforeEach(() => {

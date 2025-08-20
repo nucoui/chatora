@@ -43,12 +43,12 @@ const PIXEL_PROPERTIES = new Set([
 /**
  * Type definition for CSS style object
  */
-export type CSSStyleObject = Record<string, string | number>;
+type CSSStyleObject = Record<string, string | number>;
 
 /**
  * Type definition for style that can be string, string array, object, or mixed array
  */
-export type StyleInput = string | CSSStyleObject | (string | CSSStyleObject)[];
+type StyleInput = string | CSSStyleObject | (string | CSSStyleObject)[];
 
 /**
  * Convert style input to CSS string for DOM attributes (optimized single function)
@@ -56,7 +56,7 @@ export type StyleInput = string | CSSStyleObject | (string | CSSStyleObject)[];
  * @param style Style input (string, object, or array)
  * @returns CSS string for DOM attribute
  */
-export function normalizeStyleForDOM(style: any): string {
+function normalizeStyleForDOM(style: any): string {
   if (typeof style === "string") {
     return style;
   }
@@ -90,7 +90,7 @@ export function normalizeStyleForDOM(style: any): string {
  * @param style Style input (string, object, or array)
  * @returns CSS string with newlines between style blocks
  */
-export function normalizeStyleForShadowDOM(style: any): string {
+function normalizeStyleForShadowDOM(style: any): string {
   if (typeof style === "string") {
     return style;
   }
@@ -117,3 +117,13 @@ export function normalizeStyleForShadowDOM(style: any): string {
   // Fallback to string conversion
   return String(style);
 }
+
+export type {
+  CSSStyleObject,
+  StyleInput,
+};
+
+export {
+  normalizeStyleForDOM,
+  normalizeStyleForShadowDOM,
+};

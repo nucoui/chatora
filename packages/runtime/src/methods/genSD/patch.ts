@@ -1,6 +1,6 @@
-import type { VNode } from "@/functionalCustomElement/vNode";
-import { mount } from "@/functionalCustomElement/mount";
-import { normalizeStyleForDOM } from "@/functionalCustomElement/styleObject";
+import type { VNode } from "@/methods/core/vNode";
+import { mount } from "@/methods/genSD/mount";
+import { normalizeStyleForDOM } from "@/methods/genSD/styleObject";
 
 /**
  * Optimized props patching with minimal DOM operations
@@ -68,118 +68,6 @@ function patchProps(el: HTMLElement, oldProps: Record<string, any>, newProps: Re
 }
 
 /**
- * Highly optimized children patching with minimal DOM operations
- */
-// function patchChildren(
-//   oldChildren: Array<VNode | string>,
-//   newChildren: Array<VNode | string>,
-//   parent: Node,
-//   getChildDom: (idx: number) => Node | null,
-//   insertRef: Node | null = null,
-// ) {
-//   const oldLen = oldChildren.length;
-//   const newLen = newChildren.length;
-
-//   // Fast path: both sides empty
-//   if (oldLen === 0 && newLen === 0)
-//     return;
-
-//   // Fast path: all strings with same length
-//   if (oldLen === newLen && oldLen > 0) {
-//     let allStringsMatch = true;
-//     for (let i = 0; i < oldLen; i++) {
-//       if (typeof oldChildren[i] !== "string" || typeof newChildren[i] !== "string") {
-//         allStringsMatch = false;
-//         break;
-//       }
-//     }
-
-//     if (allStringsMatch) {
-//       for (let i = 0; i < oldLen; i++) {
-//         if (oldChildren[i] !== newChildren[i]) {
-//           const childDom = getChildDom(i);
-//           if (childDom && childDom.nodeType === Node.TEXT_NODE) {
-//             childDom.textContent = newChildren[i] as string;
-//           }
-//         }
-//       }
-//       return;
-//     }
-//   }
-
-//   // Optimized diff algorithm
-//   const maxLen = Math.max(oldLen, newLen);
-//   const operations: Array<{ type: "patch" | "add" | "remove"; index: number; oldChild?: VNode | string; newChild?: VNode | string; dom?: Node | null }> = [];
-
-//   // Collect operations first
-//   for (let i = 0; i < maxLen; i++) {
-//     const oldChild = i < oldLen ? oldChildren[i] : undefined;
-//     const newChild = i < newLen ? newChildren[i] : undefined;
-//     const dom = getChildDom(i);
-
-//     if (oldChild && newChild) {
-//       operations.push({ type: "patch", index: i, oldChild, newChild, dom });
-//     }
-//     else if (!oldChild && newChild) {
-//       operations.push({ type: "add", index: i, newChild });
-//     }
-//     else if (oldChild && !newChild) {
-//       operations.push({ type: "remove", index: i, dom });
-//     }
-//   }
-
-//   // Execute operations in reverse order to avoid index shifting
-//   for (let i = operations.length - 1; i >= 0; i--) {
-//     const op = operations[i];
-
-//     switch (op.type) {
-//       case "patch":
-//         if (op.dom && op.oldChild && op.newChild) {
-//           if (typeof op.oldChild === "string" && typeof op.newChild === "string") {
-//             if (op.oldChild !== op.newChild && op.dom instanceof Text) {
-//               op.dom.textContent = op.newChild;
-//             }
-//           }
-//           else if (typeof op.oldChild === "string" || typeof op.newChild === "string") {
-//             const newNode = typeof op.newChild === "string"
-//               ? document.createTextNode(op.newChild)
-//               : mount(op.newChild);
-//             if (parent instanceof Element || parent instanceof ShadowRoot) {
-//               parent.replaceChild(newNode, op.dom);
-//             }
-//           }
-//           else {
-//             patch(op.oldChild, op.newChild, parent, op.dom);
-//           }
-//         }
-//         break;
-
-//       case "add":
-//         if (op.newChild) {
-//           const newNode = typeof op.newChild === "string"
-//             ? document.createTextNode(op.newChild)
-//             : mount(op.newChild);
-//           if (parent instanceof Element || parent instanceof ShadowRoot) {
-//             if (insertRef) {
-//               parent.insertBefore(newNode, insertRef);
-//             }
-//             else {
-//               parent.appendChild(newNode);
-//             }
-//           }
-//         }
-//         break;
-
-//       case "remove":
-//         if (op.dom && (parent instanceof Element || parent instanceof ShadowRoot)) {
-//           parent.removeChild(op.dom);
-//         }
-//         break;
-//     }
-//   }
-// }
-
-/**
  * Patch the DOM by comparing oldVNode and newVNode, updating only the changed parts.
  * Optimized for performance with early returns and minimal DOM operations.
  * @param oldVNode The previous virtual node
@@ -198,7 +86,7 @@ function patchProps(el: HTMLElement, oldProps: Record<string, any>, newProps: Re
  * @param domNode The current DOM node corresponding to oldVNode
  * @returns The updated DOM node
  */
-export function patch(
+function patch(
   oldVNode: VNode | string,
   newVNode: VNode | string,
   parent: Node,
@@ -313,3 +201,7 @@ export function patch(
     parent.appendChild(newDom);
   return newDom;
 }
+
+export {
+  patch,
+};

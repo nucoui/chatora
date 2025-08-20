@@ -1,8 +1,8 @@
+import type { VNode } from "@/methods/core/vNode";
 import type { RefValue } from "@root/types/RefValue";
-import type { VNode } from "./vNode";
-import { MATH_TAGS } from "@/functionalCustomElement/constants/MATH_TAGS";
-import { SVG_TAGS } from "@/functionalCustomElement/constants/SVG_TAGS";
-import { normalizeStyleForDOM } from "./styleObject";
+import { MATH_TAGS } from "@/constants/MATH_TAGS";
+import { SVG_TAGS } from "@/constants/SVG_TAGS";
+import { normalizeStyleForDOM } from "@/methods/genSD/styleObject";
 
 // Cache for namespace checks to avoid repeated lookups
 const namespaceCache = new WeakMap<Element, { isSvg: boolean; isMath: boolean }>();
@@ -90,7 +90,7 @@ function setProps(el: Element, props: Record<string, any>) {
  * @param parent Parent DOM node (optional for compatibility)
  * @returns DOM node
  */
-export function mount(vnode: VNode, parent?: HTMLElement | ShadowRoot | Element | DocumentFragment): Node {
+function mount(vnode: VNode, parent?: HTMLElement | ShadowRoot | Element | DocumentFragment): Node {
   const { tag, props, children } = vnode;
 
   // Fast paths for special tags
@@ -140,3 +140,7 @@ export function mount(vnode: VNode, parent?: HTMLElement | ShadowRoot | Element 
   el.setAttribute("data-unknown-tag", tag);
   return el;
 }
+
+export {
+  mount,
+};

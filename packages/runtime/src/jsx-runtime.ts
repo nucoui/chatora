@@ -1,12 +1,8 @@
 import type { IC } from "@/main";
 import type { ChatoraJSXElement, ChatoraNode } from "../types/JSX.namespace";
-import type { StyleInput } from "./functionalCustomElement/styleObject";
+import { FRAGMENT_TAG } from "@/constants/TAG";
 
-export type * from "@root/types/JSX.namespace";
-
-// Pre-allocated objects to reduce memory allocation
-const FRAGMENT_TAG = "#fragment";
-const ROOT_TAG = "#root";
+export { Host } from "@/components/Host";
 
 /**
  * Function component implementation for JSX.Fragment
@@ -17,28 +13,6 @@ export const Fragment: IC<{ children: ChatoraNode }> = ({ children }) => {
     tag: FRAGMENT_TAG,
     props: {
       children: Array.isArray(children) ? children : [children],
-    },
-  });
-};
-
-type HostProps = {
-  children: ChatoraNode;
-  shadowRoot?: boolean;
-  style?: StyleInput;
-} & ({
-  shadowRoot?: true;
-  shadowRootMode?: "open" | "closed";
-} | {
-  shadowRoot?: false;
-  shadowRootMode?: never;
-});
-
-export const Host: IC<HostProps> = ({ children, ...rest }) => {
-  return () => ({
-    tag: ROOT_TAG,
-    props: {
-      children: Array.isArray(children) ? children : [children],
-      ...rest,
     },
   });
 };
@@ -58,3 +32,4 @@ export function jsx(
 }
 
 export { jsx as jsxs };
+export type * from "@root/types/JSX.namespace";

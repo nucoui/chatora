@@ -1,9 +1,8 @@
-import type { AsFunctionType, CC } from "@root/types/FunctionalCustomElement";
-import type { ChatoraNode } from "@root/types/JSX.namespace";
+import type { ChatoraNode } from "@/jsx-runtime";
+import type { AsFunctionType, CC, StyleInput } from "@/main";
 import type { Element, ElementContent, Root } from "hast";
-import type { StyleInput } from "../functionalCustomElement/styleObject";
-import { normalizeStyleForShadowDOM } from "../functionalCustomElement/styleObject";
-import { genVNode } from "../functionalCustomElement/vNode";
+import { normalizeStyleForShadowDOM } from "@/main";
+import { genVNode } from "@/methods/core/vNode";
 
 /**
  * Normalize style input to array of CSS strings for SSR (optimized for SSR)
@@ -36,7 +35,7 @@ function normalizeStylesForSSR(styles: StyleInput): string[] {
  * @param options.props - Initial property values
  * @returns hast object (HTML Abstract Syntax Tree)
  */
-const functionalDeclarativeCustomElement = <
+const genDSD = <
   P extends Record<string, any> = Record<string, never>,
   E extends Record<`on-${string}`, any> = Record<`on-${string}`, never>,
 >(
@@ -188,4 +187,4 @@ function vNodeToHast(node: any): ElementContent | ElementContent[] {
   return { type: "text", value: "" };
 }
 
-export { functionalDeclarativeCustomElement };
+export { genDSD };

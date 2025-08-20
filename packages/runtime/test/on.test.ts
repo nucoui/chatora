@@ -11,7 +11,7 @@ import {
   onConnected,
   onDisconnected,
   setCurrentCustomElementContext,
-} from "../src/functionalCustomElement/on";
+} from "../src/methods/core/on";
 
 describe("lifecycle functions", () => {
   beforeEach(() => {
@@ -24,7 +24,7 @@ describe("lifecycle functions", () => {
       const callback = vi.fn();
       const MockConstructor = class extends HTMLElement {};
 
-      // Set the context as the functionalCustomElement would
+      // Set the context as the genSD would
       setCurrentCustomElementContext(MockConstructor);
 
       onConnected(callback);

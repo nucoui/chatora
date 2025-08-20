@@ -1,15 +1,15 @@
-import type { CC } from "../types/FunctionalCustomElement";
+import type { CC } from "../types/GenSD";
+
 /**
- * functionalCustomElement のテスト
+ * genSD のテスト
  *
  * JSX/TSXでWeb ComponentsのCustom Element Classを生成するファクトリ関数のテストです。
- * Test for functionalCustomElement factory function for Web Components Custom Element Class using JSX/TSX.
+ * Test for genSD factory function for Web Components Custom Element Class using JSX/TSX.
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
-
-import { functionalCustomElement } from "../src/functionalCustomElement";
-import { getHost, getInternals, getShadowRoot } from "../src/functionalCustomElement/get";
-import { onConnected, onDisconnected } from "../src/functionalCustomElement/on";
+import { getHost, getInternals, getShadowRoot } from "../src/methods/core/get";
+import { onConnected, onDisconnected } from "../src/methods/core/on";
+import { genSD } from "../src/methods/genSD";
 
 // ダミーのChatoraJSXElementを返す
 const DummyJSX = (): import("../types/JSX.namespace").ChatoraJSXElement => ({
@@ -17,7 +17,7 @@ const DummyJSX = (): import("../types/JSX.namespace").ChatoraJSXElement => ({
   props: {},
 });
 
-describe("functionalCustomElement", () => {
+describe("genSD", () => {
   beforeEach(() => {
     document.body.innerHTML = "";
     vi.clearAllMocks();
@@ -29,15 +29,15 @@ describe("functionalCustomElement", () => {
     delete globalThis.window;
 
     expect(() => {
-      functionalCustomElement(() => () => DummyJSX());
-    }).toThrow("functionalCustomElement is not supported in SSR environment.");
+      genSD(() => () => DummyJSX());
+    }).toThrow("genSD is not supported in SSR environment.");
 
     globalThis.window = originalWindow;
   });
 
   it("customElementクラスを生成できる", () => {
     const tagName = "x-test-el1";
-    const CustomElement = functionalCustomElement(() => {
+    const CustomElement = genSD(() => {
       onConnected(() => {
         /* connected callback */
       });
@@ -56,7 +56,7 @@ describe("functionalCustomElement", () => {
     const component: CC = () => {
       return () => DummyJSX();
     };
-    const CustomElement = functionalCustomElement(component);
+    const CustomElement = genSD(component);
     if (!customElements.get(tagName))
       customElements.define(tagName, CustomElement);
     const el = document.createElement(tagName) as InstanceType<typeof CustomElement>;
@@ -68,7 +68,7 @@ describe("functionalCustomElement", () => {
     const tagName = "x-test-props";
     let propsGetter: any;
 
-    const CustomElement = functionalCustomElement(({ defineProps }) => {
+    const CustomElement = genSD(({ defineProps }) => {
       propsGetter = defineProps({
         name: value => value || "default",
         count: value => value ? Number.parseInt(value, 10) : 0,
@@ -101,7 +101,7 @@ describe("functionalCustomElement", () => {
     const tagName = "x-test-emits";
     let emit: any;
 
-    const CustomElement = functionalCustomElement(({ defineEmits }) => {
+    const CustomElement = genSD(({ defineEmits }) => {
       emit = defineEmits({
         "on-click": (_detail: any) => {},
         "on-change": (_detail: any) => {},
@@ -137,7 +137,7 @@ describe("functionalCustomElement", () => {
     const tagName = "x-test-host";
     let hostSignalGetter: any;
 
-    const CustomElement = functionalCustomElement(() => {
+    const CustomElement = genSD(() => {
       // Get the signal getter function during component definition
       hostSignalGetter = getHost();
 
@@ -160,7 +160,7 @@ describe("functionalCustomElement", () => {
     const tagName = "x-test-shadow";
     let shadowRootSignalGetter: any;
 
-    const CustomElement = functionalCustomElement(() => {
+    const CustomElement = genSD(() => {
       // Get the signal getter function during component definition
       shadowRootSignalGetter = getShadowRoot();
 
@@ -183,7 +183,7 @@ describe("functionalCustomElement", () => {
     const tagName = "x-test-internals";
     let internalsSignalGetter: any;
 
-    const CustomElement = functionalCustomElement(() => {
+    const CustomElement = genSD(() => {
       // Get the signal getter function during component definition
       internalsSignalGetter = getInternals();
 
@@ -209,7 +209,7 @@ describe("functionalCustomElement", () => {
   it("should handle fragment rendering", () => {
     const tagName = "x-test-fragment";
 
-    const CustomElement = functionalCustomElement(() => {
+    const CustomElement = genSD(() => {
       return () => ({
         tag: "#fragment",
         props: {
@@ -235,7 +235,7 @@ describe("functionalCustomElement", () => {
   it("should handle root rendering with options", () => {
     const tagName = "x-test-root";
 
-    const CustomElement = functionalCustomElement(() => {
+    const CustomElement = genSD(() => {
       return () => ({
         tag: "#root",
         props: {
@@ -263,7 +263,7 @@ describe("functionalCustomElement", () => {
     const tagName = "x-test-mutation";
     let propsGetter: any;
 
-    const CustomElement = functionalCustomElement(({ defineProps }) => {
+    const CustomElement = genSD(({ defineProps }) => {
       propsGetter = defineProps({
         value: v => v || "default",
       });
@@ -292,7 +292,7 @@ describe("functionalCustomElement", () => {
     const tagName = "x-test-disconnect";
     const disconnectSpy = vi.fn();
 
-    const CustomElement = functionalCustomElement(() => {
+    const CustomElement = genSD(() => {
       onDisconnected(disconnectSpy);
       return () => DummyJSX();
     });
@@ -312,7 +312,7 @@ describe("functionalCustomElement", () => {
     const component: CC = () => {
       return () => DummyJSX();
     };
-    const CustomElement = functionalCustomElement(component);
+    const CustomElement = genSD(component);
     if (!customElements.get(tagName))
       customElements.define(tagName, CustomElement);
     const el = document.createElement(tagName) as InstanceType<typeof CustomElement>;
@@ -321,7 +321,7 @@ describe("functionalCustomElement", () => {
 
   it("propsに全ての属性が含まれる", () => {
     const tagName = "x-test-el4";
-    const CustomElement = functionalCustomElement(() => {
+    const CustomElement = genSD(() => {
       // テスト用にpropsを返すだけのダミー
       return {};
     }, {});
@@ -353,7 +353,7 @@ describe("functionalCustomElement", () => {
 
       return () => DummyJSX();
     };
-    const CustomElement = functionalCustomElement(component);
+    const CustomElement = genSD(component);
     if (!customElements.get(tagName))
       customElements.define(tagName, CustomElement);
     const el = document.createElement(tagName) as InstanceType<typeof CustomElement>;
@@ -387,7 +387,7 @@ describe("functionalCustomElement", () => {
       return () => DummyJSX();
     };
     // functionalCustomElementを使ってCustomElementを生成
-    const CustomElement = functionalCustomElement(component);
+    const CustomElement = genSD(component);
     if (!customElements.get(tagName))
       customElements.define(tagName, CustomElement);
     const el = document.createElement(tagName) as InstanceType<typeof CustomElement>;
@@ -407,7 +407,7 @@ describe("functionalCustomElement", () => {
     const tagName = "x-test-complex";
     let renderCount = 0;
 
-    const CustomElement = functionalCustomElement(({ defineProps }) => {
+    const CustomElement = genSD(({ defineProps }) => {
       const getProps = defineProps({
         mode: value => value || "simple",
       });

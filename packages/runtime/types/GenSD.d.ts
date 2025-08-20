@@ -1,7 +1,7 @@
 // @ts-check
 
 /**
- * Type definition file for functionalCustomElement
+ * Type definition file for genSD
  *
  * Factory function for creating Web Components Custom Element Class using JSX/TSX.
  *
@@ -55,7 +55,7 @@ export type ChatoraComponent<P extends Record<string, any> = Record<string, neve
   defineEmits: <T extends { [K in keyof E]: (detail: E[K]) => void }>(events: T) => <K extends keyof E>(type: K, detail?: E[K], options?: EventInit) => void;
 }) => () => ChatoraNode | ChatoraNode[];
 
-export type FunctionalCustomElement = <
+export type GenSD = <
   P extends Record<string, any> = Record<string, never>,
   E extends Record<`on-${string}`, any> = Record<`on-${string}`, never>,
 >(

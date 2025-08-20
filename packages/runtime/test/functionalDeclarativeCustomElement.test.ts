@@ -1,16 +1,16 @@
 /**
- * functionalDeclarativeCustomElement のテスト
+ * genDSD のテスト
  *
  * JSX/TSXでDeclarative Shadow DOMのHTML要素を作成する関数のテストです。
- * Test for functionalDeclarativeCustomElement factory function for Declarative Shadow DOM HTML elements using JSX/TSX.
+ * Test for genDSD factory function for Declarative Shadow DOM HTML elements using JSX/TSX.
  */
 import type { Element } from "hast";
-import type { CC } from "../types/FunctionalCustomElement";
+import type { CC } from "../types/GenSD";
 import { describe, expect, it } from "vitest";
-import { functionalDeclarativeCustomElement } from "../src/functionalDeclarativeCustomElement";
 import { Host } from "../src/jsx-runtime";
+import { genDSD } from "../src/methods/genDSD/index";
 
-describe("functionalDeclarativeCustomElement", () => {
+describe("genDSD", () => {
   it("基本的なhastオブジェクトを生成できる", () => {
     const component: CC = () => {
       return () => ({
@@ -25,7 +25,7 @@ describe("functionalDeclarativeCustomElement", () => {
         },
       });
     };
-    const result = functionalDeclarativeCustomElement(component);
+    const result = genDSD(component);
 
     expect(result).toHaveProperty("type", "root");
     expect(result.children).toHaveLength(1);
@@ -52,7 +52,7 @@ describe("functionalDeclarativeCustomElement", () => {
         },
       },
     });
-    const result = functionalDeclarativeCustomElement(component);
+    const result = genDSD(component);
 
     const template = result.children[0] as Element;
     expect(template.properties).toHaveProperty("shadowrootmode", "closed");
@@ -69,7 +69,7 @@ describe("functionalDeclarativeCustomElement", () => {
         },
       },
     });
-    const result = functionalDeclarativeCustomElement(component);
+    const result = genDSD(component);
 
     // テンプレート要素ではなく、直接コンテンツが返される
     expect(result.children[0]).toHaveProperty("tagName", "div");
@@ -91,7 +91,7 @@ describe("functionalDeclarativeCustomElement", () => {
         },
       });
     };
-    const result = functionalDeclarativeCustomElement(component);
+    const result = genDSD(component);
 
     const template = result.children[0] as Element;
     expect(template.children).toHaveLength(2); // style要素とcontent要素
@@ -119,7 +119,7 @@ describe("functionalDeclarativeCustomElement", () => {
         },
       });
     };
-    const result = functionalDeclarativeCustomElement(component);
+    const result = genDSD(component);
     const template = result.children[0] as Element;
     expect(template.children).toHaveLength(3); // 2つのstyle要素とcontent要素
 
@@ -153,7 +153,7 @@ describe("functionalDeclarativeCustomElement", () => {
         },
       });
     };
-    const result = functionalDeclarativeCustomElement(component);
+    const result = genDSD(component);
 
     const template = result.children[0] as Element;
     expect(template.children).toHaveLength(2); // style要素とcontent要素
@@ -185,7 +185,7 @@ describe("functionalDeclarativeCustomElement", () => {
         },
       });
     };
-    const result = functionalDeclarativeCustomElement(component);
+    const result = genDSD(component);
 
     const template = result.children[0] as Element;
     expect(template.children).toHaveLength(4); // 3つのstyle要素とcontent要素
@@ -238,7 +238,7 @@ describe("functionalDeclarativeCustomElement", () => {
         },
       },
     });
-    const result = functionalDeclarativeCustomElement(component);
+    const result = genDSD(component);
 
     const template = result.children[0] as Element;
     const div = template.children[0] as Element;
@@ -283,7 +283,7 @@ describe("functionalDeclarativeCustomElement", () => {
         },
       },
     });
-    const result = functionalDeclarativeCustomElement(component);
+    const result = genDSD(component);
 
     const template = result.children[0] as Element;
     const ul = template.children[0] as Element;
@@ -321,7 +321,7 @@ describe("functionalDeclarativeCustomElement", () => {
       },
     });
 
-    const result = functionalDeclarativeCustomElement(component);
+    const result = genDSD(component);
 
     const template = result.children[0] as Element;
     const div = template.children[0] as Element;
@@ -339,7 +339,7 @@ describe("functionalDeclarativeCustomElement", () => {
         children: null, // または undefined
       },
     });
-    const result = functionalDeclarativeCustomElement(component);
+    const result = genDSD(component);
 
     // 空の状態でも正常に動作する
     expect(result).toHaveProperty("type", "root");
@@ -356,7 +356,7 @@ describe("functionalDeclarativeCustomElement", () => {
         children: "テキストだけ",
       },
     });
-    const result = functionalDeclarativeCustomElement(component);
+    const result = genDSD(component);
 
     const template = result.children[0] as Element;
     expect(template.children).toHaveLength(1);
@@ -375,7 +375,7 @@ describe("functionalDeclarativeCustomElement", () => {
         children: 42, // 数値を直接渡す
       },
     });
-    const result = functionalDeclarativeCustomElement(component);
+    const result = genDSD(component);
 
     const template = result.children[0] as Element;
     const textNode = template.children[0];
@@ -398,7 +398,7 @@ describe("functionalDeclarativeCustomElement", () => {
         },
       },
     });
-    const result = functionalDeclarativeCustomElement(component);
+    const result = genDSD(component);
 
     const template = result.children[0] as Element;
     const div = template.children[0] as Element;
@@ -422,7 +422,7 @@ describe("functionalDeclarativeCustomElement", () => {
         },
       },
     });
-    const result = functionalDeclarativeCustomElement(component);
+    const result = genDSD(component);
 
     const template = result.children[0] as Element;
     const div = template.children[0] as Element;
@@ -454,7 +454,7 @@ describe("functionalDeclarativeCustomElement", () => {
         },
       });
     };
-    const result = functionalDeclarativeCustomElement(component, {});
+    const result = genDSD(component, {});
 
     // SSRモードではpropsは未定義またはnullになる
     const template = result.children[0] as Element;
@@ -483,7 +483,7 @@ describe("functionalDeclarativeCustomElement", () => {
         },
       });
     };
-    functionalDeclarativeCustomElement(component, {});
+    genDSD(component, {});
 
     // 関数として呼び出せること
     expect(typeof emitFunction).toBe("function");
