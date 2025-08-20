@@ -21,6 +21,7 @@ on:
 
 jobs:
   release:
+    name: Publish ${{ github.event.inputs.pre == 'true' && 'Pre-release' || 'Release' }} ${{ github.event.inputs.level }} version Package
     runs-on: ubuntu-latest
     permissions:
       contents: write
