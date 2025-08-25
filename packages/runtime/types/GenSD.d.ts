@@ -10,6 +10,7 @@
  * @returns CustomElement class
  */
 
+import type { IC } from "./InlineComponent";
 import type { ChatoraNode } from "./JSX.namespace";
 
 type UnionKeys<T> = T extends T ? keyof T : never;
@@ -68,7 +69,7 @@ export type GenSD = <
  * Extracts the Props type from a CC<Props, Emits> component.
  * @template T - The component type.
  */
-export type ComponentProps<T> = T extends CC<infer P, any> ? P : never;
+export type ComponentProps<T> = T extends CC<infer P, any> ? P : T extends IC<infer P> ? P : never;
 
 /**
  * Extracts the Emits type from a CC<Props, Emits> component.
