@@ -1,6 +1,7 @@
 import type { ChatoraNode } from "@/jsx-runtime";
 import type { IC } from "@/main";
 import type { ChatoraComponent } from "@root/types/GenSD";
+import type { Root } from "hast";
 import { jsx } from "@/jsx-runtime";
 import { genDSD } from "@/methods/genDSD/index";
 import { genSD } from "@/methods/genSD/index";
@@ -27,7 +28,7 @@ export type CreateCCReturn<
 > = {
   component: IC<P & toChatoraEmits<E> & { children: ChatoraNode }>;
   define: () => void;
-  genDSD: (props: P & { children: ChatoraNode }) => ReturnType<typeof genDSD>;
+  genDSD: (props: P & { children: ChatoraNode }) => Root;
   genSD: () => ReturnType<typeof genSD>;
 };
 
