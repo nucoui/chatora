@@ -1,5 +1,6 @@
 import type { ChatoraNode } from "@root/types/JSX.namespace";
 import type { RefValue } from "@root/types/RefValue";
+import { getOrCreateICInstance } from "@/methods/core/icInstance";
 
 type VNode = {
   tag: "#text" | "#empty" | "#fragment" | "#unknown" | string;
@@ -79,11 +80,14 @@ function genVNode(node: ChatoraNode): VNode {
     const { tag, props = {} } = node;
     const { children, ...restProps } = props;
 
-    // Handle function component with early return optimization
+    // Handle function component with IC instance management
     if (typeof tag === "function") {
-      const result = tag(props as any);
-      if (typeof result === "function") {
-        const next = result();
+      // Use IC instance management for lifecycle support
+      const instance = getOrCreateICInstance(tag, props as any);
+      const renderFunction = instance.getRenderFunction();
+      
+      if (typeof renderFunction === "function") {
+        const next = renderFunction();
         if (next && typeof next === "object" && "tag" in next && "props" in next) {
           return genVNode(next);
         }
