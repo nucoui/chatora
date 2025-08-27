@@ -1,4 +1,4 @@
-import type { IC } from "@/main";
+import type { IC, CC } from "@/main";
 import type { ChatoraJSXElement, ChatoraNode } from "../types/JSX.namespace";
 import { FRAGMENT_TAG } from "@/constants/TAG";
 
@@ -20,12 +20,12 @@ export const Fragment: IC<{ children: ChatoraNode }> = ({ children }) => {
 /**
  * JSX runtime function for client: returns ChatoraJSXElement (VNode)
  * Optimized with minimal object creation
- * @param tag HTML tag name or function component
+ * @param tag HTML tag name, IC function component, or CC component
  * @param props props + children
  * @returns ChatoraJSXElement
  */
 export function jsx(
-  tag: string | IC,
+  tag: string | IC | CC,
   props: Record<string, any> | null,
 ): ChatoraJSXElement {
   return { tag, props: props || {} };

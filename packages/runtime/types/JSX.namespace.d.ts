@@ -1,4 +1,4 @@
-import type { IC } from "@/main";
+import type { IC, CC } from "@/main";
 import type {
   AbbrChatoraIntrinsicElement,
   AChatoraIntrinsicElement,
@@ -140,7 +140,7 @@ export interface HTMLElementEvent<T extends EventTarget> extends Event {
 }
 
 export interface ChatoraJSXElement {
-  tag: string | IC;
+  tag: string | IC | CC;
   props: Record<string, unknown>;
 }
 
@@ -277,8 +277,8 @@ export namespace JSX {
     // The type of element generated when writing <div>...</div> in JSX syntax (the return type of JSX)
     type Element = ChatoraJSXElement;
 
-    // The type of tag usable in JSX (HTML tag name or function component)
-    type ElementType<P = any> = string | IC<P>;
+    // The type of tag usable in JSX (HTML tag name, IC function component, or CC component)
+    type ElementType<P = any> = string | IC<P> | CC<P, any>;
 
     // Type for props type completion
     type LibraryManagedAttributes<C, P> =

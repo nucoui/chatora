@@ -1,5 +1,8 @@
 import type { ChatoraNode } from "@root/types/JSX.namespace";
 import type { RefValue } from "@root/types/RefValue";
+import type { CC } from "@root/types/GenSD";
+import { withCustomElementContext } from "@/methods/core/get";
+import { signal } from "@chatora/reactivity";
 
 type VNode = {
   tag: "#text" | "#empty" | "#fragment" | "#unknown" | string;
@@ -9,6 +12,153 @@ type VNode = {
 
 // Pre-allocated empty arrays to reduce allocations
 const EMPTY_CHILDREN: Array<VNode | string> = [];
+
+/**
+ * Virtual custom element for CC components used in JSX context
+ * This provides the necessary context for signals and lifecycle hooks to work
+ */
+class VirtualCustomElement {
+  private _props = signal<Record<string, string | undefined>>({});
+  private _attrs: Record<string, string | undefined> = {};
+  
+  constructor(initialProps: Record<string, any> = {}) {
+    // Convert props to string attributes (simulating custom element behavior)
+    const attrs: Record<string, string | undefined> = {};
+    for (const [key, value] of Object.entries(initialProps)) {
+      if (value != null && typeof value !== 'function') {
+        attrs[key] = String(value);
+      }
+    }
+    this._attrs = attrs;
+    this._props.set(attrs);
+  }
+
+  /**
+   * Get current attributes as a signal
+   */
+  get props() {
+    return this._props;
+  }
+
+  /**
+   * Simulate getAttribute method
+   */
+  getAttribute(name: string): string | null {
+    return this._attrs[name] ?? null;
+  }
+
+  /**
+   * Simulate setAttribute method
+   */
+  setAttribute(name: string, value: string): void {
+    this._attrs[name] = value;
+    this._props.set({ ...this._attrs });
+  }
+
+  /**
+   * Simulate removeAttribute method
+   */
+  removeAttribute(name: string): void {
+    delete this._attrs[name];
+    this._props.set({ ...this._attrs });
+  }
+}
+
+/**
+ * Check if a function is a CC component vs IC component
+ * CC components expect { defineProps, defineEmits } parameter
+ * IC components expect props directly
+ */
+function isCCComponent(fn: Function): fn is CC<any, any> {
+  const funcStr = fn.toString();
+  
+  // First check: explicit defineProps or defineEmits usage
+  const hasDefineProps = funcStr.includes('defineProps');
+  const hasDefineEmits = funcStr.includes('defineEmits');
+  if (hasDefineProps || hasDefineEmits) {
+    return true;
+  }
+  
+  // Second check: destructured parameter pattern with defineProps/defineEmits
+  const destructuredParamMatch = /\(\s*\{\s*([^}]*)\s*\}\s*\)/.test(funcStr);
+  if (destructuredParamMatch && (hasDefineProps || hasDefineEmits)) {
+    return true;
+  }
+  
+  // Third check: IC pattern detection - if it has named parameter like (props), it's IC
+  const hasNamedParam = /\(\s*\w+\s*\)/.test(funcStr);
+  if (hasNamedParam && !hasDefineProps && !hasDefineEmits) {
+    return false; // This is an IC
+  }
+  
+  // Fourth check: Empty destructuring {} (even if empty) - this is typically CC
+  const hasEmptyDestructuring = /\(\s*\{\s*\}\s*\)/.test(funcStr);
+  if (hasEmptyDestructuring) {
+    return true; // This is a CC with empty destructuring
+  }
+  
+  // Fifth check: No parameters () and returns function
+  const hasNoParameters = /^\s*\(\s*\)\s*=>/.test(funcStr);
+  const returnsFunction = /return\s*\(\s*\)\s*=>/.test(funcStr);
+  
+  if (hasNoParameters && returnsFunction) {
+    return true; // This is likely a CC without defineProps/defineEmits
+  }
+  
+  return false; // Default to IC if uncertain
+}
+
+/**
+ * Execute a CC component within a virtual custom element context
+ */
+function executeCC(cc: CC<any, any>, props: Record<string, any>) {
+  try {
+    const virtualElement = new VirtualCustomElement(props);
+    
+    // Cast for type compatibility with existing context system
+    const virtualHTMLElement = virtualElement as any as HTMLElement;
+    
+    return withCustomElementContext(virtualHTMLElement, () => {
+      // Create defineProps function
+      const defineProps = (propDefs: Record<string, (value: string | undefined) => any>) => {
+        return () => {
+          const result: Record<string, any> = {};
+          for (const [key, transformer] of Object.entries(propDefs)) {
+            const attrValue = virtualElement.getAttribute(key);
+            result[key] = transformer(attrValue);
+          }
+          return result;
+        };
+      };
+
+      // Create defineEmits function (no-op for JSX rendering context)
+      const defineEmits = (events: Record<string, (detail: any) => void>) => {
+        return (type: string, detail?: any, options?: EventInit) => {
+          // In JSX context, we don't emit actual events
+          // This is just for compatibility
+          console.debug(`CC component in JSX context attempted to emit "${type}"`, detail);
+        };
+      };
+
+      try {
+        // Execute the CC component - the error might happen here too
+        const renderFn = cc({ defineProps, defineEmits });
+        try {
+          return renderFn();
+        } catch (renderError) {
+          console.error("Error executing CC render function:", renderError);
+          throw renderError;
+        }
+      } catch (error) {
+        console.error("Error executing CC component:", error);
+        throw error; // Re-throw so it can be caught by the caller
+      }
+    });
+  } catch (error) {
+    console.error("Error in CC execution context:", error);
+    throw error; // Re-throw so it can be caught by the caller
+  }
+}
 
 function normalizeChildren(input: ChatoraNode): Array<VNode | string> {
   if (input == null)
@@ -81,11 +231,40 @@ function genVNode(node: ChatoraNode): VNode {
 
     // Handle function component with early return optimization
     if (typeof tag === "function") {
-      const result = tag(props as any);
-      if (typeof result === "function") {
-        const next = result();
-        if (next && typeof next === "object" && "tag" in next && "props" in next) {
-          return genVNode(next);
+      // Check if this is a CC component or IC component
+      const isCC = isCCComponent(tag);
+      
+      if (isCC) {
+        // Handle CC component with virtual context
+        try {
+          const ccResult = executeCC(tag as CC<any, any>, props as any);
+          
+          if (Array.isArray(ccResult)) {
+            // Return fragment for array results
+            return {
+              tag: "#fragment",
+              props: {},
+              children: normalizeChildren(ccResult),
+            };
+          } else if (ccResult && typeof ccResult === "object" && "tag" in ccResult && "props" in ccResult) {
+            return genVNode(ccResult);
+          } else if (ccResult) {
+            return genVNode(ccResult);
+          } else {
+            return { tag: "#empty", props: {}, children: EMPTY_CHILDREN };
+          }
+        } catch (error) {
+          console.error("Error executing CC component:", error);
+          return { tag: "#empty", props: {}, children: EMPTY_CHILDREN };
+        }
+      } else {
+        // Handle IC component (existing logic)
+        const result = tag(props as any);
+        if (typeof result === "function") {
+          const next = result();
+          if (next && typeof next === "object" && "tag" in next && "props" in next) {
+            return genVNode(next);
+          }
         }
       }
       return { tag: "#empty", props: {}, children: EMPTY_CHILDREN };
