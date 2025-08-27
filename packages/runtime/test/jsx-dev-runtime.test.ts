@@ -6,6 +6,7 @@
 import { describe, expect, it } from "vitest";
 
 import { Fragment, Host, jsxDEV } from "../src/jsx-dev-runtime";
+import { genVNode } from "../src/methods/core/vNode";
 
 describe("jsx-dev-runtime", () => {
   it("should export jsxDEV function", () => {
@@ -38,10 +39,13 @@ describe("jsx-dev-runtime", () => {
 
   it("fragment should work in dev mode", () => {
     const children = ["text", jsxDEV("div", {})];
-    const result = Fragment({ children });
-    const vnode = result();
+    
+    // Fragment is now a CC component, so we need to use it through JSX
+    const jsxElement = jsxDEV(Fragment, { children });
+    const vnode = genVNode(jsxElement);
+    
     expect(vnode.tag).toBe("#fragment");
-    expect(vnode.props.children).toBe(children);
+    expect(vnode.children).toEqual(["text", { tag: "div", props: {}, children: [] }]);
   });
 
   it("host should work in dev mode", () => {

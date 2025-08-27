@@ -6,6 +6,8 @@
 import { describe, expect, it } from "vitest";
 
 import { Fragment, Host, jsx, jsxs } from "../src/jsx-runtime";
+import { genVNode } from "../src/methods/core/vNode";
+import type { CC } from "../types/GenSD";
 
 describe("jsx-runtime", () => {
   describe("jsx function", () => {
@@ -25,8 +27,10 @@ describe("jsx-runtime", () => {
       });
     });
 
-    it("should create JSX element with function component", () => {
-      const Component = (props: any) => props;
+    it("should create JSX element with CC component", () => {
+      const Component: CC<any, any> = ({ defineProps }) => {
+        return () => ({ tag: "div", props: {} });
+      };
       const result = jsx(Component, { value: "test" });
       expect(result).toEqual({
         tag: Component,
@@ -69,34 +73,39 @@ describe("jsx-runtime", () => {
   });
 
   describe("fragment component", () => {
-    it("should create fragment with children array", () => {
+    it("should create fragment with children array when executed as CC", () => {
       const children = ["text", jsx("div", {})];
-      const result = Fragment({ children });
-      expect(typeof result).toBe("function");
-
-      const vnode = result();
+      
+      // Fragment is now a CC component, so we need to execute it properly
+      const jsxElement = jsx(Fragment, { children });
+      const vnode = genVNode(jsxElement);
+      
       expect(vnode.tag).toBe("#fragment");
-      expect(vnode.props.children).toBe(children);
+      expect(vnode.children).toEqual(["text", { tag: "div", props: {}, children: [] }]);
     });
 
-    it("should create fragment with single child", () => {
+    it("should create fragment with single child when executed as CC", () => {
       const child = "single text";
-      const result = Fragment({ children: child });
-      const vnode = result();
+      
+      const jsxElement = jsx(Fragment, { children: child });
+      const vnode = genVNode(jsxElement);
+      
       expect(vnode.tag).toBe("#fragment");
-      expect(vnode.props.children).toEqual([child]);
+      expect(vnode.children).toEqual(["single text"]);
     });
 
-    it("should handle nested fragments", () => {
-      const nestedFragment = Fragment({ children: ["nested"] });
+    it("should handle nested fragments when executed as CC", () => {
       const children = [
         "text",
         jsx("div", {}),
-        nestedFragment({ children: ["inner"] }),
       ];
-      const result = Fragment({ children });
-      const vnode = result();
-      expect(vnode.props.children).toBe(children);
+      
+      const jsxElement = jsx(Fragment, { children });
+      const vnode = genVNode(jsxElement);
+      
+      expect(vnode.tag).toBe("#fragment");
+      expect(vnode.children).toEqual(["text", { tag: "div", props: {}, children: [] }]);
+    });
     });
   });
 
@@ -175,18 +184,25 @@ describe("jsx-runtime", () => {
   });
 
   describe("integration tests", () => {
-    it("should work with complex component structure", () => {
-      const App = ({ title }: { title: string }) => () => jsx("div", {
-        children: [
-          jsx("h1", { children: [title] }),
-          Fragment({
-            children: [
-              jsx("p", { children: ["Paragraph 1"] }),
-              jsx("p", { children: ["Paragraph 2"] }),
-            ],
-          }),
-        ],
-      });
+    it("should work with complex component structure using CC", () => {
+      // Convert App to CC component
+      const App: CC<{ title?: string }, {}> = ({ defineProps }) => {
+        const props = defineProps({
+          title: (v) => v || "Default Title",
+        });
+
+        return () => jsx("div", {
+          children: [
+            jsx("h1", { children: [props().title] }),
+            jsx(Fragment, {
+              children: [
+                jsx("p", { children: ["Paragraph 1"] }),
+                jsx("p", { children: ["Paragraph 2"] }),
+              ],
+            }),
+          ],
+        });
+      };
 
       const result = Host({
         children: jsx(App, { title: "My App" }),

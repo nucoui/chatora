@@ -78,14 +78,9 @@ describe("CC components in JSX", () => {
   });
 
   it("should distinguish CC from IC components", () => {
-    // IC component (takes props directly)
-    const TestIC = (props: { text: string }) => {
-      return () => ({
-        tag: "p",
-        props: { children: props.text },
-      });
-    };
-
+    // IC components are no longer supported - this test should be removed or updated
+    // Only CC components work now
+    
     // CC component (takes { defineProps, defineEmits })
     const TestCC: CC<{ text?: string }, {}> = ({ defineProps }) => {
       const props = defineProps({
@@ -97,12 +92,6 @@ describe("CC components in JSX", () => {
         props: { children: props().text },
       });
     };
-
-    // Test IC
-    const icElement = jsx(TestIC, { text: "IC test" });
-    const icVnode = genVNode(icElement);
-    expect(icVnode.tag).toBe("p");
-    expect(icVnode.children).toEqual(["IC test"]);
 
     // Test CC
     const ccElement = jsx(TestCC, { text: "CC test" });

@@ -65,50 +65,6 @@ class VirtualCustomElement {
 }
 
 /**
- * Check if a function is a CC component vs IC component
- * CC components expect { defineProps, defineEmits } parameter
- * IC components expect props directly
- */
-function isCCComponent(fn: Function): fn is CC<any, any> {
-  const funcStr = fn.toString();
-  
-  // First check: explicit defineProps or defineEmits usage
-  const hasDefineProps = funcStr.includes('defineProps');
-  const hasDefineEmits = funcStr.includes('defineEmits');
-  if (hasDefineProps || hasDefineEmits) {
-    return true;
-  }
-  
-  // Second check: destructured parameter pattern with defineProps/defineEmits
-  const destructuredParamMatch = /\(\s*\{\s*([^}]*)\s*\}\s*\)/.test(funcStr);
-  if (destructuredParamMatch && (hasDefineProps || hasDefineEmits)) {
-    return true;
-  }
-  
-  // Third check: IC pattern detection - if it has named parameter like (props), it's IC
-  const hasNamedParam = /\(\s*\w+\s*\)/.test(funcStr);
-  if (hasNamedParam && !hasDefineProps && !hasDefineEmits) {
-    return false; // This is an IC
-  }
-  
-  // Fourth check: Empty destructuring {} (even if empty) - this is typically CC
-  const hasEmptyDestructuring = /\(\s*\{\s*\}\s*\)/.test(funcStr);
-  if (hasEmptyDestructuring) {
-    return true; // This is a CC with empty destructuring
-  }
-  
-  // Fifth check: No parameters () and returns function
-  const hasNoParameters = /^\s*\(\s*\)\s*=>/.test(funcStr);
-  const returnsFunction = /return\s*\(\s*\)\s*=>/.test(funcStr);
-  
-  if (hasNoParameters && returnsFunction) {
-    return true; // This is likely a CC without defineProps/defineEmits
-  }
-  
-  return false; // Default to IC if uncertain
-}
-
-/**
  * Execute a CC component within a virtual custom element context
  */
 function executeCC(cc: CC<any, any>, props: Record<string, any>) {
@@ -231,43 +187,28 @@ function genVNode(node: ChatoraNode): VNode {
 
     // Handle function component with early return optimization
     if (typeof tag === "function") {
-      // Check if this is a CC component or IC component
-      const isCC = isCCComponent(tag);
-      
-      if (isCC) {
-        // Handle CC component with virtual context
-        try {
-          const ccResult = executeCC(tag as CC<any, any>, props as any);
-          
-          if (Array.isArray(ccResult)) {
-            // Return fragment for array results
-            return {
-              tag: "#fragment",
-              props: {},
-              children: normalizeChildren(ccResult),
-            };
-          } else if (ccResult && typeof ccResult === "object" && "tag" in ccResult && "props" in ccResult) {
-            return genVNode(ccResult);
-          } else if (ccResult) {
-            return genVNode(ccResult);
-          } else {
-            return { tag: "#empty", props: {}, children: EMPTY_CHILDREN };
-          }
-        } catch (error) {
-          console.error("Error executing CC component:", error);
+      // All function components are now treated as CC components
+      try {
+        const ccResult = executeCC(tag as CC<any, any>, props as any);
+        
+        if (Array.isArray(ccResult)) {
+          // Return fragment for array results
+          return {
+            tag: "#fragment",
+            props: {},
+            children: normalizeChildren(ccResult),
+          };
+        } else if (ccResult && typeof ccResult === "object" && "tag" in ccResult && "props" in ccResult) {
+          return genVNode(ccResult);
+        } else if (ccResult) {
+          return genVNode(ccResult);
+        } else {
           return { tag: "#empty", props: {}, children: EMPTY_CHILDREN };
         }
-      } else {
-        // Handle IC component (existing logic)
-        const result = tag(props as any);
-        if (typeof result === "function") {
-          const next = result();
-          if (next && typeof next === "object" && "tag" in next && "props" in next) {
-            return genVNode(next);
-          }
-        }
+      } catch (error) {
+        console.error("Error executing CC component:", error);
+        return { tag: "#empty", props: {}, children: EMPTY_CHILDREN };
       }
-      return { tag: "#empty", props: {}, children: EMPTY_CHILDREN };
     }
 
     // Handle string tag with optimized children processing

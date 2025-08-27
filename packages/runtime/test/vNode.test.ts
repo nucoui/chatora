@@ -3,8 +3,9 @@
  *
  * Tests for VNode generation and normalization functions
  */
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { genVNode } from "../src/methods/core/vNode";
+import type { CC } from "../types/GenSD";
 
 describe("genVNode", () => {
   it("should handle null values", () => {
@@ -59,8 +60,14 @@ describe("genVNode", () => {
     expect(result.children).toEqual(["hello", "world"]);
   });
 
-  it("should handle function components", () => {
-    const Component = (props: any) => () => ({ tag: "span", props: { text: props.text } });
+  it("should handle CC components", () => {
+    const Component: CC<{ text?: string }, {}> = ({ defineProps }) => {
+      const props = defineProps({
+        text: (v) => v || "default",
+      });
+      return () => ({ tag: "span", props: { text: props().text } });
+    };
+    
     const jsxElement = {
       tag: Component,
       props: { text: "component" },
@@ -70,8 +77,8 @@ describe("genVNode", () => {
     expect(result.props.text).toBe("component");
   });
 
-  it("should handle function components that return functions", () => {
-    const Component = () => {
+  it("should handle CC components that return functions", () => {
+    const Component: CC<{}, {}> = () => {
       return () => ({ tag: "div", props: { class: "component" } });
     };
     const jsxElement = { tag: Component, props: {} };
@@ -80,11 +87,18 @@ describe("genVNode", () => {
     expect(result.props.class).toBe("component");
   });
 
-  it("should handle function components with invalid return", () => {
-    const Component = () => "invalid";
+  it("should handle CC components with errors gracefully", () => {
+    // Mock console.error to avoid noise in tests
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    
+    const Component: CC<{}, {}> = () => {
+      throw new Error("Test error");
+    };
     const jsxElement = { tag: Component, props: {} };
     const result = genVNode(jsxElement);
     expect(result).toEqual({ tag: "#empty", props: {}, children: [] });
+    
+    consoleSpy.mockRestore();
   });
 
   it("should handle unknown tag types", () => {

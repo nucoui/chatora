@@ -1,5 +1,5 @@
 import type { ChatoraNode } from "@/jsx-runtime";
-import type { IC } from "@/main";
+import type { CC } from "@/main";
 import type { ChatoraComponent } from "@root/types/GenSD";
 import type { Root } from "hast";
 import { jsx } from "@/jsx-runtime";
@@ -26,9 +26,9 @@ export type CreateCCReturn<
   P extends Record<string, any> = Record<string, never>,
   E extends Record<`on-${string}`, any> = Record<never, never>,
 > = {
-  component: IC<P & toChatoraEmits<E> & { children: ChatoraNode }>;
+  component: CC<P & toChatoraEmits<E> & { children?: ChatoraNode }, {}>;
   define: () => void;
-  genDSD: (props: P & { children: ChatoraNode }) => Root;
+  genDSD: (props: P & { children?: ChatoraNode }) => Root;
   genSD: () => ReturnType<typeof genSD>;
 };
 
@@ -41,9 +41,11 @@ export const createCC = <
   options?: CreateCCParams<P, E>["options"],
 ): CreateCCReturn<P, E> => {
   return {
-    component: (props) => {
+    component: ({ defineProps }) => {
+      const props = defineProps({} as any);
+
       if (!customElements) {
-        const declarativeCustomElementHast = genDSD<any, any>(cc, props as any);
+        const declarativeCustomElementHast = genDSD<any, any>(cc, props() as any);
         const element = hastToJsx(declarativeCustomElementHast);
 
         return () => element;
@@ -57,7 +59,7 @@ export const createCC = <
         customElements.define(tagName, elementClass);
       }
 
-      return () => jsx(tagName, props);
+      return () => jsx(tagName, props() as any);
     },
     define: () => {
       if (!customElements) {
