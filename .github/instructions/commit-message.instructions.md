@@ -1,3 +1,6 @@
+---
+applyTo: '**'
+---
 1. When generating commit messages, be sure to output them in English.
 2. Be sure to add a prefix. However, use gitmoji instead of `feat:` or `refactor:` See gitmoji lists for how to use gitmoji.
 3. Leave the second line blank. The third and succeeding lines are not required.
