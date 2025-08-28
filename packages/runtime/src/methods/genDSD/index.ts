@@ -187,4 +187,14 @@ function vNodeToHast(node: any): ElementContent | ElementContent[] {
   return { type: "text", value: "" };
 }
 
-export { genDSD };
+/**
+ * Alias for genDSD to maintain compatibility with existing code that expects functionalDeclarativeCustomElement
+ * Creates Declarative Shadow DOM HTML elements using JSX/TSX for server-side rendering.
+ * 
+ * @param callback - Callback to register lifecycle hooks and rendering functions
+ * @param options - Options for ShadowRoot and Form association
+ * @returns hast object (HTML Abstract Syntax Tree)
+ */
+const functionalDeclarativeCustomElement = genDSD;
+
+export { genDSD, functionalDeclarativeCustomElement };
