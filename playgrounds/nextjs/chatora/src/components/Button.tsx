@@ -63,5 +63,5 @@ export const ButtonStyle = `
   }
 `
 
-// export const NButtonElement = functionalCustomElement(Button, { styles: [ButtonStyle] });
-// export const NButtonHast = functionalDeclarativeCustomElement(Button, { styles: [ButtonStyle] });
+// export const NButtonElement = createCC("n-button", Button);
+// export const NButtonHast = genDSD(Button);

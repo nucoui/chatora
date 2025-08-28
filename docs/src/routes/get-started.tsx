@@ -18,7 +18,7 @@ const TS_CONFIG_JSON = `{
 }
 `;
 
-const EXAMPLE_CUSTOM_ELEMENT = `import { functionalCustomElement, signal, type CC } from "chatora";
+const EXAMPLE_CUSTOM_ELEMENT = `import { createCC, signal, type CC } from "chatora";
 import { Host } from "chatora/jsx-runtime";
 import { toString } from "chatora/util";
 
@@ -56,7 +56,7 @@ const Comp: CC<Props, Emits> = ({ defineProps, defineEmits }) => {
     );
   }
 
-export const MiniElement = functionalCustomElement(Comp);`;
+export const MiniElement = createCC("mini-element", Comp);`;
 
 function RouteComponent() {
   return (

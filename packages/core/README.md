@@ -66,7 +66,7 @@ npm install chatora
 ### 3. Create a custom element
 ```tsx
 // MiniElement.tsx
-import { functionalCustomElement, signal, type CC } from "chatora";
+import { createCC, signal, type CC } from "chatora";
 import { Host } from "chatora/jsx-runtime";
 import { toString } from "chatora/util";
 
@@ -104,7 +104,7 @@ const Comp: CC<Props, Emits> = ({ defineProps, defineEmits }) => {
     );
   }
 
-export const MiniElement = functionalCustomElement(Comp);
+export const MiniElement = createCC("mini-element", Comp);
 ```
 
 ### 4. Use the custom element
@@ -114,7 +114,7 @@ export const MiniElement = functionalCustomElement(Comp);
 
 <script type="module">
   import { MiniElement } from "./MiniElement.js";
-  customElements.define("mini-element", MiniElement);
+  MiniElement.define();
 </script>
 ```
 

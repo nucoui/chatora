@@ -28,7 +28,7 @@ function normalizeStylesForSSR(styles: StyleInput): string[] {
 
 /**
  * Creates Declarative Shadow DOM HTML elements using JSX/TSX for server-side rendering.
- * Takes the same arguments as functionalCustomElement but returns a hast object instead of manipulating the DOM.
+ * Takes the same arguments as createCC but returns a hast object instead of manipulating the DOM.
  *
  * @param callback - Callback to register lifecycle hooks and rendering functions
  * @param options - Options for ShadowRoot and Form association
@@ -146,7 +146,7 @@ const genDSD = <
 
 /**
  * Converts ChatoraNode (JSX result) to hast element
- * Converts to match the VNode structure of functionalCustomElement
+ * Converts to match the VNode structure of createCC
  */
 function vNodeToHast(node: any): ElementContent | ElementContent[] {
   if (!node)

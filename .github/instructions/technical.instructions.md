@@ -140,7 +140,7 @@ Each export supports both ESM/CJS formats and includes TypeScript definition fil
 
 **Basic Usage Pattern**
 ```typescript
-import { functionalCustomElement, signal, type CC } from "chatora";
+import { createCC, signal, type CC } from "chatora";
 import { Host } from "chatora/jsx-runtime";
 import { toString } from "chatora/util";
 
@@ -172,7 +172,7 @@ const Comp: CC<Props, Emits> = ({ defineProps, defineEmits }) => {
   );
 };
 
-export const MiniElement = functionalCustomElement(Comp);
+export const MiniElement = createCC("mini-element", Comp);
 ```
 
 ##### Architectural Features

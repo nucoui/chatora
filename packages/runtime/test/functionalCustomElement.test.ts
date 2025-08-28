@@ -386,7 +386,7 @@ describe("genSD", () => {
       (window as any).emit = emit;
       return () => DummyJSX();
     };
-    // functionalCustomElementを使ってCustomElementを生成
+    // createCCを使ってCustomElementを生成
     const CustomElement = genSD(component);
     if (!customElements.get(tagName))
       customElements.define(tagName, CustomElement);
